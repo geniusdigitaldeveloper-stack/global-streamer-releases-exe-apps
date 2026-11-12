@@ -1,0 +1,4 @@
+{
+  "_nota": "Petakan kunci avatar kepada fail GLB berlesen di folder ini, cth. { \"wanita_tudung_a\": { \"url\": \"/assets/avatars/salwani.glb\", \"height\": 1.62 } }. Kunci tanpa entri menggunakan placeholder. Lihat docs/ASET-3D.md.",
+  "avatars": {}
+}
