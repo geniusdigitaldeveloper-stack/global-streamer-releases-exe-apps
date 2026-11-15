@@ -52,13 +52,14 @@ label.f{display:grid;gap:5px;font-weight:500;font-size:13px}
 .avatar{width:34px;height:34px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:600;flex:none}
 .toast{display:flex;gap:10px;align-items:flex-start;background:var(--accent-soft);border:1px solid var(--line);border-radius:var(--radius);padding:12px}
 /* shell */
-.shell{display:grid;grid-template-columns:200px minmax(0,1fr);gap:24px;max-width:1280px;margin:0 auto;min-height:100%;padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px))}
-.rail{position:sticky;top:0;align-self:start;padding-block:20px;display:grid;gap:18px;height:100vh}
+.page{max-width:1280px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px));min-height:100%}
+.shell{display:grid;grid-template-columns:240px minmax(0,1fr);gap:22px;align-items:start}
+.rail{position:sticky;top:16px;align-self:start;display:grid;gap:14px}
 .nav{display:grid;gap:4px;align-content:start}
 .nav button{display:flex;align-items:center;gap:10px;border:0;background:none;padding:10px 12px;border-radius:var(--radius);color:var(--muted);font-weight:500;text-align:left}
 .nav button[aria-current=page]{background:var(--accent-soft);color:var(--accent)}
 .nav svg{width:18px;height:18px;flex:none}
-.main{padding-block:20px 40px;display:grid;gap:18px;align-content:start;min-width:0}
+.main{display:grid;gap:18px;align-content:start;min-width:0}
 .head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
 .grid5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
 .clip{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;text-align:left;padding:0;display:block;width:100%}
@@ -189,6 +190,40 @@ html[data-app-theme="dark"] .auth-hero{background:linear-gradient(145deg,#141A2B
  .auth-form{align-items:flex-start;padding-top:24px}
 }
 @media (prefers-reduced-motion:reduce){.mc{animation:none}}
+
+/* ---- layout v2: banner, page title, boxed rail ---- */
+.banner{position:relative;overflow:hidden;border-radius:20px;padding:26px 20px;text-align:center;color:#fff;display:grid;justify-items:center;gap:6px;background:linear-gradient(120deg,color-mix(in srgb,var(--accent) 80%,#0B1030),var(--accent) 55%,var(--thumb2));box-shadow:0 14px 34px color-mix(in srgb,var(--accent) 30%,transparent)}
+html[data-app-theme="dark"] .banner{background:linear-gradient(120deg,#141A2B,#26324E 55%,#31507F);color:#E8E9EB;box-shadow:0 14px 34px rgba(0,0,0,.35)}
+.banner:before{content:"";position:absolute;width:260px;height:260px;border-radius:50%;right:-70px;top:-110px;background:rgba(255,255,255,.13)}
+.banner:after{content:"";position:absolute;width:200px;height:200px;border-radius:50%;left:-60px;bottom:-110px;background:rgba(255,255,255,.09)}
+.banner>*{position:relative;z-index:1}
+.banner .brand{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:12px;white-space:nowrap;color:#fff;font-size:26px;letter-spacing:-.01em}
+html[data-app-theme="dark"] .banner .brand{color:#fff}
+.banner .logo{width:40px;height:40px;border-radius:12px;font-size:15px;background:rgba(255,255,255,.22);color:#fff;border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(4px)}
+.btag{font-size:13px;opacity:.88}
+.pagehead{display:flex;justify-content:center;margin:20px 0 18px}
+.pagehead span{display:inline-flex;align-items:center;gap:10px;padding:9px 28px;border:2px solid color-mix(in srgb,var(--c) 45%,var(--line));border-radius:99px;background:var(--surface);color:var(--c);font:600 19px/1.2 var(--head);box-shadow:0 6px 18px color-mix(in srgb,var(--c) 14%,transparent)}
+.pagehead svg{width:22px;height:22px}
+.main>.head>h1{display:none}
+.main>.head:has(>h1:only-child){display:none}
+.rail.card{padding:14px;border:1px solid var(--line)}
+.rlab{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:2px 8px 6px}
+.nav{gap:6px}
+.nav button{width:100%;padding:8px 10px;border:1px solid transparent}
+.nav button:hover{background:color-mix(in srgb,var(--c) 8%,transparent)}
+.nav button[aria-current=page]{background:linear-gradient(135deg,color-mix(in srgb,var(--c) 15%,var(--surface)),color-mix(in srgb,var(--c) 6%,var(--surface)));color:var(--c);border-color:color-mix(in srgb,var(--c) 30%,var(--line));box-shadow:none}
+.ni{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 14%,transparent);color:var(--c);flex:none}
+.nav button[aria-current=page] .ni{background:var(--c);color:#fff}
+html[data-app-theme="dark"] .nav button[aria-current=page] .ni{color:#0E1626}
+.racct{display:flex;align-items:center;gap:10px;border-top:1px solid var(--line);padding:12px 6px 2px;min-width:0}
+.av{width:32px;height:32px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:600;flex:none}
+.tab-bar button[aria-current=page]{color:var(--c)}
+@media (max-width:760px){
+ .page{padding-top:12px}
+ .banner{padding:18px 14px;border-radius:16px}
+ .banner .brand{font-size:21px}.banner .logo{width:34px;height:34px;font-size:13px}
+ .pagehead{margin:16px 0 14px}.pagehead span{font-size:17px;padding:8px 22px}
+}
 </style>
 </head>
 <body>
@@ -201,7 +236,7 @@ app:"Streamer Editor",login:"Log in",register:"Create account",email:"Email",pw:
 noacct:"No account yet?",haveacct:"Already have an account?",pick:"Choose an account",pickSub:"Select the email to register with.",
 mismatch:"Passwords do not match.",short:"Password must be at least 8 characters.",bademail:"Enter a valid email address.",wrong:"Wrong email or password.",exists:"This email is already registered. Log in instead.",
 notif:"Notification sent to",notifSub:"Your account was registered with this email.",newpw:"Create a new password for your account",cont:"Save and continue",welcomeBack:"Welcome back",other:"Use a different email",
-nClips:"Clips",authHead:"Turn every live stream into viral clips.",authSub:"Paste a replay link. AI finds the hooks, edits with gaming effects and posts for you.",v1:"Automatic hook finding",v2:"Gaming-style edit with effects",v3:"Post to your socials",heroT:"Turn your stream into content",heroS:"Paste your saved live link and let AI do the editing.",accDisabled:"This account is disabled. Contact the app owner.",jobQueued:"Queued",jobCaps:"Reading the video captions",jobHooks:"Claude is finding the hooks",jobDone:"Done",jobNoCaps:"This video has no captions to read yet. Try again after YouTube finishes processing it.",jobNone:"No strong hook found in this video.",jobErr:"Something went wrong. Try again.",fxPresets:"Gaming style",pClean:"Clean",pEsports:"Esports",pHype:"Hype",pCinema:"Cinematic",gShake:"Screen shake on hits",gPunch:"Zoom punch",gGlitch:"RGB glitch",gFlash:"Impact flash",gScan:"Scanlines",gGrain:"Film grain",gBox:"Letterbox bars",gCall:"Highlight callout",gInt:"Effect strength",fxHint:"Press play on the preview to see the effects hit. Claude places them on the real hook moments.",modeShort:"Content clips",modeLong:"Full YouTube video",hintShort:"Suggested length for content clips is about 1 minute. The number of clips and their length depend on how many hooks your video has.",hintLong:"A full YouTube video can be any length (8, 12, 15 minutes or more). Claude edits all of it for you with Hyperframes in a gaming style: subtitles, effects, sound effects and lighting. No manual editing.",tplHead:"Design sample",clipN:"Sample clip",nStudio:"Studio",nPost:"Post",nSettings:"Settings",
+nClips:"Clips",bannerTag:"AI editing for gaming streams",menu:"Menu",authHead:"Turn every live stream into viral clips.",authSub:"Paste a replay link. AI finds the hooks, edits with gaming effects and posts for you.",v1:"Automatic hook finding",v2:"Gaming-style edit with effects",v3:"Post to your socials",heroT:"Turn your stream into content",heroS:"Paste your saved live link and let AI do the editing.",accDisabled:"This account is disabled. Contact the app owner.",jobQueued:"Queued",jobCaps:"Reading the video captions",jobHooks:"Claude is finding the hooks",jobDone:"Done",jobNoCaps:"This video has no captions to read yet. Try again after YouTube finishes processing it.",jobNone:"No strong hook found in this video.",jobErr:"Something went wrong. Try again.",fxPresets:"Gaming style",pClean:"Clean",pEsports:"Esports",pHype:"Hype",pCinema:"Cinematic",gShake:"Screen shake on hits",gPunch:"Zoom punch",gGlitch:"RGB glitch",gFlash:"Impact flash",gScan:"Scanlines",gGrain:"Film grain",gBox:"Letterbox bars",gCall:"Highlight callout",gInt:"Effect strength",fxHint:"Press play on the preview to see the effects hit. Claude places them on the real hook moments.",modeShort:"Content clips",modeLong:"Full YouTube video",hintShort:"Suggested length for content clips is about 1 minute. The number of clips and their length depend on how many hooks your video has.",hintLong:"A full YouTube video can be any length (8, 12, 15 minutes or more). Claude edits all of it for you with Hyperframes in a gaming style: subtitles, effects, sound effects and lighting. No manual editing.",tplHead:"Design sample",clipN:"Sample clip",nStudio:"Studio",nPost:"Post",nSettings:"Settings",
 src:"YouTube live replay or game recording",srcHint:"Paste the saved live link. The app finds hook moments and cuts them for you.",analyze:"Find hooks",analyzing:"Analyzing",
 demo:"Design sample only. The real number of clips and their lengths come from your video once the cloud engine is connected.",
 found:"clips found",hook:"Hook",sel:"Selected",showMore:"Show more",edit:"Edit in Studio",none:"No clips yet. Paste a link above and tap Find hooks.",
@@ -225,7 +260,7 @@ app:"Streamer Editor",login:"Log masuk",register:"Daftar akaun",email:"E-mel",pw
 noacct:"Belum ada akaun?",haveacct:"Sudah ada akaun?",pick:"Pilih akaun",pickSub:"Pilih e-mel untuk mendaftar.",
 mismatch:"Kata laluan tidak sama.",short:"Kata laluan sekurang-kurangnya 8 aksara.",bademail:"Masukkan e-mel yang sah.",wrong:"E-mel atau kata laluan salah.",exists:"E-mel ini sudah berdaftar. Sila log masuk.",
 notif:"Notifikasi dihantar ke",notifSub:"Akaun anda telah didaftarkan dengan e-mel ini.",newpw:"Cipta kata laluan baharu untuk akaun anda",cont:"Simpan dan teruskan",welcomeBack:"Selamat kembali",other:"Guna e-mel lain",
-nClips:"Klip",authHead:"Jadikan setiap live stream klip tular.",authSub:"Tampal pautan ulang tayang. AI cari hook, edit dengan kesan gaming dan siarkan untuk anda.",v1:"Cari hook automatik",v2:"Edit gaya gaming dengan kesan",v3:"Siar ke media sosial",heroT:"Jadikan stream anda kandungan",heroS:"Tampal pautan live yang disimpan dan biar AI yang edit.",accDisabled:"Akaun ini dilumpuhkan. Hubungi pemilik aplikasi.",jobQueued:"Dalam giliran",jobCaps:"Membaca sari kata video",jobHooks:"Claude sedang cari hook",jobDone:"Siap",jobNoCaps:"Video ini belum ada sari kata untuk dibaca. Cuba lagi selepas YouTube siap memprosesnya.",jobNone:"Tiada hook yang kuat dijumpai dalam video ini.",jobErr:"Ada masalah. Cuba lagi.",fxPresets:"Gaya gaming",pClean:"Bersih",pEsports:"Esports",pHype:"Hype",pCinema:"Sinematik",gShake:"Skrin bergegar pada hentakan",gPunch:"Zum hentak",gGlitch:"Glitch RGB",gFlash:"Kilat hentakan",gScan:"Garis imbas",gGrain:"Bijian filem",gBox:"Bar letterbox",gCall:"Label sorotan",gInt:"Kekuatan kesan",fxHint:"Tekan main pada pratonton untuk lihat kesan. Claude letak kesan pada momen hook sebenar.",modeShort:"Klip kandungan",modeLong:"Video penuh YouTube",hintShort:"Panjang cadangan untuk klip kandungan lebih kurang 1 minit. Bilangan klip dan panjangnya bergantung pada berapa banyak hook dalam video anda.",hintLong:"Video penuh YouTube boleh panjang mana pun (8, 12, 15 minit atau lebih). Claude edit semuanya untuk anda dengan Hyperframes gaya gaming: sari kata, kesan, kesan bunyi dan pencahayaan. Tak perlu edit manual.",tplHead:"Contoh reka bentuk",clipN:"Klip contoh",nStudio:"Studio",nPost:"Siar",nSettings:"Tetapan",
+nClips:"Klip",bannerTag:"Edit AI untuk stream gaming",menu:"Menu",authHead:"Jadikan setiap live stream klip tular.",authSub:"Tampal pautan ulang tayang. AI cari hook, edit dengan kesan gaming dan siarkan untuk anda.",v1:"Cari hook automatik",v2:"Edit gaya gaming dengan kesan",v3:"Siar ke media sosial",heroT:"Jadikan stream anda kandungan",heroS:"Tampal pautan live yang disimpan dan biar AI yang edit.",accDisabled:"Akaun ini dilumpuhkan. Hubungi pemilik aplikasi.",jobQueued:"Dalam giliran",jobCaps:"Membaca sari kata video",jobHooks:"Claude sedang cari hook",jobDone:"Siap",jobNoCaps:"Video ini belum ada sari kata untuk dibaca. Cuba lagi selepas YouTube siap memprosesnya.",jobNone:"Tiada hook yang kuat dijumpai dalam video ini.",jobErr:"Ada masalah. Cuba lagi.",fxPresets:"Gaya gaming",pClean:"Bersih",pEsports:"Esports",pHype:"Hype",pCinema:"Sinematik",gShake:"Skrin bergegar pada hentakan",gPunch:"Zum hentak",gGlitch:"Glitch RGB",gFlash:"Kilat hentakan",gScan:"Garis imbas",gGrain:"Bijian filem",gBox:"Bar letterbox",gCall:"Label sorotan",gInt:"Kekuatan kesan",fxHint:"Tekan main pada pratonton untuk lihat kesan. Claude letak kesan pada momen hook sebenar.",modeShort:"Klip kandungan",modeLong:"Video penuh YouTube",hintShort:"Panjang cadangan untuk klip kandungan lebih kurang 1 minit. Bilangan klip dan panjangnya bergantung pada berapa banyak hook dalam video anda.",hintLong:"Video penuh YouTube boleh panjang mana pun (8, 12, 15 minit atau lebih). Claude edit semuanya untuk anda dengan Hyperframes gaya gaming: sari kata, kesan, kesan bunyi dan pencahayaan. Tak perlu edit manual.",tplHead:"Contoh reka bentuk",clipN:"Klip contoh",nStudio:"Studio",nPost:"Siar",nSettings:"Tetapan",
 src:"Ulang tayang live YouTube atau rakaman game",srcHint:"Tampal pautan live yang disimpan. Aplikasi cari momen hook dan potong untuk anda.",analyze:"Cari hook",analyzing:"Sedang analisis",
 demo:"Contoh reka bentuk sahaja. Bilangan klip dan panjang sebenar datang daripada video anda selepas enjin awan disambung.",
 found:"klip dijumpai",hook:"Hook",sel:"Dipilih",showMore:"Papar lagi",edit:"Edit dalam Studio",none:"Belum ada klip. Tampal pautan di atas dan tekan Cari hook.",
@@ -329,9 +364,13 @@ function enter(){S.view="clips";render()}
 /* ---------- app ---------- */
 function mk(n){var o=[];for(var i=0;i<n;i++)o.push({id:i,title:t("clipN")+" "+(i+1),score:null,dur:null,at:null});return o}
 function fmt(s){var m=Math.floor(s/60),x=s%60;return m+":"+(x<10?"0":"")+x}
-function nav(){var items=[["clips","nClips"],["studio","nStudio"],["post","nPost"],["settings","nSettings"]];
- return items.map(function(i){return '<button data-nav="'+i[0]+'"'+(S.view===i[0]?' aria-current="page"':'')+'>'+ICON[i[0]]+'<span>'+t(i[1])+'</span></button>'}).join("")}
-function shell(body){return '<div class="shell"><aside class="rail"><div class="brand"><span class="logo">SE</span>'+t("app")+'</div><nav class="nav">'+nav()+'</nav></aside><main class="main">'+body+'</main></div><nav class="tab-bar">'+nav()+'</nav>'}
+var SEC={clips:["nClips","var(--accent)"],studio:["nStudio","color-mix(in srgb,var(--accent) 50%,#7C3AED)"],post:["nPost","color-mix(in srgb,var(--accent) 45%,#0EA5A5)"],settings:["nSettings","color-mix(in srgb,var(--accent) 40%,#64748B)"]};
+var ORDER=["clips","studio","post","settings"];
+function nav(rail){return ORDER.map(function(k){var s=SEC[k];return '<button data-nav="'+k+'" style="--c:'+s[1]+'"'+(S.view===k?' aria-current="page"':'')+'>'+(rail?'<span class="ni">'+ICON[k]+'</span>':ICON[k])+'<span>'+t(s[0])+'</span></button>'}).join("")}
+function shell(body){var s=SEC[S.view];
+ return '<div class="page" style="--c:'+s[1]+'"><header class="banner"><div class="brand"><span class="logo">SE</span><span class="bname">'+t("app")+'</span></div><div class="btag">'+t("bannerTag")+'</div></header>'+
+ '<div class="pagehead"><span>'+ICON[S.view]+t(s[0])+'</span></div>'+
+ '<div class="shell"><aside class="rail card"><div class="rlab">'+t("menu")+'</div><nav class="nav">'+nav(true)+'</nav><div class="racct"><span class="av">'+esc((S.session||"?")[0].toUpperCase())+'</span><span class="small muted" style="min-width:0;overflow:hidden;text-overflow:ellipsis">'+esc(S.session)+'</span></div></aside><main class="main">'+body+'</main></div></div><nav class="tab-bar">'+nav(false)+'</nav>'}
 
 function clipsView(){
  var h='<div class="head"><h1>'+t("nClips")+'</h1></div><div class="card stack herocard"><div><h2 class="ht">'+t("heroT")+'</h2><div class="hs">'+t("heroS")+'</div></div><label class="f">'+t("src")+'<div class="row"><input class="grow" id="url" type="url" placeholder="https://www.youtube.com/live/..." value="https://www.youtube.com/live/demo-stream" style="flex:1 1 220px"><button class="btn primary" id="an">'+t("analyze")+'</button></div></label><div class="small muted">'+t("srcHint")+'</div><div class="bar" id="pbar" hidden><div></div></div><div class="small" id="jstat">'+esc(S.jobMsg||"")+'</div><div class="small muted">'+t("demo")+'</div></div><div class="card stack"><div class="seg"><button data-mode="short" aria-pressed="'+(S.mode==="short")+'">'+t("modeShort")+'</button><button data-mode="long" aria-pressed="'+(S.mode==="long")+'">'+t("modeLong")+'</button></div><div class="small muted">'+t(S.mode==="long"?"hintLong":"hintShort")+'</div></div>';
