@@ -7,7 +7,7 @@ Plain static site (no build step). Open `index.html` through any static server.
 ## Accounts and admin
 - Public app: `index.html`. Anyone can register. Login is handled by Firebase Auth (passwords are never stored in Firestore); Firestore `users/{uid}` holds email, plan (`free`/`pro`), status (`active`/`disabled`), settings.
 - Admin app: `admin/index.html` (same Firebase project). Only accounts listed in Firestore `admins/{uid}` get in. Clients cannot write `admins`.
-- Owner admin: `firestore.rules` has the placeholder `OWNER_EMAIL`. Before deploying, replace it with the owner's email (do not commit it). The first time that verified account logs in at `/admin/`, it registers itself in `admins/{uid}`. Nobody else can. (`scripts/make-admin.mjs` is an alternative.)
+- Owner admins: `firestore.rules` has the placeholders `OWNER_EMAIL` and `OWNER_EMAIL_2`. Before deploying, replace them with the owners' emails (do not commit it). The first time that verified account logs in at `/admin/`, it registers itself in `admins/{uid}`. Nobody else can. (`scripts/make-admin.mjs` is an alternative.)
 - Deploy: hosting site `streamer-editor`, i.e. https://streamer-editor.web.app and https://streamer-editor.web.app/admin/
 - Admin can list users, switch plan, and disable or enable accounts. A disabled user is signed out and cannot start jobs.
 

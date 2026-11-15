@@ -7,10 +7,10 @@ service cloud.firestore {
 
     match /admins/{id} {
       allow read: if signedIn() && (request.auth.uid == id || isAdmin());
-      // The owner (verified email) can register themself as admin on first admin login. Nobody else can.
+      // The owners (verified emails) can register themselves as admin on first admin login. Nobody else can.
       allow create: if signedIn() && request.auth.uid == id
         && request.auth.token.email_verified == true
-        && request.auth.token.email.lower() == 'OWNER_EMAIL'
+        && request.auth.token.email.lower() in ['OWNER_EMAIL', 'OWNER_EMAIL_2']
         && request.resource.data.keys().hasOnly(['email', 'since']);
       allow update, delete: if false;
     }
