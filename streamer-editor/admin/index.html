@@ -19,7 +19,7 @@
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--body);overflow-wrap:anywhere}
 h1,h2,h3{font-family:var(--head);margin:0;text-wrap:balance}
-button,input,select{font:inherit;color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 [hidden]{display:none!important}
@@ -118,7 +118,7 @@ svg{display:block}
   .app{grid-template-columns:minmax(0,1fr)}.side{display:none}
   .main{padding:18px max(16px,env(safe-area-inset-right,0px)) 96px max(16px,env(safe-area-inset-left,0px))}
   .top h1{font-size:21px}
-  .tabbar{display:grid;grid-template-columns:repeat(3,1fr);position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));z-index:20}
+  .tabbar{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));z-index:20}
   .tabbar button{border:0;background:none;display:grid;justify-items:center;gap:2px;font-size:11px;color:var(--muted);padding:6px 2px}
   .tabbar button[aria-current=page]{color:var(--accent)}
   .tabbar svg{width:22px;height:22px}
@@ -154,6 +154,30 @@ body{background:radial-gradient(900px 500px at 90% -10%,rgba(37,99,235,.13),tran
 .eye:hover{color:var(--accent);background:var(--accent-soft)}.eye svg{width:20px;height:20px}
 .fbox{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:28px;box-shadow:0 18px 48px rgba(15,27,51,.12)}
 @media (prefers-reduced-motion:reduce){.mockst div{animation:none}}
+
+.savebar{position:sticky;top:8px;z-index:6;display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap;padding:14px 18px}
+.row.nw{display:flex;gap:8px;flex-wrap:nowrap;align-items:center}
+.grow{flex:1;min-width:0}
+.ecard{display:grid;gap:12px}
+.ecard h3{font-size:15px}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+textarea.input{resize:vertical;min-height:80px}
+.colr{padding:4px;height:44px}
+.btn.sm{white-space:nowrap;padding:5px 11px;min-height:34px;font-size:13px}
+.btn.danger{color:var(--bad);border-color:#F3C6C6}.btn.danger:hover{background:var(--bad-soft);color:var(--bad);border-color:var(--bad)}
+.chkrow{display:flex;gap:10px;align-items:center;font-weight:500}.chkrow input{width:18px;height:18px;accent-color:var(--accent)}
+.phead{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.phead .ico{width:40px;height:40px}
+.blk{border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:10px;background:#FAFBFE}
+.bh{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.addrow{display:flex;gap:8px;flex-wrap:wrap}
+.bprev{border-radius:16px;padding:22px;text-align:center;color:#fff;background:linear-gradient(120deg,#1E40AF,#2563EB 55%,#38BDF8);display:grid;gap:4px;justify-items:center}
+.bprev .nm{display:flex;gap:10px;align-items:center;font:700 20px var(--head)}
+.bprev .lg{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.22);display:grid;place-items:center;font-size:13px}
+.trow{display:grid;grid-template-columns:150px minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
+.trow code{font-size:12px;color:var(--muted)}
+.trows{max-height:560px;overflow:auto}
+@media (max-width:760px){.g2{grid-template-columns:minmax(0,1fr)}.trow{grid-template-columns:minmax(0,1fr)}.savebar{top:4px}}
 </style>
 </head>
 <body>
@@ -201,18 +225,25 @@ body{background:radial-gradient(900px 500px at 90% -10%,rgba(37,99,235,.13),tran
       <div class="chips" id="chips"></div></div>
       <div class="card list" id="ulist"></div>
     </section>
+      <section id="v-site" hidden style="display:none;gap:14px">
+      <div class="card savebar"><div><b>Edit paparan awam</b><div class="muted small" id="siteState">Tiada perubahan.</div></div>
+        <div class="row nw"><a class="btn" href="/" target="_blank" rel="noopener">Pratonton</a><button class="btn" id="siteReset">Set semula</button><button class="btn primary" id="siteSave">Simpan</button></div></div>
+      <div class="chips" id="siteTabs"></div>
+      <div id="siteBody" style="display:grid;gap:14px"></div>
+    </section>
   </main>
 </div>
 <nav class="tabbar" id="tabbar" hidden></nav>
 <div class="toast" id="toast" hidden></div>
 
 <script src="../firebase-config.js"></script>
+<script src="../shared.js"></script>
 <script type="module">
-const cfg = window.FIREBASE_CONFIG, B = "https://www.gstatic.com/firebasejs/10.12.2/";
+const fbCfg = window.FIREBASE_CONFIG, B = "https://www.gstatic.com/firebasejs/10.12.2/";
 const { initializeApp } = await import(B + "firebase-app.js");
 const A = await import(B + "firebase-auth.js");
 const F = await import(B + "firebase-firestore.js");
-const app = initializeApp(cfg), auth = A.getAuth(app), db = F.getFirestore(app);
+const app = initializeApp(fbCfg), auth = A.getAuth(app), db = F.getFirestore(app);
 const $ = (i) => document.getElementById(i);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
@@ -224,6 +255,7 @@ const EYEOFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strok
 const I = {
   home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>',
   users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.4 3.4-5.5 6.5-5.5s5.9 2.1 6.5 5.5"/><path d="M16 4.7a3.5 3.5 0 010 6.6M18 14.8c1.9.7 3.2 2.5 3.6 5.2"/></svg>',
+  site: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 14h8"/></svg>',
   out: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H5a2 2 0 00-2 2v12a2 2 0 002 2h4M16 8l4 4-4 4M20 12H9"/></svg>',
   check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/></svg>',
   ban: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>',
@@ -259,11 +291,12 @@ A.onAuthStateChanged(auth, async (u) => {
   $("date").textContent = new Date().toLocaleDateString("ms-MY", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   unsub = F.onSnapshot(F.collection(db, "users"), (snap) => { users = snap.docs.map((d) => ({ id: d.id, ...d.data() })); draw(); }, () => toast("Tidak dapat baca senarai pengguna."));
   F.getDocs(F.collection(db, "admins")).then((s) => { admins = new Set(s.docs.map((d) => d.id)); draw(); }).catch(() => {});
-  setView(location.hash === "#users" ? "users" : "overview");
+  setView(VIEWS[location.hash.slice(1)] ? location.hash.slice(1) : "overview");
+  F.getDoc(F.doc(db, "config", "site")).then((d) => { cfg = normalize(d.exists() ? d.data() : null); renderSite(); }).catch(() => { cfg = normalize(null); renderSite(); });
 });
 
 /* navigation */
-const NAV = [["overview", "Ringkasan", I.home], ["users", "Pengguna", I.users]];
+const NAV = [["overview", "Ringkasan", I.home], ["users", "Pengguna", I.users], ["site", "Paparan awam", I.site]];
 function nav() {
   const mk = (x) => `<button data-v="${x[0]}"${view === x[0] ? ' aria-current="page"' : ""}>${x[2]}<span>${x[1]}</span></button>`;
   $("nav").innerHTML = NAV.map(mk).join("");
@@ -271,11 +304,11 @@ function nav() {
   document.querySelectorAll("[data-v]").forEach((b) => (b.onclick = () => setView(b.dataset.v)));
   document.querySelectorAll("[data-out2]").forEach((b) => (b.onclick = () => A.signOut(auth)));
 }
+const VIEWS = { overview: "Ringkasan", users: "Pengguna", site: "Paparan awam" };
 function setView(v) {
-  view = v; history.replaceState(null, "", v === "users" ? "#users" : "#overview");
-  $("v-overview").hidden = v !== "overview"; $("v-users").hidden = v !== "users";
-  $("v-overview").style.display = v === "overview" ? "grid" : "none"; $("v-users").style.display = v === "users" ? "grid" : "none";
-  $("title").textContent = v === "users" ? "Pengguna" : "Ringkasan";
+  view = v; history.replaceState(null, "", "#" + v);
+  for (const k in VIEWS) { const el = $("v-" + k); el.hidden = k !== v; el.style.display = k === v ? "grid" : "none"; }
+  $("title").textContent = VIEWS[v];
   nav(); window.scrollTo(0, 0);
 }
 
@@ -333,6 +366,152 @@ function list() {
 }
 $("q").oninput = list;
 function upd(id, d, msg) { F.updateDoc(F.doc(db, "users", id), d).then(() => toast(msg)).catch(() => toast("Gagal kemas kini.")); }
+
+/* ---------- site editor (edits Firestore config/site, read by the public app) ---------- */
+const SH = window.SE_SHARED;
+const BUILT = ["clips", "studio", "post", "settings"];
+const BNAME = { clips: "Klip / Clips", studio: "Studio", post: "Siar / Post", settings: "Tetapan / Settings" };
+const BTYPES = [["heading", "Tajuk"], ["text", "Teks"], ["image", "Gambar"], ["button", "Butang"], ["stat", "Kad statistik"], ["callout", "Notis"]];
+let cfg = null, tab = "banner", openPage = -1, dirty = false, resetArm = 0;
+const clone = (o) => JSON.parse(JSON.stringify(o));
+function defCfg() { return { brand: { name: "Streamer Editor", logo: "SE" }, banner: { tagline: { en: "", ms: "" }, c1: "", c2: "", image: "" }, texts: { en: {}, ms: {} }, pages: BUILT.map((id) => ({ id, title: { en: "", ms: "" }, icon: "", color: "", hidden: false, blocks: [] })), mcps: clone(SH.MCPS) }; }
+function normalize(c) {
+  const d = defCfg(); c = c ? clone(c) : d;
+  c.brand = Object.assign({}, d.brand, c.brand);
+  c.banner = Object.assign({}, d.banner, c.banner); c.banner.tagline = Object.assign({ en: "", ms: "" }, c.banner.tagline);
+  c.texts = c.texts || {}; c.texts.en = c.texts.en || {}; c.texts.ms = c.texts.ms || {};
+  if (!Array.isArray(c.pages) || !c.pages.length) c.pages = d.pages;
+  BUILT.forEach((id) => { if (!c.pages.some((p) => p.id === id)) c.pages.push(d.pages.find((p) => p.id === id)); });
+  c.pages.forEach((p) => { p.title = Object.assign({ en: "", ms: "" }, p.title); p.blocks = p.blocks || []; });
+  if (!Array.isArray(c.mcps)) c.mcps = d.mcps;
+  c.mcps.forEach((m) => { m.desc = Object.assign({ en: "", ms: "" }, m.desc); });
+  return c;
+}
+const gp = (o, p) => p.split(".").reduce((a, k) => (a == null ? a : a[k]), o);
+const sp = (o, p, v) => { const ks = p.split("."); let a = o; for (let i = 0; i < ks.length - 1; i++) { if (a[ks[i]] == null) a[ks[i]] = {}; a = a[ks[i]]; } a[ks[ks.length - 1]] = v; };
+const val = (p) => esc(gp(cfg, p) ?? "");
+const inp = (label, p, ph = "", type = "text") => `<label class="field">${label}<input class="input" type="${type}" data-p="${p}" value="${val(p)}" placeholder="${esc(ph)}"></label>`;
+const area = (label, p, ph = "") => `<label class="field">${label}<textarea class="input" rows="3" data-p="${p}" placeholder="${esc(ph)}">${val(p)}</textarea></label>`;
+const chk = (label, p) => `<label class="chkrow"><input type="checkbox" data-p="${p}"${gp(cfg, p) ? " checked" : ""}>${label}</label>`;
+const sel = (label, p, opts) => `<label class="field">${label}<select class="input" data-p="${p}">${opts.map(([v, l]) => `<option value="${v}"${(gp(cfg, p) ?? "") === v ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></label>`;
+const colr = (label, p) => `<label class="field">${label}<input class="input colr" type="color" data-p="${p}" value="${esc(gp(cfg, p) || "#2563EB")}"></label>`;
+const state = (m) => { $("siteState").textContent = m; };
+function mark() { dirty = true; state("Ada perubahan yang belum disimpan."); }
+
+function renderSite() {
+  if (!cfg) return;
+  const T = [["banner", "Banner dan jenama"], ["pages", "Halaman dan kandungan"], ["texts", "Teks"], ["mcp", "MCP"]];
+  $("siteTabs").innerHTML = T.map((x) => `<button class="chip" data-tab="${x[0]}" aria-pressed="${tab === x[0]}">${x[1]}</button>`).join("");
+  $("siteBody").innerHTML = tab === "banner" ? bannerTab() : tab === "pages" ? pagesTab() : tab === "texts" ? textsTab() : mcpTab();
+  if (tab === "banner") updPrev(); if (tab === "texts") textRows();
+}
+function bannerTab() {
+  return `<div class="card ecard"><h3>Jenama</h3><div class="g2">${inp("Nama aplikasi", "brand.name")}${inp("Teks logo (1 hingga 3 huruf)", "brand.logo")}</div></div>
+  <div class="card ecard"><h3>Banner</h3><div class="g2">${inp("Tagline (English)", "banner.tagline.en")}${inp("Tagline (Bahasa Melayu)", "banner.tagline.ms")}</div>
+  <div class="g2">${colr("Warna 1", "banner.c1")}${colr("Warna 2", "banner.c2")}</div>${inp("URL imej latar (https, pilihan)", "banner.image", "https://...")}
+  <div class="row" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn sm" data-act="clearBanner">Guna warna tema</button><span class="muted small">Jika kosong, banner ikut warna tema yang pengguna pilih. Banner dan skrin log masuk guna tetapan ini.</span></div>
+  <div class="bprev" id="bprev"></div></div>`;
+}
+function updPrev() {
+  const b = cfg.banner, hex = /^#[0-9a-fA-F]{6}$/; let g = "";
+  if (hex.test(b.c1) && hex.test(b.c2)) g = `linear-gradient(120deg,${b.c1},${b.c2})`;
+  if (/^https:\/\/[^\s"'()<>]+$/.test(b.image || "")) g = `linear-gradient(120deg,rgba(0,0,0,.45),rgba(0,0,0,.2)),url("${b.image}") center/cover`;
+  const p = $("bprev"); if (!p) return;
+  p.style.background = g || ""; p.innerHTML = `<div class="nm"><span class="lg">${esc(cfg.brand.logo || "SE")}</span>${esc(cfg.brand.name || "Streamer Editor")}</div><div style="opacity:.9;font-size:13px">${esc(b.tagline.en || b.tagline.ms || "Tagline")}</div>`;
+}
+function pagesTab() {
+  const icons = [["", "(lalai)"], ...Object.keys(SH.ICONS).map((k) => [k, k])];
+  const cards = cfg.pages.map((p, i) => {
+    const bi = BUILT.includes(p.id), ic = SH.ICONS[p.icon] || SH.ICONS[p.id] || SH.ICONS.star, o = openPage === i;
+    let body = "";
+    if (o) {
+      body = `<div class="g2">${inp("Tajuk (English)", `pages.${i}.title.en`, bi ? BNAME[p.id] : "")}${inp("Tajuk (Bahasa Melayu)", `pages.${i}.title.ms`, bi ? BNAME[p.id] : "")}</div>
+      <div class="g2">${sel("Ikon", `pages.${i}.icon`, icons)}<div class="field">Warna<div style="display:flex;gap:8px"><input class="input colr" type="color" data-p="pages.${i}.color" value="${esc(p.color || "#2563EB")}"><button class="btn sm" data-act="clearColor" data-i="${i}" type="button">Lalai</button></div></div></div>
+      ${p.id === "settings" ? '<div class="muted small">Halaman Tetapan sentiasa dipaparkan.</div>' : chk("Sembunyikan halaman ini", `pages.${i}.hidden`)}
+      <h3>${bi ? "Kandungan tambahan (dipaparkan di atas halaman)" : "Kandungan halaman"}</h3>
+      ${p.blocks.map((b, j) => blockCard(i, j, b)).join("") || '<div class="muted small">Belum ada kandungan.</div>'}
+      <div class="addrow">${BTYPES.map((t) => `<button class="btn sm" data-act="addBlock" data-i="${i}" data-t="${t[0]}">+ ${t[1]}</button>`).join("")}</div>`;
+    }
+    return `<div class="card ecard"><div class="phead"><span class="ico b">${ic}</span><div class="grow"><b>${esc(p.title.en || p.title.ms || BNAME[p.id] || "Halaman")}</b><div class="muted small">${bi ? "Bahagian bawaan" : "Halaman tersuai"}${p.hidden ? " · disembunyi" : ""}</div></div>
+      <div class="row nw"><button class="btn sm" data-act="up" data-i="${i}" aria-label="Naik">↑</button><button class="btn sm" data-act="down" data-i="${i}" aria-label="Turun">↓</button>${bi ? "" : `<button class="btn sm danger" data-act="delPage" data-i="${i}">Padam</button>`}<button class="btn sm" data-act="open" data-i="${i}">${o ? "Tutup" : "Edit"}</button></div></div>${body}</div>`;
+  }).join("");
+  return cards + `<div><button class="btn primary" data-act="addPage">+ Tambah halaman</button></div>`;
+}
+function blockCard(i, j, b) {
+  const P = `pages.${i}.blocks.${j}`, lab = (BTYPES.find((t) => t[0] === b.type) || [0, b.type])[1];
+  let f = "";
+  if (b.type === "heading") f = `<div class="g2">${inp("Teks (English)", P + ".text.en")}${inp("Teks (Bahasa Melayu)", P + ".text.ms")}</div>`;
+  else if (b.type === "text" || b.type === "callout") f = `<div class="g2">${area("Teks (English)", P + ".text.en")}${area("Teks (Bahasa Melayu)", P + ".text.ms")}</div>`;
+  else if (b.type === "image") f = `<div class="g2">${inp("URL gambar (https)", P + ".url", "https://...")}${inp("Keterangan gambar", P + ".alt")}</div>`;
+  else if (b.type === "button") f = `<div class="g2">${inp("Label (English)", P + ".label.en")}${inp("Label (Bahasa Melayu)", P + ".label.ms")}</div>${inp("Pautan (https)", P + ".url", "https://...")}`;
+  else if (b.type === "stat") f = `<div class="g2">${inp("Label (English)", P + ".label.en")}${inp("Label (Bahasa Melayu)", P + ".label.ms")}</div>${inp("Nilai", P + ".value")}`;
+  return `<div class="blk"><div class="bh"><b>${lab}</b><div class="row nw"><button class="btn sm" data-act="bup" data-i="${i}" data-b="${j}" aria-label="Naik">↑</button><button class="btn sm" data-act="bdown" data-i="${i}" data-b="${j}" aria-label="Turun">↓</button><button class="btn sm danger" data-act="bdel" data-i="${i}" data-b="${j}">Buang</button></div></div>${f}</div>`;
+}
+function textsTab() {
+  return `<div class="card ecard"><h3>Tukar teks aplikasi</h3><div class="muted small">Isi hanya teks yang mahu diganti. Kosong bermakna guna teks asal.</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap"><input class="input" id="tq" type="search" placeholder="Cari teks" style="flex:1 1 220px"><button class="btn" data-act="clearTexts">Kosongkan semua ganti</button></div>
+  <div class="trows" id="trows"></div></div>`;
+}
+function textRows() {
+  const q = ($("tq")?.value || "").trim().toLowerCase(), en = SH.L.en, ms = SH.L.ms;
+  $("trows").innerHTML = Object.keys(en).filter((k) => !q || k.toLowerCase().includes(q) || en[k].toLowerCase().includes(q) || (ms[k] || "").toLowerCase().includes(q)).map((k) =>
+    `<div class="trow"><code>${esc(k)}</code><input class="input" data-p="texts.en.${esc(k)}" value="${esc(cfg.texts.en[k] ?? "")}" placeholder="${esc(en[k])}" aria-label="${esc(k)} English"><input class="input" data-p="texts.ms.${esc(k)}" value="${esc(cfg.texts.ms[k] ?? "")}" placeholder="${esc(ms[k] || en[k])}" aria-label="${esc(k)} Bahasa Melayu"></div>`).join("") || '<div class="muted">Tiada padanan.</div>';
+}
+function mcpTab() {
+  const kinds = [["post", "Siaran (media sosial)"], ["edit", "Suntingan (suara, video, imej)"]];
+  return `<div class="muted small">Pengguna memilih MCP daripada senarai ini dalam Tetapan, dan setiap satu perlukan kunci API pengguna sendiri.</div>` + cfg.mcps.map((m, i) => `<div class="card ecard"><div class="bh"><b>${esc(m.name || "MCP baharu")}</b><button class="btn sm danger" data-act="delMcp" data-i="${i}">Padam</button></div>
+    <div class="g2">${inp("Nama", `mcps.${i}.name`)}${sel("Jenis", `mcps.${i}.kind`, kinds)}</div>
+    <div class="g2">${inp("Keterangan (English)", `mcps.${i}.desc.en`)}${inp("Keterangan (Bahasa Melayu)", `mcps.${i}.desc.ms`)}</div>
+    <div class="g2">${inp("Label kunci API", `mcps.${i}.keyLabel`, "Contoh: Zernio API key")}${inp("Pautan untuk dapatkan kunci (https, pilihan)", `mcps.${i}.docs`, "https://...")}</div>
+    ${chk("Dipaparkan kepada pengguna", `mcps.${i}.enabled`)}</div>`).join("") + `<div><button class="btn primary" data-act="addMcp">+ Tambah MCP</button></div>`;
+}
+/* events */
+const sb = $("siteBody");
+const onField = (e) => { const t = e.target, p = t.dataset && t.dataset.p; if (!p || !cfg) return; sp(cfg, p, t.type === "checkbox" ? t.checked : t.value); mark(); if (tab === "banner") updPrev(); };
+sb.addEventListener("input", onField); sb.addEventListener("change", onField);
+sb.addEventListener("input", (e) => { if (e.target.id === "tq") textRows(); });
+sb.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-act]"); if (!b || !cfg) return;
+  const a = b.dataset.act, i = +b.dataset.i, j = +b.dataset.b, mv = (arr, x, d) => { const k = x + d; if (k < 0 || k >= arr.length) return; [arr[x], arr[k]] = [arr[k], arr[x]]; };
+  if (a === "clearBanner") { cfg.banner.c1 = ""; cfg.banner.c2 = ""; cfg.banner.image = ""; }
+  else if (a === "addPage") { cfg.pages.push({ id: "p" + Date.now().toString(36), title: { en: "New page", ms: "Halaman baharu" }, icon: "star", color: "", hidden: false, blocks: [] }); openPage = cfg.pages.length - 1; }
+  else if (a === "up") { mv(cfg.pages, i, -1); openPage = -1; } else if (a === "down") { mv(cfg.pages, i, 1); openPage = -1; }
+  else if (a === "open") openPage = openPage === i ? -1 : i;
+  else if (a === "delPage") { cfg.pages.splice(i, 1); openPage = -1; }
+  else if (a === "clearColor") cfg.pages[i].color = "";
+  else if (a === "addBlock") { const t = b.dataset.t, o = { type: t }; if (t === "heading" || t === "text" || t === "callout") o.text = { en: "", ms: "" }; if (t === "button" || t === "stat") o.label = { en: "", ms: "" }; if (t === "image") { o.url = ""; o.alt = ""; } if (t === "button") o.url = ""; if (t === "stat") o.value = ""; cfg.pages[i].blocks.push(o); }
+  else if (a === "bup") mv(cfg.pages[i].blocks, j, -1); else if (a === "bdown") mv(cfg.pages[i].blocks, j, 1);
+  else if (a === "bdel") cfg.pages[i].blocks.splice(j, 1);
+  else if (a === "addMcp") cfg.mcps.push({ id: "mcp" + Date.now().toString(36), name: "", kind: "post", desc: { en: "", ms: "" }, keyLabel: "API key", docs: "", enabled: true });
+  else if (a === "delMcp") cfg.mcps.splice(i, 1);
+  else if (a === "clearTexts") cfg.texts = { en: {}, ms: {} };
+  else return;
+  mark(); renderSite();
+});
+$("siteTabs").addEventListener("click", (e) => { const b = e.target.closest("[data-tab]"); if (b) { tab = b.dataset.tab; renderSite(); } });
+function cleaned() {
+  const o = clone(cfg);
+  ["en", "ms"].forEach((l) => { for (const k of Object.keys(o.texts[l])) if (!String(o.texts[l][k]).trim()) delete o.texts[l][k]; });
+  delete o.updatedAt; return o;
+}
+function validUrls(o) {
+  const ok = (u) => !u || /^https:\/\/[^\s"'()<>]+$/.test(u);
+  if (!ok(o.banner.image)) return "URL imej banner mesti bermula dengan https://";
+  for (const p of o.pages) for (const b of p.blocks) if ((b.type === "image" || b.type === "button") && !ok(b.url)) return "URL gambar dan pautan mesti bermula dengan https://";
+  for (const m of o.mcps) if (!ok(m.docs)) return "Pautan kunci MCP mesti bermula dengan https://";
+  return "";
+}
+$("siteSave").onclick = async () => {
+  if (!cfg) return; const o = cleaned(), bad = validUrls(o);
+  if (bad) { toast(bad); return; }
+  try { await F.setDoc(F.doc(db, "config", "site"), { ...o, updatedAt: F.serverTimestamp() }); dirty = false; state("Disimpan. Paparan awam dikemas kini."); toast("Disimpan"); }
+  catch (_) { toast("Gagal simpan. Semak akses admin."); }
+};
+$("siteReset").onclick = () => {
+  const b = $("siteReset");
+  if (!resetArm) { b.textContent = "Pasti? Tekan lagi"; resetArm = setTimeout(() => { resetArm = 0; b.textContent = "Set semula"; }, 4000); return; }
+  clearTimeout(resetArm); resetArm = 0; b.textContent = "Set semula"; cfg = defCfg(); openPage = -1; mark(); state("Dikembalikan ke asal. Tekan Simpan untuk guna."); renderSite();
+};
 </script>
 </body>
 </html>

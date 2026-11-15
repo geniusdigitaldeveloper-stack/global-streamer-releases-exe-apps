@@ -41,6 +41,8 @@ if (cfg && !/^PASTE/.test(cfg.apiKey || "PASTE")) {
     },
     logout: () => { if (unsub) unsub(); return A.signOut(auth); },
   };
+  // Site settings (banner, pages, texts, MCP list) edited by the admin. Public read.
+  F.onSnapshot(F.doc(db, "config", "site"), (d) => window.SE_onConfig && window.SE_onConfig(d.exists() ? d.data() : null), () => {});
   A.onAuthStateChanged(auth, async (u) => {
     let s = null;
     if (u) {

@@ -15,6 +15,12 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // Site settings (banner, pages, texts, MCP list). Everyone can read, only admins can change.
+    match /config/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     match /users/{uid} {
       allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
       // A new user can only create their own profile as an active free user.

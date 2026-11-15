@@ -1,0 +1,71 @@
+// Shared by the public app and the admin app.
+(function(){
+var L={en:{mcpHint:"Add the services you use. Each one needs its own API key.",addMcp:"Add MCP",noMcpLeft:"Every available MCP is already added.",keyReq:"Enter the API key first.",remove:"Remove",noMcpAdded:"No MCP added yet. Tap Add MCP.",noPostMcp:"No posting MCP connected yet.",docs:"Get an API key",addBtn:"Add",keySaved:"Key saved",pageEmpty:"This page is empty.",
+app:"Streamer Editor",login:"Log in",register:"Create account",email:"Email",pw:"Password",pw2:"Confirm password",google:"Continue with Google",or:"or",
+noacct:"No account yet?",haveacct:"Already have an account?",pick:"Choose an account",pickSub:"Select the email to register with.",
+mismatch:"Passwords do not match.",short:"Password must be at least 8 characters.",bademail:"Enter a valid email address.",wrong:"Wrong email or password.",exists:"This email is already registered. Log in instead.",
+notif:"Notification sent to",notifSub:"Your account was registered with this email.",newpw:"Create a new password for your account",cont:"Save and continue",welcomeBack:"Welcome back",other:"Use a different email",
+nClips:"Clips",bannerTag:"AI editing for gaming streams",menu:"Menu",authHead:"Turn every live stream into viral clips.",authSub:"Paste a replay link. AI finds the hooks, edits with gaming effects and posts for you.",v1:"Automatic hook finding",v2:"Gaming-style edit with effects",v3:"Post to your socials",heroT:"Turn your stream into content",heroS:"Paste your saved live link and let AI do the editing.",accDisabled:"This account is disabled. Contact the app owner.",jobQueued:"Queued",jobCaps:"Reading the video captions",jobHooks:"Claude is finding the hooks",jobDone:"Done",jobNoCaps:"This video has no captions to read yet. Try again after YouTube finishes processing it.",jobNone:"No strong hook found in this video.",jobErr:"Something went wrong. Try again.",fxPresets:"Gaming style",pClean:"Clean",pEsports:"Esports",pHype:"Hype",pCinema:"Cinematic",gShake:"Screen shake on hits",gPunch:"Zoom punch",gGlitch:"RGB glitch",gFlash:"Impact flash",gScan:"Scanlines",gGrain:"Film grain",gBox:"Letterbox bars",gCall:"Highlight callout",gInt:"Effect strength",fxHint:"Press play on the preview to see the effects hit. Claude places them on the real hook moments.",modeShort:"Content clips",modeLong:"Full YouTube video",hintShort:"Suggested length for content clips is about 1 minute. The number of clips and their length depend on how many hooks your video has.",hintLong:"A full YouTube video can be any length (8, 12, 15 minutes or more). Claude edits all of it for you with Hyperframes in a gaming style: subtitles, effects, sound effects and lighting. No manual editing.",tplHead:"Design sample",clipN:"Sample clip",nStudio:"Studio",nPost:"Post",nSettings:"Settings",
+src:"YouTube live replay or game recording",srcHint:"Paste the saved live link. The app finds hook moments and cuts them for you.",analyze:"Find hooks",analyzing:"Analyzing",
+demo:"Design sample only. The real number of clips and their lengths come from your video once the cloud engine is connected.",
+found:"clips found",hook:"Hook",sel:"Selected",showMore:"Show more",edit:"Edit in Studio",none:"No clips yet. Paste a link above and tap Find hooks.",
+preview:"Preview",ratio:"Screen size",ratioSq:"Square",tLight:"Lighting",tColor:"Colour",tSound:"Sound",tFx:"Effects",tExport:"Export",
+bright:"Brightness",contrast:"Contrast",sat:"Saturation",warm:"Warmth",glow:"Glow",vig:"Vignette",
+presets:"Colour presets",pNone:"Original",pCine:"Cinematic",pVivid:"Vivid",pWarm:"Warm",pCool:"Cool",pBW:"Black and white",
+sfx:"Sound effects",music:"Background music",duck:"Lower music under voice",loud:"Normalise loudness",
+fxHook:"Zoom on hook",fxShake:"Screen shake on hits",fxTrans:"Transitions",fxCaps:"Auto subtitles",fxSilence:"Cut silent gaps",
+res:"Resolution",fps:"Frame rate",fpsNote:"Frame rate is limited by the source recording.",exp:"Export selected clips",exporting:"Rendering in cloud",done:"Done. Ready to post.",
+postTo:"Post to",mcp:"Connected through MCP",free:"Free plan",freeX:"2 accounts at the same time",freeM:"Up to 20 videos a month",
+subM:"I have a Metricool subscription",subKey:"Metricool subscription API key",apiKey:"API key",connect:"Connect",connected:"Connected",disconnect:"Disconnect",
+caption:"Caption and hashtags",when:"When",now:"Post now",sched:"Schedule",postBtn:"Post",queued:"Queued",usedM:"used this month",
+pickClips:"Clips to post",noSel:"Select clips in the Clips tab first.",pickPlat:"Connect an MCP and choose at least one platform.",posted:"Sent to the posting queue.",
+setTheme:"Colour theme",tGaming:"Gaming",tFormal:"Formal blue",tGreen:"Formal green",tDark:"Dark grey",
+lang:"Language",mcpList:"MCP connections",
+engine:"Cloud editing engine",engineHint:"The editor runs in the cloud with Claude. Add your key so the app can edit for you.",anth:"Anthropic API key",hf:"Hyperframes render endpoint",
+defExp:"Default export",logout:"Log out",acct:"Account",save:"Save",saved:"Saved",
+platforms:"Platforms",storageNote:"This preview stores data only in your browser."
+},ms:{mcpHint:"Tambah perkhidmatan yang anda guna. Setiap satu perlukan kunci API sendiri.",addMcp:"Tambah MCP",noMcpLeft:"Semua MCP yang ada sudah ditambah.",keyReq:"Masukkan kunci API dahulu.",remove:"Buang",noMcpAdded:"Belum ada MCP. Tekan Tambah MCP.",noPostMcp:"Belum ada MCP siaran disambung.",docs:"Dapatkan kunci API",addBtn:"Tambah",keySaved:"Kunci disimpan",pageEmpty:"Halaman ini kosong.",
+app:"Streamer Editor",login:"Log masuk",register:"Daftar akaun",email:"E-mel",pw:"Kata laluan",pw2:"Sahkan kata laluan",google:"Teruskan dengan Google",or:"atau",
+noacct:"Belum ada akaun?",haveacct:"Sudah ada akaun?",pick:"Pilih akaun",pickSub:"Pilih e-mel untuk mendaftar.",
+mismatch:"Kata laluan tidak sama.",short:"Kata laluan sekurang-kurangnya 8 aksara.",bademail:"Masukkan e-mel yang sah.",wrong:"E-mel atau kata laluan salah.",exists:"E-mel ini sudah berdaftar. Sila log masuk.",
+notif:"Notifikasi dihantar ke",notifSub:"Akaun anda telah didaftarkan dengan e-mel ini.",newpw:"Cipta kata laluan baharu untuk akaun anda",cont:"Simpan dan teruskan",welcomeBack:"Selamat kembali",other:"Guna e-mel lain",
+nClips:"Klip",bannerTag:"Edit AI untuk stream gaming",menu:"Menu",authHead:"Jadikan setiap live stream klip tular.",authSub:"Tampal pautan ulang tayang. AI cari hook, edit dengan kesan gaming dan siarkan untuk anda.",v1:"Cari hook automatik",v2:"Edit gaya gaming dengan kesan",v3:"Siar ke media sosial",heroT:"Jadikan stream anda kandungan",heroS:"Tampal pautan live yang disimpan dan biar AI yang edit.",accDisabled:"Akaun ini dilumpuhkan. Hubungi pemilik aplikasi.",jobQueued:"Dalam giliran",jobCaps:"Membaca sari kata video",jobHooks:"Claude sedang cari hook",jobDone:"Siap",jobNoCaps:"Video ini belum ada sari kata untuk dibaca. Cuba lagi selepas YouTube siap memprosesnya.",jobNone:"Tiada hook yang kuat dijumpai dalam video ini.",jobErr:"Ada masalah. Cuba lagi.",fxPresets:"Gaya gaming",pClean:"Bersih",pEsports:"Esports",pHype:"Hype",pCinema:"Sinematik",gShake:"Skrin bergegar pada hentakan",gPunch:"Zum hentak",gGlitch:"Glitch RGB",gFlash:"Kilat hentakan",gScan:"Garis imbas",gGrain:"Bijian filem",gBox:"Bar letterbox",gCall:"Label sorotan",gInt:"Kekuatan kesan",fxHint:"Tekan main pada pratonton untuk lihat kesan. Claude letak kesan pada momen hook sebenar.",modeShort:"Klip kandungan",modeLong:"Video penuh YouTube",hintShort:"Panjang cadangan untuk klip kandungan lebih kurang 1 minit. Bilangan klip dan panjangnya bergantung pada berapa banyak hook dalam video anda.",hintLong:"Video penuh YouTube boleh panjang mana pun (8, 12, 15 minit atau lebih). Claude edit semuanya untuk anda dengan Hyperframes gaya gaming: sari kata, kesan, kesan bunyi dan pencahayaan. Tak perlu edit manual.",tplHead:"Contoh reka bentuk",clipN:"Klip contoh",nStudio:"Studio",nPost:"Siar",nSettings:"Tetapan",
+src:"Ulang tayang live YouTube atau rakaman game",srcHint:"Tampal pautan live yang disimpan. Aplikasi cari momen hook dan potong untuk anda.",analyze:"Cari hook",analyzing:"Sedang analisis",
+demo:"Contoh reka bentuk sahaja. Bilangan klip dan panjang sebenar datang daripada video anda selepas enjin awan disambung.",
+found:"klip dijumpai",hook:"Hook",sel:"Dipilih",showMore:"Papar lagi",edit:"Edit dalam Studio",none:"Belum ada klip. Tampal pautan di atas dan tekan Cari hook.",
+preview:"Pratonton",ratio:"Saiz skrin",ratioSq:"Petak",tLight:"Pencahayaan",tColor:"Warna",tSound:"Bunyi",tFx:"Kesan",tExport:"Eksport",
+bright:"Kecerahan",contrast:"Kontras",sat:"Ketepuan",warm:"Kehangatan",glow:"Cahaya",vig:"Vinyet",
+presets:"Pratetap warna",pNone:"Asal",pCine:"Sinematik",pVivid:"Terang",pWarm:"Hangat",pCool:"Sejuk",pBW:"Hitam putih",
+sfx:"Kesan bunyi",music:"Muzik latar",duck:"Perlahankan muzik semasa suara",loud:"Seragamkan kelantangan",
+fxHook:"Zum pada hook",fxShake:"Gegaran skrin pada hentakan",fxTrans:"Peralihan",fxCaps:"Sari kata automatik",fxSilence:"Potong jeda senyap",
+res:"Resolusi",fps:"Kadar bingkai",fpsNote:"Kadar bingkai terhad kepada rakaman asal.",exp:"Eksport klip dipilih",exporting:"Sedang render di awan",done:"Siap. Sedia untuk disiar.",
+postTo:"Siar ke",mcp:"Disambung melalui MCP",free:"Pelan percuma",freeX:"2 akaun serentak",freeM:"Sehingga 20 video sebulan",
+subM:"Saya melanggan Metricool",subKey:"Kunci API langganan Metricool",apiKey:"Kunci API",connect:"Sambung",connected:"Bersambung",disconnect:"Putus",
+caption:"Kapsyen dan hashtag",when:"Bila",now:"Siar sekarang",sched:"Jadualkan",postBtn:"Siar",queued:"Dalam giliran",usedM:"digunakan bulan ini",
+pickClips:"Klip untuk disiar",noSel:"Pilih klip dalam tab Klip dahulu.",pickPlat:"Sambung MCP dan pilih sekurang-kurangnya satu platform.",posted:"Dihantar ke giliran siaran.",
+setTheme:"Tema warna",tGaming:"Gaming",tFormal:"Formal biru",tGreen:"Formal hijau",tDark:"Kelabu gelap",
+lang:"Bahasa",mcpList:"Sambungan MCP",
+engine:"Enjin edit awan",engineHint:"Editor berjalan di awan bersama Claude. Masukkan kunci supaya aplikasi boleh edit untuk anda.",anth:"Kunci API Anthropic",hf:"Titik akhir render Hyperframes",
+defExp:"Eksport lalai",logout:"Log keluar",acct:"Akaun",save:"Simpan",saved:"Disimpan",
+platforms:"Platform",storageNote:"Pratonton ini menyimpan data dalam pelayar anda sahaja."
+}};
+var ICON={clips:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9.5v5l4-2.5z"/></svg>',
+studio:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>',
+post:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l16-8-6 16-3-7z"/></svg>',
+settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>'};
+var EX=function(p){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>'};
+var ICONS=ICON;
+ICONS.dashboard=EX('<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>');
+ICONS.star=EX('<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>');
+ICONS.book=EX('<path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 19V5"/>');
+ICONS.bell=EX('<path d="M6 16V11a6 6 0 1112 0v5l2 2H4zM10 21h4"/>');
+ICONS.heart=EX('<path d="M12 20s-7-4.4-9-9a5 5 0 019-3 5 5 0 019 3c-2 4.6-9 9-9 9z"/>');
+ICONS.globe=EX('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>');
+ICONS.tag=EX('<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1"/>');
+ICONS.bolt=EX('<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>');
+ICONS.info=EX('<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>');
+ICONS.users=EX('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.4 3.4-5.5 6.5-5.5s5.9 2.1 6.5 5.5M16 4.7a3.5 3.5 0 010 6.6M18 14.8c1.9.7 3.2 2.5 3.6 5.2"/>');
+
+var MCPS=[{"id": "zernio", "name": "Zernio", "kind": "post", "desc": {"en": "Schedule and publish posts to your social accounts.", "ms": "Jadual dan siarkan hantaran ke akaun sosial anda."}, "keyLabel": "Zernio API key", "docs": "", "enabled": true}, {"id": "metricool", "name": "Metricool", "kind": "post", "desc": {"en": "Plan, post and track social media in one place.", "ms": "Rancang, siar dan jejak media sosial di satu tempat."}, "keyLabel": "Metricool API key", "docs": "", "enabled": true}, {"id": "ayrshare", "name": "Ayrshare", "kind": "post", "desc": {"en": "Post to many social networks through one API.", "ms": "Siar ke banyak rangkaian sosial melalui satu API."}, "keyLabel": "Ayrshare API key", "docs": "", "enabled": true}, {"id": "buffer", "name": "Buffer", "kind": "post", "desc": {"en": "Queue and schedule posts to your channels.", "ms": "Beratur dan jadualkan hantaran ke saluran anda."}, "keyLabel": "Buffer API key", "docs": "", "enabled": true}, {"id": "elevenlabs", "name": "ElevenLabs", "kind": "edit", "desc": {"en": "AI voice and sound effects for your edits.", "ms": "Suara AI dan kesan bunyi untuk suntingan anda."}, "keyLabel": "ElevenLabs API key", "docs": "", "enabled": true}, {"id": "higgsfield", "name": "Higgsfield", "kind": "edit", "desc": {"en": "AI video and image generation.", "ms": "Penjanaan video dan imej AI."}, "keyLabel": "Higgsfield API key", "docs": "", "enabled": true}];
+window.SE_SHARED={L:L,ICONS:ICONS,MCPS:MCPS};
+})();

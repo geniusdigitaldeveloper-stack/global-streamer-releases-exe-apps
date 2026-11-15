@@ -103,7 +103,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
   .shell{grid-template-columns:minmax(0,1fr);gap:0}
   .rail{display:none}
   .main{padding-bottom:90px}
-  .tab-bar{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));z-index:5}
+  .tab-bar{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(66px,1fr);overflow-x:auto;position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));z-index:5}
   .tab-bar button{border:0;background:none;display:grid;justify-items:center;gap:2px;font-size:11px;color:var(--muted);padding:6px 2px}
   .tab-bar button[aria-current=page]{color:var(--accent)}
   .tab-bar svg{width:22px;height:22px}
@@ -224,66 +224,29 @@ html[data-app-theme="dark"] .nav button[aria-current=page] .ni{color:#0E1626}
  .banner .brand{font-size:21px}.banner .logo{width:34px;height:34px;font-size:13px}
  .pagehead{margin:16px 0 14px}.pagehead span{font-size:17px;padding:8px 22px}
 }
+
+/* ---- admin-configurable content ---- */
+html.cfgbg .banner,html.cfgbg .auth-hero{background:var(--bgr)!important}
+.cb{display:grid;gap:12px}
+.cb-h{font-size:19px}.cb-t{margin:0;line-height:1.6}
+.cb-img{max-width:100%;border-radius:14px;display:block}
+.cb-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.cb-stat b{display:block;font:600 26px/1.2 var(--head);color:var(--c)}
+.cb-call{border-left:4px solid var(--c);background:color-mix(in srgb,var(--c) 10%,var(--surface));padding:12px 16px;border-radius:10px}
+.pick{border:1px dashed var(--line);border-radius:var(--radius);padding:4px 14px;margin-top:12px}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script src="firebase-config.js"></script>
+<script src="shared.js"></script>
 <script>
 (function(){
-var L={en:{
-app:"Streamer Editor",login:"Log in",register:"Create account",email:"Email",pw:"Password",pw2:"Confirm password",google:"Continue with Google",or:"or",
-noacct:"No account yet?",haveacct:"Already have an account?",pick:"Choose an account",pickSub:"Select the email to register with.",
-mismatch:"Passwords do not match.",short:"Password must be at least 8 characters.",bademail:"Enter a valid email address.",wrong:"Wrong email or password.",exists:"This email is already registered. Log in instead.",
-notif:"Notification sent to",notifSub:"Your account was registered with this email.",newpw:"Create a new password for your account",cont:"Save and continue",welcomeBack:"Welcome back",other:"Use a different email",
-nClips:"Clips",bannerTag:"AI editing for gaming streams",menu:"Menu",authHead:"Turn every live stream into viral clips.",authSub:"Paste a replay link. AI finds the hooks, edits with gaming effects and posts for you.",v1:"Automatic hook finding",v2:"Gaming-style edit with effects",v3:"Post to your socials",heroT:"Turn your stream into content",heroS:"Paste your saved live link and let AI do the editing.",accDisabled:"This account is disabled. Contact the app owner.",jobQueued:"Queued",jobCaps:"Reading the video captions",jobHooks:"Claude is finding the hooks",jobDone:"Done",jobNoCaps:"This video has no captions to read yet. Try again after YouTube finishes processing it.",jobNone:"No strong hook found in this video.",jobErr:"Something went wrong. Try again.",fxPresets:"Gaming style",pClean:"Clean",pEsports:"Esports",pHype:"Hype",pCinema:"Cinematic",gShake:"Screen shake on hits",gPunch:"Zoom punch",gGlitch:"RGB glitch",gFlash:"Impact flash",gScan:"Scanlines",gGrain:"Film grain",gBox:"Letterbox bars",gCall:"Highlight callout",gInt:"Effect strength",fxHint:"Press play on the preview to see the effects hit. Claude places them on the real hook moments.",modeShort:"Content clips",modeLong:"Full YouTube video",hintShort:"Suggested length for content clips is about 1 minute. The number of clips and their length depend on how many hooks your video has.",hintLong:"A full YouTube video can be any length (8, 12, 15 minutes or more). Claude edits all of it for you with Hyperframes in a gaming style: subtitles, effects, sound effects and lighting. No manual editing.",tplHead:"Design sample",clipN:"Sample clip",nStudio:"Studio",nPost:"Post",nSettings:"Settings",
-src:"YouTube live replay or game recording",srcHint:"Paste the saved live link. The app finds hook moments and cuts them for you.",analyze:"Find hooks",analyzing:"Analyzing",
-demo:"Design sample only. The real number of clips and their lengths come from your video once the cloud engine is connected.",
-found:"clips found",hook:"Hook",sel:"Selected",showMore:"Show more",edit:"Edit in Studio",none:"No clips yet. Paste a link above and tap Find hooks.",
-preview:"Preview",ratio:"Screen size",ratioSq:"Square",tLight:"Lighting",tColor:"Colour",tSound:"Sound",tFx:"Effects",tExport:"Export",
-bright:"Brightness",contrast:"Contrast",sat:"Saturation",warm:"Warmth",glow:"Glow",vig:"Vignette",
-presets:"Colour presets",pNone:"Original",pCine:"Cinematic",pVivid:"Vivid",pWarm:"Warm",pCool:"Cool",pBW:"Black and white",
-sfx:"Sound effects",music:"Background music",duck:"Lower music under voice",loud:"Normalise loudness",
-fxHook:"Zoom on hook",fxShake:"Screen shake on hits",fxTrans:"Transitions",fxCaps:"Auto subtitles",fxSilence:"Cut silent gaps",
-res:"Resolution",fps:"Frame rate",fpsNote:"Frame rate is limited by the source recording.",exp:"Export selected clips",exporting:"Rendering in cloud",done:"Done. Ready to post.",
-postTo:"Post to",mcp:"Connected through MCP",free:"Free plan",freeX:"2 accounts at the same time",freeM:"Up to 20 videos a month",
-subM:"I have a Metricool subscription",subKey:"Metricool subscription API key",apiKey:"API key",connect:"Connect",connected:"Connected",disconnect:"Disconnect",
-caption:"Caption and hashtags",when:"When",now:"Post now",sched:"Schedule",postBtn:"Post",queued:"Queued",usedM:"used this month",
-pickClips:"Clips to post",noSel:"Select clips in the Clips tab first.",pickPlat:"Connect an MCP and choose at least one platform.",posted:"Sent to the posting queue.",
-setTheme:"Colour theme",tGaming:"Gaming",tFormal:"Formal blue",tGreen:"Formal green",tDark:"Dark grey",
-lang:"Language",mcpList:"MCP connections",mcpHint:"Only the free-plan tools are shown first.",
-engine:"Cloud editing engine",engineHint:"The editor runs in the cloud with Claude. Add your key so the app can edit for you.",anth:"Anthropic API key",hf:"Hyperframes render endpoint",
-defExp:"Default export",logout:"Log out",acct:"Account",save:"Save",saved:"Saved",
-platforms:"Platforms",storageNote:"This preview stores data only in your browser."
-},ms:{
-app:"Streamer Editor",login:"Log masuk",register:"Daftar akaun",email:"E-mel",pw:"Kata laluan",pw2:"Sahkan kata laluan",google:"Teruskan dengan Google",or:"atau",
-noacct:"Belum ada akaun?",haveacct:"Sudah ada akaun?",pick:"Pilih akaun",pickSub:"Pilih e-mel untuk mendaftar.",
-mismatch:"Kata laluan tidak sama.",short:"Kata laluan sekurang-kurangnya 8 aksara.",bademail:"Masukkan e-mel yang sah.",wrong:"E-mel atau kata laluan salah.",exists:"E-mel ini sudah berdaftar. Sila log masuk.",
-notif:"Notifikasi dihantar ke",notifSub:"Akaun anda telah didaftarkan dengan e-mel ini.",newpw:"Cipta kata laluan baharu untuk akaun anda",cont:"Simpan dan teruskan",welcomeBack:"Selamat kembali",other:"Guna e-mel lain",
-nClips:"Klip",bannerTag:"Edit AI untuk stream gaming",menu:"Menu",authHead:"Jadikan setiap live stream klip tular.",authSub:"Tampal pautan ulang tayang. AI cari hook, edit dengan kesan gaming dan siarkan untuk anda.",v1:"Cari hook automatik",v2:"Edit gaya gaming dengan kesan",v3:"Siar ke media sosial",heroT:"Jadikan stream anda kandungan",heroS:"Tampal pautan live yang disimpan dan biar AI yang edit.",accDisabled:"Akaun ini dilumpuhkan. Hubungi pemilik aplikasi.",jobQueued:"Dalam giliran",jobCaps:"Membaca sari kata video",jobHooks:"Claude sedang cari hook",jobDone:"Siap",jobNoCaps:"Video ini belum ada sari kata untuk dibaca. Cuba lagi selepas YouTube siap memprosesnya.",jobNone:"Tiada hook yang kuat dijumpai dalam video ini.",jobErr:"Ada masalah. Cuba lagi.",fxPresets:"Gaya gaming",pClean:"Bersih",pEsports:"Esports",pHype:"Hype",pCinema:"Sinematik",gShake:"Skrin bergegar pada hentakan",gPunch:"Zum hentak",gGlitch:"Glitch RGB",gFlash:"Kilat hentakan",gScan:"Garis imbas",gGrain:"Bijian filem",gBox:"Bar letterbox",gCall:"Label sorotan",gInt:"Kekuatan kesan",fxHint:"Tekan main pada pratonton untuk lihat kesan. Claude letak kesan pada momen hook sebenar.",modeShort:"Klip kandungan",modeLong:"Video penuh YouTube",hintShort:"Panjang cadangan untuk klip kandungan lebih kurang 1 minit. Bilangan klip dan panjangnya bergantung pada berapa banyak hook dalam video anda.",hintLong:"Video penuh YouTube boleh panjang mana pun (8, 12, 15 minit atau lebih). Claude edit semuanya untuk anda dengan Hyperframes gaya gaming: sari kata, kesan, kesan bunyi dan pencahayaan. Tak perlu edit manual.",tplHead:"Contoh reka bentuk",clipN:"Klip contoh",nStudio:"Studio",nPost:"Siar",nSettings:"Tetapan",
-src:"Ulang tayang live YouTube atau rakaman game",srcHint:"Tampal pautan live yang disimpan. Aplikasi cari momen hook dan potong untuk anda.",analyze:"Cari hook",analyzing:"Sedang analisis",
-demo:"Contoh reka bentuk sahaja. Bilangan klip dan panjang sebenar datang daripada video anda selepas enjin awan disambung.",
-found:"klip dijumpai",hook:"Hook",sel:"Dipilih",showMore:"Papar lagi",edit:"Edit dalam Studio",none:"Belum ada klip. Tampal pautan di atas dan tekan Cari hook.",
-preview:"Pratonton",ratio:"Saiz skrin",ratioSq:"Petak",tLight:"Pencahayaan",tColor:"Warna",tSound:"Bunyi",tFx:"Kesan",tExport:"Eksport",
-bright:"Kecerahan",contrast:"Kontras",sat:"Ketepuan",warm:"Kehangatan",glow:"Cahaya",vig:"Vinyet",
-presets:"Pratetap warna",pNone:"Asal",pCine:"Sinematik",pVivid:"Terang",pWarm:"Hangat",pCool:"Sejuk",pBW:"Hitam putih",
-sfx:"Kesan bunyi",music:"Muzik latar",duck:"Perlahankan muzik semasa suara",loud:"Seragamkan kelantangan",
-fxHook:"Zum pada hook",fxShake:"Gegaran skrin pada hentakan",fxTrans:"Peralihan",fxCaps:"Sari kata automatik",fxSilence:"Potong jeda senyap",
-res:"Resolusi",fps:"Kadar bingkai",fpsNote:"Kadar bingkai terhad kepada rakaman asal.",exp:"Eksport klip dipilih",exporting:"Sedang render di awan",done:"Siap. Sedia untuk disiar.",
-postTo:"Siar ke",mcp:"Disambung melalui MCP",free:"Pelan percuma",freeX:"2 akaun serentak",freeM:"Sehingga 20 video sebulan",
-subM:"Saya melanggan Metricool",subKey:"Kunci API langganan Metricool",apiKey:"Kunci API",connect:"Sambung",connected:"Bersambung",disconnect:"Putus",
-caption:"Kapsyen dan hashtag",when:"Bila",now:"Siar sekarang",sched:"Jadualkan",postBtn:"Siar",queued:"Dalam giliran",usedM:"digunakan bulan ini",
-pickClips:"Klip untuk disiar",noSel:"Pilih klip dalam tab Klip dahulu.",pickPlat:"Sambung MCP dan pilih sekurang-kurangnya satu platform.",posted:"Dihantar ke giliran siaran.",
-setTheme:"Tema warna",tGaming:"Gaming",tFormal:"Formal biru",tGreen:"Formal hijau",tDark:"Kelabu gelap",
-lang:"Bahasa",mcpList:"Sambungan MCP",mcpHint:"Alat pelan percuma dipaparkan dahulu.",
-engine:"Enjin edit awan",engineHint:"Editor berjalan di awan bersama Claude. Masukkan kunci supaya aplikasi boleh edit untuk anda.",anth:"Kunci API Anthropic",hf:"Titik akhir render Hyperframes",
-defExp:"Eksport lalai",logout:"Log keluar",acct:"Akaun",save:"Simpan",saved:"Disimpan",
-platforms:"Platform",storageNote:"Pratonton ini menyimpan data dalam pelayar anda sahaja."
-}};
+var L=window.SE_SHARED.L;
 var S={lang:"en",theme:"blue",users:{},last:"",session:"",view:"clips",mode:"short",gpre:"esports",gint:5,gfx:{shake:true,punch:true,glitch:false,flash:true,scan:false,grain:false,box:false,call:true},auth:"login",tmp:null,
  clips:[],shown:25,sel:{},cur:null,ratio:"16:9",fx:{bright:100,contrast:100,sat:100,warm:0,glow:0,vig:0},preset:"none",
  sfx:{whoosh:true,hit:true,riser:false,pop:false,bass:false,ping:true},opts:{duck:true,loud:true,hook:true,shake:false,trans:true,caps:true,silence:true},
- tab:"light",res:"1080p",fps:60,mcp:{xenial:{on:false,key:""},metricool:{on:false,key:"",sub:false,subKey:""}},plat:{},post:{cap:"",when:"now"},postedM:3,keys:{anth:"",hf:""},msg:""};
+ tab:"light",res:"1080p",fps:60,mcp:{},plat:{},post:{cap:"",when:"now"},postedM:3,keys:{anth:"",hf:""},msg:""};
 var KEY="se_v1";
 var FB_ON=!!(window.FIREBASE_CONFIG&&!/^PASTE/.test(window.FIREBASE_CONFIG.apiKey||"PASTE"));
 var FB=function(){return window.SE_FB};
@@ -291,18 +254,48 @@ function load(){try{var d=JSON.parse(localStorage.getItem(KEY)||"{}");for(var k 
 var saveT;
 function cloudSave(){if(!FB_ON||!S.session||!FB())return;clearTimeout(saveT);saveT=setTimeout(function(){FB().saveSettings({theme:S.theme,lang:S.lang,mcp:S.mcp,keys:S.keys,res:S.res,fps:S.fps}).catch(function(){})},600)}
 function save(){cloudSave();try{localStorage.setItem(KEY,JSON.stringify(FB_ON?{lang:S.lang,theme:S.theme,last:S.last}:{lang:S.lang,theme:S.theme,users:S.users,last:S.last,session:S.session,mcp:S.mcp,keys:S.keys,res:S.res,fps:S.fps}));}catch(e){}}
-function t(k){return (L[S.lang]&&L[S.lang][k])||L.en[k]||k}
+var CFG=null;try{CFG=JSON.parse(localStorage.getItem("se_cfg")||"null")}catch(e){}
+function L10(o){return o?(o[S.lang]||o.en||""):""}
+function t(k){var o=CFG&&CFG.texts&&CFG.texts[S.lang]&&CFG.texts[S.lang][k];return o||(L[S.lang]&&L[S.lang][k])||L.en[k]||k}
+function BN(){return (CFG&&CFG.brand&&CFG.brand.name)||t("app")}
+function LG(){return esc((CFG&&CFG.brand&&CFG.brand.logo)||"SE")}
+function TAG(){return L10(CFG&&CFG.banner&&CFG.banner.tagline)||t("bannerTag")}
+function safeUrl(u){return /^https:\/\/[^\s"'()<>]+$/.test(u||"")?u:""}
+var HEX=/^#[0-9a-fA-F]{6}$/;
+function applyCfg(){var r=document.documentElement,b=(CFG&&CFG.banner)||{},g="";
+ if(HEX.test(b.c1||"")&&HEX.test(b.c2||""))g="linear-gradient(120deg,"+b.c1+","+b.c2+")";
+ var im=safeUrl(b.image);if(im)g='linear-gradient(120deg,rgba(0,0,0,.45),rgba(0,0,0,.2)),url("'+im+'") center/cover';
+ if(g){r.style.setProperty("--bgr",g);r.classList.add("cfgbg")}else{r.style.removeProperty("--bgr");r.classList.remove("cfgbg")}
+ document.title=(CFG&&CFG.brand&&CFG.brand.name)||"Streamer Editor"}
+var BUILTIN=["clips","studio","post","settings"];
+var DEF_COL={clips:"var(--accent)",studio:"color-mix(in srgb,var(--accent) 50%,#7C3AED)",post:"color-mix(in srgb,var(--accent) 45%,#0EA5A5)",settings:"color-mix(in srgb,var(--accent) 40%,#64748B)"};
+var TKEY={clips:"nClips",studio:"nStudio",post:"nPost",settings:"nSettings"};
+function pages(){
+ var list=(CFG&&CFG.pages&&CFG.pages.length)?CFG.pages.slice():[];
+ BUILTIN.forEach(function(k){if(!list.some(function(p){return p.id===k}))list.push({id:k})});
+ return list.filter(function(p){return p.id==="settings"||!p.hidden}).map(function(p){var b=BUILTIN.indexOf(p.id)>-1;
+  var c=HEX.test(p.color||"")?p.color:(b?DEF_COL[p.id]:"var(--accent)");
+  return {id:p.id,builtin:b,title:L10(p.title)||(b?t(TKEY[p.id]):"Page"),icon:(p.icon&&ICON[p.icon])||(b?ICON[p.id]:ICON.star),color:c,blocks:p.blocks||[]}})}
+function pageOf(id){var l=pages();return l.filter(function(p){return p.id===id})[0]||l[0]}
+function catalog(){return ((CFG&&Array.isArray(CFG.mcps))?CFG.mcps:window.SE_SHARED.MCPS).filter(function(m){return m.enabled!==false&&m.id})}
+function blocksHtml(bl){if(!bl||!bl.length)return"";var h='<div class="cb">',i=0;
+ while(i<bl.length){var b=bl[i];
+  if(b.type==="stat"){h+='<div class="cb-stats">';while(i<bl.length&&bl[i].type==="stat"){h+='<div class="card cb-stat"><span class="muted small">'+esc(L10(bl[i].label))+'</span><b>'+esc(bl[i].value||"")+'</b></div>';i++}h+='</div>';continue}
+  if(b.type==="heading")h+='<h2 class="cb-h">'+esc(L10(b.text))+'</h2>';
+  else if(b.type==="text")h+='<p class="cb-t">'+esc(L10(b.text)).replace(/\n/g,"<br>")+'</p>';
+  else if(b.type==="image"&&safeUrl(b.url))h+='<img class="cb-img" src="'+esc(safeUrl(b.url))+'" alt="'+esc(b.alt||"")+'">';
+  else if(b.type==="button"&&safeUrl(b.url))h+='<div><a class="btn primary" href="'+esc(safeUrl(b.url))+'" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none">'+esc(L10(b.label))+'</a></div>';
+  else if(b.type==="callout")h+='<div class="cb-call">'+esc(L10(b.text)).replace(/\n/g,"<br>")+'</div>';
+  i++}
+ return h+'</div>'}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 var $=function(s,r){return (r||document).querySelector(s)};
 var app=$("#app");
-var ICON={clips:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9.5v5l4-2.5z"/></svg>',
-studio:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>',
-post:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l16-8-6 16-3-7z"/></svg>',
-settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>'};
+var ICON=window.SE_SHARED.ICONS;
 var G='<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.2 5.5-4.7 7.2l7.3 5.7c4.3-4 6.7-9.9 6.7-17.4z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 010-9.4l-7.9-6.1a24 24 0 000 21.6l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.3-5.7c-2 1.4-4.9 2.3-8.6 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
 
 /* ---------- auth ---------- */
-function heroHtml(){return '<div class="auth-hero"><div class="brand"><span class="logo">SE</span>'+t("app")+'</div><div><h2>'+t("authHead")+'</h2><p>'+t("authSub")+'</p><div class="mock" aria-hidden="true"><div class="mc m1"><em>HOOK</em><b></b><b class="s"></b></div><div class="mc m2"><em>HOOK</em><b></b><b class="s"></b></div><div class="mc m3"><em>HOOK</em><b></b><b class="s"></b></div></div></div><ul><li><i>✓</i>'+t("v1")+'</li><li><i>✓</i>'+t("v2")+'</li><li><i>✓</i>'+t("v3")+'</li></ul></div>'}
+function heroHtml(){return '<div class="auth-hero"><div class="brand"><span class="logo">'+LG()+'</span>'+esc(BN())+'</div><div><h2>'+t("authHead")+'</h2><p>'+t("authSub")+'</p><div class="mock" aria-hidden="true"><div class="mc m1"><em>HOOK</em><b></b><b class="s"></b></div><div class="mc m2"><em>HOOK</em><b></b><b class="s"></b></div><div class="mc m3"><em>HOOK</em><b></b><b class="s"></b></div></div></div><ul><li><i>✓</i>'+t("v1")+'</li><li><i>✓</i>'+t("v2")+'</li><li><i>✓</i>'+t("v3")+'</li></ul></div>'}
 function authView(){
  var a=S.auth,h='<div class="auth">'+heroHtml()+'<div class="auth-form"><div class="auth-box">';
  if(a==="login"){
@@ -364,13 +357,11 @@ function enter(){S.view="clips";render()}
 /* ---------- app ---------- */
 function mk(n){var o=[];for(var i=0;i<n;i++)o.push({id:i,title:t("clipN")+" "+(i+1),score:null,dur:null,at:null});return o}
 function fmt(s){var m=Math.floor(s/60),x=s%60;return m+":"+(x<10?"0":"")+x}
-var SEC={clips:["nClips","var(--accent)"],studio:["nStudio","color-mix(in srgb,var(--accent) 50%,#7C3AED)"],post:["nPost","color-mix(in srgb,var(--accent) 45%,#0EA5A5)"],settings:["nSettings","color-mix(in srgb,var(--accent) 40%,#64748B)"]};
-var ORDER=["clips","studio","post","settings"];
-function nav(rail){return ORDER.map(function(k){var s=SEC[k];return '<button data-nav="'+k+'" style="--c:'+s[1]+'"'+(S.view===k?' aria-current="page"':'')+'>'+(rail?'<span class="ni">'+ICON[k]+'</span>':ICON[k])+'<span>'+t(s[0])+'</span></button>'}).join("")}
-function shell(body){var s=SEC[S.view];
- return '<div class="page" style="--c:'+s[1]+'"><header class="banner"><div class="brand"><span class="logo">SE</span><span class="bname">'+t("app")+'</span></div><div class="btag">'+t("bannerTag")+'</div></header>'+
- '<div class="pagehead"><span>'+ICON[S.view]+t(s[0])+'</span></div>'+
- '<div class="shell"><aside class="rail card"><div class="rlab">'+t("menu")+'</div><nav class="nav">'+nav(true)+'</nav><div class="racct"><span class="av">'+esc((S.session||"?")[0].toUpperCase())+'</span><span class="small muted" style="min-width:0;overflow:hidden;text-overflow:ellipsis">'+esc(S.session)+'</span></div></aside><main class="main">'+body+'</main></div></div><nav class="tab-bar">'+nav(false)+'</nav>'}
+function nav(rail,pg){return pages().map(function(p){return '<button data-nav="'+esc(p.id)+'" style="--c:'+p.color+'"'+(pg.id===p.id?' aria-current="page"':'')+'>'+(rail?'<span class="ni">'+p.icon+'</span>':p.icon)+'<span>'+esc(p.title)+'</span></button>'}).join("")}
+function shell(body,pg){
+ return '<div class="page" style="--c:'+pg.color+'"><header class="banner"><div class="brand"><span class="logo">'+LG()+'</span><span class="bname">'+esc(BN())+'</span></div><div class="btag">'+esc(TAG())+'</div></header>'+
+ '<div class="pagehead"><span>'+pg.icon+esc(pg.title)+'</span></div>'+
+ '<div class="shell"><aside class="rail card"><div class="rlab">'+t("menu")+'</div><nav class="nav">'+nav(true,pg)+'</nav><div class="racct"><span class="av">'+esc((S.session||"?")[0].toUpperCase())+'</span><span class="small muted" style="min-width:0;overflow:hidden;text-overflow:ellipsis">'+esc(S.session)+'</span></div></aside><main class="main">'+body+'</main></div></div><nav class="tab-bar">'+nav(false,pg)+'</nav>'}
 
 function clipsView(){
  var h='<div class="head"><h1>'+t("nClips")+'</h1></div><div class="card stack herocard"><div><h2 class="ht">'+t("heroT")+'</h2><div class="hs">'+t("heroS")+'</div></div><label class="f">'+t("src")+'<div class="row"><input class="grow" id="url" type="url" placeholder="https://www.youtube.com/live/..." value="https://www.youtube.com/live/demo-stream" style="flex:1 1 220px"><button class="btn primary" id="an">'+t("analyze")+'</button></div></label><div class="small muted">'+t("srcHint")+'</div><div class="bar" id="pbar" hidden><div></div></div><div class="small" id="jstat">'+esc(S.jobMsg||"")+'</div><div class="small muted">'+t("demo")+'</div></div><div class="card stack"><div class="seg"><button data-mode="short" aria-pressed="'+(S.mode==="short")+'">'+t("modeShort")+'</button><button data-mode="long" aria-pressed="'+(S.mode==="long")+'">'+t("modeLong")+'</button></div><div class="small muted">'+t(S.mode==="long"?"hintLong":"hintShort")+'</div></div>';
@@ -452,10 +443,9 @@ function bindStudio(){
 
 var PLATS=[["youtube","YouTube Shorts"],["tiktok","TikTok"],["instagram","Instagram Reels"],["facebook","Facebook Reels"]];
 function postView(){
- var x=S.mcp.xenial,m=S.mcp.metricool,any=x.on||m.on,n=Object.keys(S.sel).length;
+ var conn=catalog().filter(function(m){return m.kind!=="edit"&&S.mcp[m.id]&&S.mcp[m.id].on}),n=Object.keys(S.sel).length;
  var h='<div class="head"><h1>'+t("nPost")+'</h1></div><div class="card"><h2>'+t("mcp")+'</h2>';
- h+='<div class="conn"><div><b>Zernio</b> <span class="pill ok">'+t("free")+'</span><div class="small muted">'+t("freeX")+'</div></div><span class="pill '+(x.on?'ok':'off')+'">'+(x.on?t("connected"):"—")+'</span></div>';
- h+='<div class="conn"><div><b>Metricool</b> <span class="pill ok">'+t("free")+'</span><div class="small muted">'+t("freeM")+' · '+S.postedM+'/'+(m.sub?"∞":20)+' '+t("usedM")+'</div></div><span class="pill '+(m.on?'ok':'off')+'">'+(m.on?t("connected"):"—")+'</span></div>';
+ h+=conn.length?conn.map(function(m){return '<div class="conn"><div><b>'+esc(m.name)+'</b><div class="small muted">'+esc(L10(m.desc))+'</div></div><span class="pill ok">'+t("keySaved")+'</span></div>'}).join(""):'<div class="muted" style="margin-top:6px">'+t("noPostMcp")+'</div>';
  h+='<div class="small muted" style="margin-top:6px">'+t("nSettings")+' → '+t("mcpList")+'</div></div>';
  h+='<div class="card stack"><h2>'+t("pickClips")+'</h2>'+(n?'<div class="small">'+Object.keys(S.sel).map(function(i){return esc(S.clips[i].title)}).join(" · ")+'</div>':'<div class="muted">'+t("noSel")+'</div>')+'<h2>'+t("platforms")+'</h2><div class="seg">'+PLATS.map(function(p){return '<button data-plat="'+p[0]+'" aria-pressed="'+!!S.plat[p[0]]+'">'+p[1]+'</button>'}).join("")+'</div><label class="f">'+t("caption")+'<textarea id="cap" rows="3">'+esc(S.post.cap)+'</textarea></label><div class="seg"><button data-when="now" aria-pressed="'+(S.post.when==="now")+'">'+t("now")+'</button><button data-when="sched" aria-pressed="'+(S.post.when==="sched")+'">'+t("sched")+'</button></div>'+(S.post.when==="sched"?'<input id="dt" type="datetime-local" style="width:100%;max-width:280px;padding:9px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)">':'')+'<div class="err" id="perr">'+esc(S.msg)+'</div><button class="btn primary" id="pp">'+t("postBtn")+'</button></div>';
  return h;
@@ -464,7 +454,7 @@ function bindPost(){
  document.querySelectorAll("[data-plat]").forEach(function(b){b.onclick=function(){S.plat[b.dataset.plat]=!S.plat[b.dataset.plat];render()}});
  document.querySelectorAll("[data-when]").forEach(function(b){b.onclick=function(){S.post.when=b.dataset.when;render()}});
  var c=$("#cap");if(c)c.oninput=function(){S.post.cap=c.value};
- $("#pp").onclick=function(){var any=S.mcp.xenial.on||S.mcp.metricool.on,ok=Object.keys(S.plat).some(function(k){return S.plat[k]});
+ $("#pp").onclick=function(){var any=catalog().some(function(m){return m.kind!=="edit"&&S.mcp[m.id]&&S.mcp[m.id].on}),ok=Object.keys(S.plat).some(function(k){return S.plat[k]});
   if(!Object.keys(S.sel).length){S.msg=t("noSel")}else if(!any||!ok){S.msg=t("pickPlat")}else{S.msg="";S.postedM+=Object.keys(S.sel).length;var e=$("#perr");e.style.color="var(--ok)";e.textContent="✓ "+t("posted");return}
   render()};
 }
@@ -473,27 +463,29 @@ function setView(){
  var h='<div class="head"><h1>'+t("nSettings")+'</h1></div><div class="card stack"><h2>'+t("setTheme")+'</h2><div class="themes">';
  [["gaming","tGaming",["#F1EEFF","#7C3AED","#67D6EA"]],["blue","tFormal",["#F4F7FB","#1F5FBF","#FFFFFF"]],["green","tGreen",["#F4F7F4","#2B7A57","#FFFFFF"]],["dark","tDark",["#111214","#8AB4FF","#1A1B1E"]]].forEach(function(x){h+='<button class="tcard" data-theme="'+x[0]+'" aria-pressed="'+(S.theme===x[0])+'"><div class="sw">'+x[2].map(function(c){return '<i style="background:'+c+'"></i>'}).join("")+'</div><b class="small">'+t(x[1])+'</b></button>'});
  h+='</div><label class="f" style="max-width:260px">'+t("lang")+'<select id="lang"><option value="en"'+(S.lang==="en"?' selected':'')+'>English</option><option value="ms"'+(S.lang==="ms"?' selected':'')+'>Bahasa Melayu</option></select></label></div>';
- var x=S.mcp.xenial,m=S.mcp.metricool;
- h+='<div class="card"><h2>'+t("mcpList")+'</h2><div class="small muted">'+t("mcpHint")+'</div>';
- h+=mcpRow("xenial","Zernio",t("freeX"),x,false);
- h+=mcpRow("metricool","Metricool",t("freeM"),m,true);
+ var added=catalog().filter(function(m){return S.mcp[m.id]}),left=catalog().filter(function(m){return !S.mcp[m.id]});
+ h+='<div class="card"><div class="row" style="justify-content:space-between;align-items:flex-start"><div><h2>'+t("mcpList")+'</h2><div class="small muted">'+t("mcpHint")+'</div></div><button class="btn primary" id="addMcp">+ '+t("addMcp")+'</button></div>';
+ if(S.mcpPick)h+='<div class="pick">'+(left.length?left.map(function(m){return '<div class="conn"><div><b>'+esc(m.name)+'</b><div class="small muted">'+esc(L10(m.desc))+'</div></div><button class="btn" data-add="'+esc(m.id)+'">'+t("addBtn")+'</button></div>'}).join(""):'<div class="muted" style="margin-top:10px">'+t("noMcpLeft")+'</div>')+'</div>';
+ h+=added.length?added.map(mcpRow).join(""):(S.mcpPick?'':'<div class="muted" style="margin-top:10px">'+t("noMcpAdded")+'</div>');
  h+='</div><div class="card stack"><h2>'+t("engine")+'</h2><div class="small muted">'+t("engineHint")+'</div><label class="f">'+t("anth")+'<input id="k_anth" type="password" autocomplete="off" value="'+esc(S.keys.anth)+'" placeholder="sk-ant-..."></label><label class="f">'+t("hf")+'<input id="k_hf" type="url" value="'+esc(S.keys.hf)+'" placeholder="https://"></label><button class="btn" id="ksave" style="justify-self:start">'+t("save")+'</button></div>';
  h+='<div class="card row" style="justify-content:space-between"><div><div class="small muted">'+t("acct")+'</div><b>'+esc(S.session)+'</b><div class="small muted">'+t("storageNote")+'</div></div><button class="btn" id="out">'+t("logout")+'</button></div>';
  return h;
 }
-function mcpRow(id,name,note,o,metri){
- var h='<div class="conn" style="align-items:start"><div class="stack" style="gap:8px"><div><b>'+name+'</b> <span class="pill '+(o.on?'ok':'off')+'">'+(o.on?t("connected"):t("free"))+'</span><div class="small muted">'+note+'</div></div>';
- if(!o.on)h+='<label class="f">'+t("apiKey")+'<input type="password" autocomplete="off" data-key="'+id+'" value="'+esc(o.key)+'"></label>';
- if(metri){h+='<label class="chk"><input type="checkbox" id="msub"'+(o.sub?' checked':'')+'>'+t("subM")+'</label>';if(o.sub)h+='<label class="f">'+t("subKey")+'<input type="password" autocomplete="off" id="msubkey" value="'+esc(o.subKey)+'"></label>'}
- return h+'</div><button class="btn'+(o.on?'':' primary')+'" data-conn="'+id+'">'+(o.on?t("disconnect"):t("connect"))+'</button></div>';
-}
+function mcpRow(m){var o=S.mcp[m.id],id=esc(m.id);
+ var h='<div class="conn" style="align-items:start"><div class="stack" style="gap:8px"><div><b>'+esc(m.name)+'</b> <span class="pill '+(o.on?'ok':'off')+'">'+(o.on?t("keySaved"):"—")+'</span><div class="small muted">'+esc(L10(m.desc))+'</div></div>';
+ if(!o.on)h+='<label class="f">'+esc(m.keyLabel||t("apiKey"))+'<input type="password" autocomplete="off" data-key="'+id+'" value="'+esc(o.key||"")+'"></label><div class="err" id="e_'+id+'"></div>';
+ if(safeUrl(m.docs))h+='<a class="small" href="'+esc(safeUrl(m.docs))+'" target="_blank" rel="noopener">'+t("docs")+'</a>';
+ return h+'</div><div class="row" style="flex-wrap:nowrap"><button class="btn'+(o.on?'':' primary')+'" data-conn="'+id+'">'+(o.on?t("disconnect"):t("connect"))+'</button><button class="btn" data-rm="'+id+'" aria-label="'+t("remove")+'">✕</button></div></div>'}
 function bindSet(){
  document.querySelectorAll("[data-theme]").forEach(function(b){b.onclick=function(){S.theme=b.dataset.theme;save();render()}});
  $("#lang").onchange=function(e){S.lang=e.target.value;save();render()};
+ $("#addMcp").onclick=function(){S.mcpPick=!S.mcpPick;render()};
+ document.querySelectorAll("[data-add]").forEach(function(b){b.onclick=function(){S.mcp[b.dataset.add]={on:false,key:""};save();render()}});
+ document.querySelectorAll("[data-rm]").forEach(function(b){b.onclick=function(){delete S.mcp[b.dataset.rm];save();render()}});
  document.querySelectorAll("[data-key]").forEach(function(i){i.oninput=function(){S.mcp[i.dataset.key].key=i.value}});
- document.querySelectorAll("[data-conn]").forEach(function(b){b.onclick=function(){var o=S.mcp[b.dataset.conn];o.on=!o.on;save();render()}});
- var ms=$("#msub");if(ms)ms.onchange=function(){S.mcp.metricool.sub=ms.checked;save();render()};
- var mk2=$("#msubkey");if(mk2)mk2.oninput=function(){S.mcp.metricool.subKey=mk2.value};
+ document.querySelectorAll("[data-conn]").forEach(function(b){b.onclick=function(){var o=S.mcp[b.dataset.conn];
+  if(!o.on&&!(o.key||"").trim()){var e=document.getElementById("e_"+b.dataset.conn);if(e)e.textContent=t("keyReq");return}
+  o.on=!o.on;save();render()}});
  $("#ksave").onclick=function(){S.keys.anth=$("#k_anth").value;S.keys.hf=$("#k_hf").value;save();this.textContent="✓ "+t("saved")};
  $("#out").onclick=function(){S.session="";S.auth="login";save();if(FB_ON&&FB())FB().logout();render()};
 }
@@ -511,13 +503,15 @@ function render(){
  if(th)document.documentElement.setAttribute("data-app-theme",th);else document.documentElement.removeAttribute("data-app-theme");
  document.documentElement.lang=S.lang==="ms"?"ms":"en";
  if(!S.session){app.innerHTML=authView();bindAuth();enhancePw();return}
- var v=S.view,b=v==="clips"?clipsView():v==="studio"?studioView():v==="post"?postView():setView();
- app.innerHTML=shell(b);
+ var pg=pageOf(S.view),v=pg.id;S.view=v;
+ var body=pg.builtin?blocksHtml(pg.blocks)+(v==="clips"?clipsView():v==="studio"?studioView():v==="post"?postView():setView()):(blocksHtml(pg.blocks)||'<div class="card muted">'+t("pageEmpty")+'</div>');
+ app.innerHTML=shell(body,pg);
  document.querySelectorAll("[data-nav]").forEach(function(x){x.onclick=function(){S.view=x.dataset.nav;S.msg="";render();window.scrollTo(0,0)}});
- (v==="clips"?bindClips:v==="studio"?bindStudio:v==="post"?bindPost:bindSet)();
+ if(pg.builtin)(v==="clips"?bindClips:v==="studio"?bindStudio:v==="post"?bindPost:bindSet)();
  enhancePw();
 }
-load();
+load();applyCfg();
+window.SE_onConfig=function(c){CFG=c||null;try{localStorage.setItem("se_cfg",JSON.stringify(CFG))}catch(e){}applyCfg();render()};
 if(FB_ON){S.session="";S.users={}}else if(S.session&&!S.users[S.session])S.session="";
 /* called by firebase.js when auth state changes */
 window.SE_onUser=function(u,cfg){
