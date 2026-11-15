@@ -114,8 +114,24 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @keyframes sh{from{background-position:0 0}to{background-position:200% 0}}
-.screen.playing .pic{animation:pulse 3s ease-in-out infinite alternate}
-@keyframes pulse{to{transform:scale(1.08)}}
+.fxw{position:absolute;inset:0}
+.ov{position:absolute;inset:0;pointer-events:none}
+.ov.flash{background:#fff;opacity:0}
+.ov.glitch{opacity:0;background:linear-gradient(transparent 20%,rgba(255,0,70,.35) 20% 26%,transparent 26% 52%,rgba(0,220,255,.35) 52% 57%,transparent 57% 80%,rgba(255,0,70,.3) 80% 84%,transparent 84%);mix-blend-mode:screen}
+.ov.scan{background:repeating-linear-gradient(0deg,rgba(0,0,0,.2) 0 1px,transparent 1px 3px)}
+.ov.grain{opacity:.16;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='120' height='120' filter='url(%23n)'/></svg>");mix-blend-mode:overlay}
+.ov.box{background:linear-gradient(#000 0 9%,transparent 9% 91%,#000 91%)}
+.callout{position:absolute;left:5%;top:9%;font:700 clamp(11px,2vw,16px) 'Poppins',sans-serif;letter-spacing:.12em;color:#fff;background:rgba(10,14,25,.65);border-left:3px solid var(--sub);padding:3px 10px;border-radius:3px}
+.screen.playing .pic{animation:drift 6s ease-in-out infinite alternate}
+.screen.playing.g-shake .fxw{animation:kshake 3s linear infinite}
+.screen.playing.g-punch .pic{animation:kpunch 3s ease-out infinite}
+.screen.playing.g-flash .ov.flash{animation:kflash 3s linear infinite}
+.screen.playing.g-glitch .ov.glitch{animation:kglitch 3s steps(1) infinite}
+@keyframes drift{to{transform:scale(1.05)}}
+@keyframes kshake{0%,19%,31%,100%{transform:none}20%{transform:translate(calc(var(--sh)*-1px),calc(var(--sh)*.5px))}22%{transform:translate(calc(var(--sh)*1px),calc(var(--sh)*-.6px))}24%{transform:translate(calc(var(--sh)*-.7px),calc(var(--sh)*-.4px))}26%{transform:translate(calc(var(--sh)*.6px),calc(var(--sh)*.5px))}28%{transform:translate(calc(var(--sh)*-.3px),0)}}
+@keyframes kpunch{0%,19%{transform:scale(1)}20%{transform:scale(calc(1 + var(--pz)))}34%,100%{transform:scale(1)}}
+@keyframes kflash{0%,19%{opacity:0}20%{opacity:.55}30%,100%{opacity:0}}
+@keyframes kglitch{0%,19%{opacity:0}20%{opacity:1;transform:translateX(-6px)}22%{opacity:.8;transform:translateX(7px)}24%{opacity:1;transform:translateX(-3px)}26%,100%{opacity:0;transform:none}}
 </style>
 </head>
 <body>
@@ -128,7 +144,7 @@ app:"Streamer Editor",login:"Log in",register:"Create account",email:"Email",pw:
 noacct:"No account yet?",haveacct:"Already have an account?",pick:"Choose an account",pickSub:"Select the email to register with.",
 mismatch:"Passwords do not match.",short:"Password must be at least 8 characters.",bademail:"Enter a valid email address.",wrong:"Wrong email or password.",exists:"This email is already registered. Log in instead.",
 notif:"Notification sent to",notifSub:"Your account was registered with this email.",newpw:"Create a new password for your account",cont:"Save and continue",welcomeBack:"Welcome back",other:"Use a different email",
-nClips:"Clips",modeShort:"Content clips",modeLong:"Full YouTube video",hintShort:"Suggested length for content clips is about 1 minute. The number of clips and their length depend on how many hooks your video has.",hintLong:"A full YouTube video can be any length (8, 12, 15 minutes or more). Claude edits all of it for you with Hyperframes in a gaming style: subtitles, effects, sound effects and lighting. No manual editing.",tplHead:"Design sample",clipN:"Sample clip",nStudio:"Studio",nPost:"Post",nSettings:"Settings",
+nClips:"Clips",fxPresets:"Gaming style",pClean:"Clean",pEsports:"Esports",pHype:"Hype",pCinema:"Cinematic",gShake:"Screen shake on hits",gPunch:"Zoom punch",gGlitch:"RGB glitch",gFlash:"Impact flash",gScan:"Scanlines",gGrain:"Film grain",gBox:"Letterbox bars",gCall:"Highlight callout",gInt:"Effect strength",fxHint:"Press play on the preview to see the effects hit. Claude places them on the real hook moments.",modeShort:"Content clips",modeLong:"Full YouTube video",hintShort:"Suggested length for content clips is about 1 minute. The number of clips and their length depend on how many hooks your video has.",hintLong:"A full YouTube video can be any length (8, 12, 15 minutes or more). Claude edits all of it for you with Hyperframes in a gaming style: subtitles, effects, sound effects and lighting. No manual editing.",tplHead:"Design sample",clipN:"Sample clip",nStudio:"Studio",nPost:"Post",nSettings:"Settings",
 src:"YouTube live replay or game recording",srcHint:"Paste the saved live link. The app finds hook moments and cuts them for you.",analyze:"Find hooks",analyzing:"Analyzing",
 demo:"Design sample only. The real number of clips and their lengths come from your video once the cloud engine is connected.",
 found:"clips found",hook:"Hook",sel:"Selected",showMore:"Show more",edit:"Edit in Studio",none:"No clips yet. Paste a link above and tap Find hooks.",
@@ -152,7 +168,7 @@ app:"Streamer Editor",login:"Log masuk",register:"Daftar akaun",email:"E-mel",pw
 noacct:"Belum ada akaun?",haveacct:"Sudah ada akaun?",pick:"Pilih akaun",pickSub:"Pilih e-mel untuk mendaftar.",
 mismatch:"Kata laluan tidak sama.",short:"Kata laluan sekurang-kurangnya 8 aksara.",bademail:"Masukkan e-mel yang sah.",wrong:"E-mel atau kata laluan salah.",exists:"E-mel ini sudah berdaftar. Sila log masuk.",
 notif:"Notifikasi dihantar ke",notifSub:"Akaun anda telah didaftarkan dengan e-mel ini.",newpw:"Cipta kata laluan baharu untuk akaun anda",cont:"Simpan dan teruskan",welcomeBack:"Selamat kembali",other:"Guna e-mel lain",
-nClips:"Klip",modeShort:"Klip kandungan",modeLong:"Video penuh YouTube",hintShort:"Panjang cadangan untuk klip kandungan lebih kurang 1 minit. Bilangan klip dan panjangnya bergantung pada berapa banyak hook dalam video anda.",hintLong:"Video penuh YouTube boleh panjang mana pun (8, 12, 15 minit atau lebih). Claude edit semuanya untuk anda dengan Hyperframes gaya gaming: sari kata, kesan, kesan bunyi dan pencahayaan. Tak perlu edit manual.",tplHead:"Contoh reka bentuk",clipN:"Klip contoh",nStudio:"Studio",nPost:"Siar",nSettings:"Tetapan",
+nClips:"Klip",fxPresets:"Gaya gaming",pClean:"Bersih",pEsports:"Esports",pHype:"Hype",pCinema:"Sinematik",gShake:"Skrin bergegar pada hentakan",gPunch:"Zum hentak",gGlitch:"Glitch RGB",gFlash:"Kilat hentakan",gScan:"Garis imbas",gGrain:"Bijian filem",gBox:"Bar letterbox",gCall:"Label sorotan",gInt:"Kekuatan kesan",fxHint:"Tekan main pada pratonton untuk lihat kesan. Claude letak kesan pada momen hook sebenar.",modeShort:"Klip kandungan",modeLong:"Video penuh YouTube",hintShort:"Panjang cadangan untuk klip kandungan lebih kurang 1 minit. Bilangan klip dan panjangnya bergantung pada berapa banyak hook dalam video anda.",hintLong:"Video penuh YouTube boleh panjang mana pun (8, 12, 15 minit atau lebih). Claude edit semuanya untuk anda dengan Hyperframes gaya gaming: sari kata, kesan, kesan bunyi dan pencahayaan. Tak perlu edit manual.",tplHead:"Contoh reka bentuk",clipN:"Klip contoh",nStudio:"Studio",nPost:"Siar",nSettings:"Tetapan",
 src:"Ulang tayang live YouTube atau rakaman game",srcHint:"Tampal pautan live yang disimpan. Aplikasi cari momen hook dan potong untuk anda.",analyze:"Cari hook",analyzing:"Sedang analisis",
 demo:"Contoh reka bentuk sahaja. Bilangan klip dan panjang sebenar datang daripada video anda selepas enjin awan disambung.",
 found:"klip dijumpai",hook:"Hook",sel:"Dipilih",showMore:"Papar lagi",edit:"Edit dalam Studio",none:"Belum ada klip. Tampal pautan di atas dan tekan Cari hook.",
@@ -172,9 +188,9 @@ engine:"Enjin edit awan",engineHint:"Editor berjalan di awan bersama Claude. Mas
 defExp:"Eksport lalai",logout:"Log keluar",acct:"Akaun",save:"Simpan",saved:"Disimpan",
 platforms:"Platform",storageNote:"Pratonton ini menyimpan data dalam pelayar anda sahaja."
 }};
-var S={lang:"en",theme:"blue",users:{},last:"",session:"",view:"clips",mode:"short",auth:"login",tmp:null,
+var S={lang:"en",theme:"blue",users:{},last:"",session:"",view:"clips",mode:"short",gpre:"esports",gint:5,gfx:{shake:true,punch:true,glitch:false,flash:true,scan:false,grain:false,box:false,call:true},auth:"login",tmp:null,
  clips:[],shown:25,sel:{},cur:null,ratio:"16:9",fx:{bright:100,contrast:100,sat:100,warm:0,glow:0,vig:0},preset:"none",
- sfx:{whoosh:true,hit:true,riser:false,pop:false},opts:{duck:true,loud:true,hook:true,shake:false,trans:true,caps:true,silence:true},
+ sfx:{whoosh:true,hit:true,riser:false,pop:false,bass:false,ping:true},opts:{duck:true,loud:true,hook:true,shake:false,trans:true,caps:true,silence:true},
  tab:"light",res:"1080p",fps:60,mcp:{xenial:{on:false,key:""},metricool:{on:false,key:"",sub:false,subKey:""}},plat:{},post:{cap:"",when:"now"},postedM:3,keys:{anth:"",hf:""},msg:""};
 var KEY="se_v1";
 var FB_ON=!!(window.FIREBASE_CONFIG&&!/^PASTE/.test(window.FIREBASE_CONFIG.apiKey||"PASTE"));
@@ -293,17 +309,22 @@ function studioView(){
  if(!c)return '<div class="head"><h1>'+t("nStudio")+'</h1></div><div class="card muted">'+t("none")+'</div>';
  var r=RATIOS.filter(function(x){return x[0]===S.ratio})[0][1];
  var maxw=S.ratio==="9:16"?"min(100%,260px)":S.ratio==="4:5"?"min(100%,340px)":S.ratio==="1:1"?"min(100%,420px)":"100%";
- var h='<div class="head"><h1>'+t("nStudio")+'</h1><span class="pill">'+esc(c.title)+'</span></div><div class="studio"><div class="card stack"><h2>'+t("preview")+'</h2><div class="stage"><div class="screen" id="screen" style="aspect-ratio:'+r+';width:'+maxw+'"><div class="pic" id="pic"></div><div id="glow" style="position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.55),transparent 60%);opacity:'+S.fx.glow/100+';pointer-events:none"></div><button class="play" id="play" aria-label="Play">▶</button>'+(S.opts.caps?'<div class="cap">This is <i>actually</i> the best play ما شاء الله</div>':'')+'</div></div><div><div class="small muted" style="margin-bottom:6px">'+t("ratio")+'</div><div class="seg">'+RATIOS.map(function(x){return '<button data-ratio="'+x[0]+'" aria-pressed="'+(S.ratio===x[0])+'">'+(x[0]==="1:1"?t("ratioSq")+' 1:1':x[0])+'</button>'}).join("")+'</div></div></div>';
+ var h='<div class="head"><h1>'+t("nStudio")+'</h1><span class="pill">'+esc(c.title)+'</span></div><div class="studio"><div class="card stack"><h2>'+t("preview")+'</h2><div class="stage"><div class="screen'+gcls()+'" id="screen" style="aspect-ratio:'+r+';width:'+maxw+';--sh:'+S.gint*1.2+';--pz:'+S.gint*.02+'"><div class="fxw"><div class="pic" id="pic"></div><div id="glow" style="position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.55),transparent 60%);opacity:'+S.fx.glow/100+';pointer-events:none"></div></div><div class="ov flash"></div><div class="ov glitch"></div>'+(S.gfx.scan?'<div class="ov scan"></div>':'')+(S.gfx.grain?'<div class="ov grain"></div>':'')+(S.gfx.box?'<div class="ov box"></div>':'')+(S.gfx.call?'<div class="callout">CLUTCH</div>':'')+'<button class="play" id="play" aria-label="Play">▶</button>'+(S.opts.caps?'<div class="cap">This is <i>actually</i> the best play ما شاء الله</div>':'')+'</div></div><div><div class="small muted" style="margin-bottom:6px">'+t("ratio")+'</div><div class="seg">'+RATIOS.map(function(x){return '<button data-ratio="'+x[0]+'" aria-pressed="'+(S.ratio===x[0])+'">'+(x[0]==="1:1"?t("ratioSq")+' 1:1':x[0])+'</button>'}).join("")+'</div></div></div>';
  h+='<div class="card stack"><div class="tabs" role="tablist">'+[["light","tLight"],["color","tColor"],["sound","tSound"],["fx","tFx"],["exp","tExport"]].map(function(x){return '<button role="tab" data-tab="'+x[0]+'" aria-selected="'+(S.tab===x[0])+'">'+t(x[1])+'</button>'}).join("")+'</div>';
  if(S.tab==="light")h+=sl("bright","bright",50,150)+sl("contrast","contrast",50,150)+sl("glow","glow",0,100)+sl("vig","vig",0,100);
  if(S.tab==="color")h+=sl("sat","sat",0,200)+sl("warm","warm",-50,50)+'<div class="small muted">'+t("presets")+'</div><div class="seg">'+[["none","pNone"],["cine","pCine"],["vivid","pVivid"],["warm","pWarm"],["cool","pCool"],["bw","pBW"]].map(function(x){return '<button data-preset="'+x[0]+'" aria-pressed="'+(S.preset===x[0])+'">'+t(x[1])+'</button>'}).join("")+'</div>';
- if(S.tab==="sound"){h+='<div class="small muted">'+t("sfx")+'</div>';[["whoosh","Whoosh"],["hit","Impact hit"],["riser","Riser"],["pop","Pop"]].forEach(function(x){h+='<label class="chk"><input type="checkbox" data-sfx="'+x[0]+'"'+(S.sfx[x[0]]?' checked':'')+'>'+x[1]+'</label>'});
+ if(S.tab==="sound"){h+='<div class="small muted">'+t("sfx")+'</div>';[["whoosh","Whoosh"],["hit","Impact hit"],["riser","Riser"],["pop","Pop"],["bass","Bass drop"],["ping","Hit marker ping"]].forEach(function(x){h+='<label class="chk"><input type="checkbox" data-sfx="'+x[0]+'"'+(S.sfx[x[0]]?' checked':'')+'>'+x[1]+'</label>'});
   h+='<label class="f">'+t("music")+'<select id="mus"><option>Lo-fi chill</option><option>Epic build</option><option>Upbeat</option><option>None</option></select></label>'+optChk("duck")+optChk("loud");}
- if(S.tab==="fx")h+=optChk("hook","fxHook")+optChk("shake","fxShake")+optChk("trans","fxTrans")+optChk("caps","fxCaps")+optChk("silence","fxSilence");
+ if(S.tab==="fx"){h+='<div class="small muted">'+t("fxPresets")+'</div><div class="seg">'+PRE.map(function(p){return '<button data-gpre="'+p[0]+'" aria-pressed="'+(S.gpre===p[0])+'">'+t(p[1])+'</button>'}).join("")+'</div>';
+  GF.forEach(function(x){h+='<label class="chk"><input type="checkbox" data-gfx="'+x[0]+'"'+(S.gfx[x[0]]?' checked':'')+'>'+t(x[1])+'</label>'});
+  h+='<div class="sl"><div class="top"><span>'+t("gInt")+'</span><span id="v_gint">'+S.gint+'</span></div><input type="range" min="1" max="10" value="'+S.gint+'" id="gint" aria-label="'+t("gInt")+'"></div><div class="small muted">'+t("fxHint")+'</div>'+optChk("trans","fxTrans")+optChk("caps","fxCaps")+optChk("silence","fxSilence");}
  if(S.tab==="exp"){var n=Object.keys(S.sel).length||1;
   h+='<div class="two"><label class="f">'+t("res")+'<select id="res">'+["720p","1080p","1440p","4K"].map(function(x){return '<option'+(S.res===x?' selected':'')+'>'+x+'</option>'}).join("")+'</select></label><label class="f">'+t("fps")+'<select id="fps">'+[60,120,144,200,240,300].map(function(x){return '<option'+(S.fps===x?' selected':'')+'>'+x+'</option>'}).join("")+'</select></label></div><div class="small muted">'+t("fpsNote")+'</div><div class="bar" id="xbar"><div></div></div><div class="small" id="xmsg">&nbsp;</div><button class="btn primary" id="xp">'+t("exp")+' ('+n+')</button>';}
  return h+'</div></div>';
 }
+var GF=[["shake","gShake"],["punch","gPunch"],["flash","gFlash"],["glitch","gGlitch"],["scan","gScan"],["grain","gGrain"],["box","gBox"],["call","gCall"]];
+var PRE=[["clean","pClean",{},3],["esports","pEsports",{shake:1,punch:1,flash:1,call:1},5],["hype","pHype",{shake:1,punch:1,flash:1,glitch:1,scan:1,call:1},7],["cinema","pCinema",{punch:1,grain:1,box:1},3]];
+function gcls(){return ["shake","punch","flash","glitch"].filter(function(k){return S.gfx[k]}).map(function(k){return " g-"+k}).join("")}
 function optChk(k,l){return '<label class="chk"><input type="checkbox" data-opt="'+k+'"'+(S.opts[k]?' checked':'')+'>'+t(l||k)+'</label>'}
 function bindStudio(){
  applyFx();
@@ -314,6 +335,9 @@ function bindStudio(){
  document.querySelectorAll("[data-preset]").forEach(function(b){b.onclick=function(){S.preset=b.dataset.preset;render()}});
  document.querySelectorAll("[data-sfx]").forEach(function(i){i.onchange=function(){S.sfx[i.dataset.sfx]=i.checked}});
  document.querySelectorAll("[data-opt]").forEach(function(i){i.onchange=function(){S.opts[i.dataset.opt]=i.checked;if(i.dataset.opt==="caps")render()}});
+ document.querySelectorAll("[data-gpre]").forEach(function(b){b.onclick=function(){var p=PRE.filter(function(x){return x[0]===b.dataset.gpre})[0];S.gpre=p[0];S.gint=p[3];S.gfx={};GF.forEach(function(x){S.gfx[x[0]]=!!p[2][x[0]]});render()}});
+ document.querySelectorAll("[data-gfx]").forEach(function(i){i.onchange=function(){S.gfx[i.dataset.gfx]=i.checked;S.gpre="";render()}});
+ var gi=$("#gint");if(gi)gi.oninput=function(){S.gint=+gi.value;$("#v_gint").textContent=gi.value;var sc=$("#screen");sc.style.setProperty("--sh",S.gint*1.2);sc.style.setProperty("--pz",S.gint*.02)};
  var r=$("#res");if(r)r.onchange=function(){S.res=r.value;save()};
  var f=$("#fps");if(f)f.onchange=function(){S.fps=+f.value;save()};
  var xp=$("#xp");if(xp)xp.onclick=function(){var b=$("#xbar>div"),p=0;xp.disabled=true;$("#xmsg").textContent=t("exporting")+" · "+S.res+" · "+S.fps+" fps";var iv=setInterval(function(){p+=6+Math.random()*8;b.style.width=Math.min(p,100)+"%";if(p>=100){clearInterval(iv);$("#xmsg").textContent="✓ "+t("done");xp.disabled=false}},200)};
