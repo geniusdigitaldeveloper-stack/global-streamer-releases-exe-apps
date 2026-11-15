@@ -384,7 +384,7 @@ function normalize(c) {
   BUILT.forEach((id) => { if (!c.pages.some((p) => p.id === id)) c.pages.push(d.pages.find((p) => p.id === id)); });
   c.pages.forEach((p) => { p.title = Object.assign({ en: "", ms: "" }, p.title); p.blocks = p.blocks || []; });
   if (!Array.isArray(c.mcps)) c.mcps = d.mcps;
-  c.mcps.forEach((m) => { m.desc = Object.assign({ en: "", ms: "" }, m.desc); });
+  c.mcps.forEach((m) => { m.desc = Object.assign({ en: "", ms: "" }, m.desc); m.auth = m.auth || "apikey"; m.authUrl = m.authUrl || ""; m.logo = m.logo || ""; m.upgradeUrl = m.upgradeUrl || ""; m.freeLimit = Object.assign({ type: "", value: 0 }, m.freeLimit); });
   return c;
 }
 const gp = (o, p) => p.split(".").reduce((a, k) => (a == null ? a : a[k]), o);
@@ -459,15 +459,20 @@ function textRows() {
 }
 function mcpTab() {
   const kinds = [["post", "Siaran (media sosial)"], ["edit", "Suntingan (suara, video, imej)"]];
+  const auths = [["oauth", "Kebenaran sahaja (tiada kunci API)"], ["both", "Kebenaran, atau kunci API untuk pelan berbayar"], ["apikey", "Kunci API sahaja (wajib)"]];
+  const limits = [["", "Tiada had"], ["platforms", "Had bilangan platform"], ["posts", "Had hantaran sebulan"]];
   return `<div class="muted small">Pengguna memilih MCP daripada senarai ini dalam Tetapan, dan setiap satu perlukan kunci API pengguna sendiri.</div>` + cfg.mcps.map((m, i) => `<div class="card ecard"><div class="bh"><b>${esc(m.name || "MCP baharu")}</b><button class="btn sm danger" data-act="delMcp" data-i="${i}">Padam</button></div>
     <div class="g2">${inp("Nama", `mcps.${i}.name`)}${sel("Jenis", `mcps.${i}.kind`, kinds)}</div>
     <div class="g2">${inp("Keterangan (English)", `mcps.${i}.desc.en`)}${inp("Keterangan (Bahasa Melayu)", `mcps.${i}.desc.ms`)}</div>
     <div class="g2">${inp("Label kunci API", `mcps.${i}.keyLabel`, "Contoh: Zernio API key")}${inp("Pautan untuk dapatkan kunci (https, pilihan)", `mcps.${i}.docs`, "https://...")}</div>
+    <div class="g2">${sel("Cara sambung", `mcps.${i}.auth`, auths)}${inp("Pautan kebenaran (authorize URL, https)", `mcps.${i}.authUrl`, "https://... (boleh guna {state})")}</div>
+    <div class="g2">${inp("Pautan logo MCP (https, pilihan)", `mcps.${i}.logo`, "https://...")}${inp("Pautan naik taraf pelan (https)", `mcps.${i}.upgradeUrl`, "https://...")}</div>
+    <div class="g2">${sel("Had pelan percuma", `mcps.${i}.freeLimit.type`, limits)}${inp("Nilai had (contoh 2 platform atau 20 hantaran)", `mcps.${i}.freeLimit.value`, "0", "number")}</div>
     ${chk("Dipaparkan kepada pengguna", `mcps.${i}.enabled`)}</div>`).join("") + `<div><button class="btn primary" data-act="addMcp">+ Tambah MCP</button></div>`;
 }
 /* events */
 const sb = $("siteBody");
-const onField = (e) => { const t = e.target, p = t.dataset && t.dataset.p; if (!p || !cfg) return; sp(cfg, p, t.type === "checkbox" ? t.checked : t.value); mark(); if (tab === "banner") updPrev(); };
+const onField = (e) => { const t = e.target, p = t.dataset && t.dataset.p; if (!p || !cfg) return; sp(cfg, p, t.type === "checkbox" ? t.checked : t.type === "number" ? Number(t.value) || 0 : t.value); mark(); if (tab === "banner") updPrev(); };
 sb.addEventListener("input", onField); sb.addEventListener("change", onField);
 sb.addEventListener("input", (e) => { if (e.target.id === "tq") textRows(); });
 sb.addEventListener("click", (e) => {
@@ -482,7 +487,7 @@ sb.addEventListener("click", (e) => {
   else if (a === "addBlock") { const t = b.dataset.t, o = { type: t }; if (t === "heading" || t === "text" || t === "callout") o.text = { en: "", ms: "" }; if (t === "button" || t === "stat") o.label = { en: "", ms: "" }; if (t === "image") { o.url = ""; o.alt = ""; } if (t === "button") o.url = ""; if (t === "stat") o.value = ""; cfg.pages[i].blocks.push(o); }
   else if (a === "bup") mv(cfg.pages[i].blocks, j, -1); else if (a === "bdown") mv(cfg.pages[i].blocks, j, 1);
   else if (a === "bdel") cfg.pages[i].blocks.splice(j, 1);
-  else if (a === "addMcp") cfg.mcps.push({ id: "mcp" + Date.now().toString(36), name: "", kind: "post", desc: { en: "", ms: "" }, keyLabel: "API key", docs: "", enabled: true });
+  else if (a === "addMcp") cfg.mcps.push({ id: "mcp" + Date.now().toString(36), name: "", kind: "post", desc: { en: "", ms: "" }, keyLabel: "API key", docs: "", auth: "apikey", authUrl: "", logo: "", upgradeUrl: "", freeLimit: { type: "", value: 0 }, enabled: true });
   else if (a === "delMcp") cfg.mcps.splice(i, 1);
   else if (a === "clearTexts") cfg.texts = { en: {}, ms: {} };
   else return;
@@ -498,7 +503,7 @@ function validUrls(o) {
   const ok = (u) => !u || /^https:\/\/[^\s"'()<>]+$/.test(u);
   if (!ok(o.banner.image)) return "URL imej banner mesti bermula dengan https://";
   for (const p of o.pages) for (const b of p.blocks) if ((b.type === "image" || b.type === "button") && !ok(b.url)) return "URL gambar dan pautan mesti bermula dengan https://";
-  for (const m of o.mcps) if (!ok(m.docs)) return "Pautan kunci MCP mesti bermula dengan https://";
+  for (const m of o.mcps) if (!ok(m.docs) || !ok(m.authUrl) || !ok(m.logo) || !ok(m.upgradeUrl)) return "Semua pautan MCP mesti bermula dengan https://";
   return "";
 }
 $("siteSave").onclick = async () => {

@@ -235,6 +235,19 @@ html.cfgbg .banner,html.cfgbg .auth-hero{background:var(--bgr)!important}
 .cb-call{border-left:4px solid var(--c);background:color-mix(in srgb,var(--c) 10%,var(--surface));padding:12px 16px;border-radius:10px}
 .cform{display:grid;gap:12px;padding:14px 0 8px;margin-top:10px;border-top:1px solid var(--line)}
 .pick{border:1px dashed var(--line);border-radius:var(--radius);padding:4px 14px;margin-top:12px}
+
+/* ---- authorize modal + limit alerts ---- */
+.modal{position:fixed;inset:0;background:rgba(10,16,30,.55);display:grid;place-items:center;padding:16px;z-index:50}
+.mbox{background:var(--surface);color:var(--ink);border-radius:20px;max-width:420px;width:100%;padding:24px;display:grid;gap:14px;box-shadow:0 30px 80px rgba(0,0,0,.35);max-height:92vh;overflow:auto}
+.mlogos{display:flex;align-items:center;justify-content:center;gap:14px}
+.mlogo{width:60px;height:60px;border-radius:16px;display:grid;place-items:center;font:700 22px var(--head);color:#fff;overflow:hidden;background:var(--ml,var(--accent));flex:none}
+.mlogo.app{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#38BDF8))}
+.mlogo.sm{width:40px;height:40px;border-radius:12px;font-size:16px}
+.mlogo img{width:100%;height:100%;object-fit:cover}
+.mlink{color:var(--muted);font-size:22px}
+.who2{display:flex;gap:12px;align-items:center;min-width:0}
+.alert-red{border:1px solid color-mix(in srgb,var(--bad) 45%,var(--line));background:color-mix(in srgb,var(--bad) 10%,var(--surface));color:var(--bad);border-radius:var(--radius);padding:12px 14px;font-weight:500}
+.alert-red .upg{color:var(--bad);text-decoration:underline;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -247,14 +260,14 @@ var L=window.SE_SHARED.L;
 var S={lang:"en",theme:"blue",users:{},last:"",session:"",view:"clips",mode:"short",gpre:"esports",gint:5,gfx:{shake:true,punch:true,glitch:false,flash:true,scan:false,grain:false,box:false,call:true},auth:"login",tmp:null,
  clips:[],shown:25,sel:{},cur:null,ratio:"16:9",fx:{bright:100,contrast:100,sat:100,warm:0,glow:0,vig:0},preset:"none",
  sfx:{whoosh:true,hit:true,riser:false,pop:false,bass:false,ping:true},opts:{duck:true,loud:true,hook:true,shake:false,trans:true,caps:true,silence:true},
- tab:"light",res:"1080p",fps:60,mcp:{},plat:{},post:{cap:"",when:"now"},postedM:3,keys:{anth:"",hf:""},msg:""};
+ tab:"light",res:"1080p",fps:60,mcp:{},usage:{},plat:{},post:{cap:"",when:"now"},postedM:3,keys:{anth:"",hf:""},msg:""};
 var KEY="se_v1";
 var FB_ON=!!(window.FIREBASE_CONFIG&&!/^PASTE/.test(window.FIREBASE_CONFIG.apiKey||"PASTE"));
 var FB=function(){return window.SE_FB};
 function load(){try{var d=JSON.parse(localStorage.getItem(KEY)||"{}");for(var k in d)S[k]=d[k];}catch(e){}}
 var saveT;
-function cloudSave(){if(!FB_ON||!S.session||!FB())return;clearTimeout(saveT);saveT=setTimeout(function(){FB().saveSettings({theme:S.theme,lang:S.lang,mcp:S.mcp,keys:S.keys,res:S.res,fps:S.fps}).catch(function(){})},600)}
-function save(){cloudSave();try{localStorage.setItem(KEY,JSON.stringify(FB_ON?{lang:S.lang,theme:S.theme,last:S.last}:{lang:S.lang,theme:S.theme,users:S.users,last:S.last,session:S.session,mcp:S.mcp,keys:S.keys,res:S.res,fps:S.fps}));}catch(e){}}
+function cloudSave(){if(!FB_ON||!S.session||!FB())return;clearTimeout(saveT);saveT=setTimeout(function(){FB().saveSettings({theme:S.theme,lang:S.lang,mcp:S.mcp,usage:S.usage,keys:S.keys,res:S.res,fps:S.fps}).catch(function(){})},600)}
+function save(){cloudSave();try{localStorage.setItem(KEY,JSON.stringify(FB_ON?{lang:S.lang,theme:S.theme,last:S.last}:{lang:S.lang,theme:S.theme,users:S.users,last:S.last,session:S.session,mcp:S.mcp,usage:S.usage,keys:S.keys,res:S.res,fps:S.fps}));}catch(e){}}
 var CFG=null;try{CFG=JSON.parse(localStorage.getItem("se_cfg")||"null")}catch(e){}
 function L10(o){return o?(o[S.lang]||o.en||""):""}
 function t(k){var o=CFG&&CFG.texts&&CFG.texts[S.lang]&&CFG.texts[S.lang][k];return o||(L[S.lang]&&L[S.lang][k])||L.en[k]||k}
@@ -443,12 +456,14 @@ function bindStudio(){
 }
 
 var PLATS=[["youtube","YouTube Shorts"],["tiktok","TikTok"],["instagram","Instagram Reels"],["facebook","Facebook Reels"]];
+function limitNotes(){return limitInfo().filter(function(x){return x.over}).map(function(x){var f=x.m.freeLimit,txt=fmt2(t(f.type==="platforms"?"limitPlatforms":"limitPosts"),{n:+f.value});
+ return '<div class="alert-red" role="alert"><b>'+esc(x.m.name)+':</b> '+esc(txt)+(safeUrl(x.m.upgradeUrl)?' <a href="'+esc(safeUrl(x.m.upgradeUrl))+'" target="_blank" rel="noopener" class="upg">'+t("upgrade")+' →</a>':'')+'</div>'}).join("")}
 function postView(){
  var conn=connectedPost(),n=Object.keys(S.sel).length;
  var h='<div class="head"><h1>'+t("nPost")+'</h1></div><div class="card"><h2>'+t("mcp")+'</h2>';
- h+=conn.length?conn.map(function(m){return '<div class="conn"><div><b>'+esc(m.name)+'</b><div class="small muted">'+esc(L10(m.desc))+'</div></div><span class="pill ok">'+t("keySaved")+'</span></div>'}).join(""):'<div class="muted" style="margin-top:6px">'+t("noPostMcp")+'</div>';
+ h+=conn.length?conn.map(function(m){return '<div class="conn"><div><b>'+esc(m.name)+'</b><div class="small muted">'+esc(L10(m.desc))+'</div></div><span class="pill ok">'+(S.mcp[m.id]&&S.mcp[m.id].mode==="oauth"?t("connected"):t("keySaved"))+'</span></div>'}).join(""):'<div class="muted" style="margin-top:6px">'+t("noPostMcp")+'</div>';
  h+='<div class="small muted" style="margin-top:6px">'+t("nSettings")+' → '+t("mcpList")+'</div></div>';
- h+='<div class="card stack"><h2>'+t("pickClips")+'</h2>'+(n?'<div class="small">'+Object.keys(S.sel).map(function(i){return esc(S.clips[i].title)}).join(" · ")+'</div>':'<div class="muted">'+t("noSel")+'</div>')+'<h2>'+t("platforms")+'</h2><div class="seg">'+PLATS.map(function(p){return '<button data-plat="'+p[0]+'" aria-pressed="'+!!S.plat[p[0]]+'">'+p[1]+'</button>'}).join("")+'</div><label class="f">'+t("caption")+'<textarea id="cap" rows="3">'+esc(S.post.cap)+'</textarea></label><div class="seg"><button data-when="now" aria-pressed="'+(S.post.when==="now")+'">'+t("now")+'</button><button data-when="sched" aria-pressed="'+(S.post.when==="sched")+'">'+t("sched")+'</button></div>'+(S.post.when==="sched"?'<input id="dt" type="datetime-local" style="width:100%;max-width:280px;padding:9px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)">':'')+'<div class="err" id="perr">'+esc(S.msg)+'</div><button class="btn primary" id="pp">'+t("postBtn")+'</button></div>';
+ h+='<div class="card stack"><h2>'+t("pickClips")+'</h2>'+(n?'<div class="small">'+Object.keys(S.sel).map(function(i){return esc(S.clips[i].title)}).join(" · ")+'</div>':'<div class="muted">'+t("noSel")+'</div>')+'<h2>'+t("platforms")+'</h2><div class="seg">'+PLATS.map(function(p){return '<button data-plat="'+p[0]+'" aria-pressed="'+!!S.plat[p[0]]+'">'+p[1]+'</button>'}).join("")+'</div>'+limitNotes()+'<label class="f">'+t("caption")+'<textarea id="cap" rows="3">'+esc(S.post.cap)+'</textarea></label><div class="seg"><button data-when="now" aria-pressed="'+(S.post.when==="now")+'">'+t("now")+'</button><button data-when="sched" aria-pressed="'+(S.post.when==="sched")+'">'+t("sched")+'</button></div>'+(S.post.when==="sched"?'<input id="dt" type="datetime-local" style="width:100%;max-width:280px;padding:9px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)">':'')+'<div class="err" id="perr">'+esc(S.msg)+'</div><button class="btn primary" id="pp">'+t("postBtn")+'</button></div>';
  return h;
 }
 function bindPost(){
@@ -456,7 +471,10 @@ function bindPost(){
  document.querySelectorAll("[data-when]").forEach(function(b){b.onclick=function(){S.post.when=b.dataset.when;render()}});
  var c=$("#cap");if(c)c.oninput=function(){S.post.cap=c.value};
  $("#pp").onclick=function(){var any=connectedPost().length>0,ok=Object.keys(S.plat).some(function(k){return S.plat[k]});
-  if(!Object.keys(S.sel).length){S.msg=t("noSel")}else if(!any||!ok){S.msg=t("pickPlat")}else{S.msg="";S.postedM+=Object.keys(S.sel).length;var e=$("#perr");e.style.color="var(--ok)";e.textContent="✓ "+t("posted");return}
+  var li=limitInfo();
+  if(!Object.keys(S.sel).length){S.msg=t("noSel")}else if(!any||!ok){S.msg=t("pickPlat")}else if(li.length&&li.every(function(x){return x.over})){S.msg=t("limitBlock")}else{S.msg="";S.postedM+=Object.keys(S.sel).length;
+   var selN=Object.keys(S.sel).length,pl=Object.keys(S.plat).filter(function(k){return S.plat[k]}).length;
+   li.forEach(function(x){if(x.m.freeLimit.type==="posts"){var u=S.usage[x.m.id];if(!u||u.m!==ym())u=S.usage[x.m.id]={m:ym(),n:0};u.n+=selN*Math.max(pl,1)}});save();var e=$("#perr");e.style.color="var(--ok)";e.textContent="✓ "+t("posted");return}
   render()};
 }
 
@@ -476,11 +494,39 @@ function setView(){
 function customForm(){var c=S.cm||(S.cm={name:"",url:"",key:"",kind:"post"});
  return '<div class="cform"><h3>'+t("customMcp")+'</h3><label class="f">'+t("mcpName")+'<input id="cm_name" type="text" autocomplete="off" value="'+esc(c.name)+'"></label><label class="f">'+t("mcpLink")+'<input id="cm_url" type="url" placeholder="https://" autocomplete="off" value="'+esc(c.url)+'"></label><label class="f">'+t("apiKey")+'<input id="cm_key" type="password" autocomplete="off" value="'+esc(c.key)+'"></label><label class="f">'+t("mcpKind")+'<select id="cm_kind"><option value="post"'+(c.kind==="post"?' selected':'')+'>'+t("kPost")+'</option><option value="edit"'+(c.kind==="edit"?' selected':'')+'>'+t("kEdit")+'</option></select></label><div class="err" id="cm_err"></div><button class="btn primary" id="cm_add" style="justify-self:start">'+t("addBtn")+'</button></div>'}
 function connectedPost(){var r=catalog().filter(function(m){return m.kind!=="edit"&&S.mcp[m.id]&&S.mcp[m.id].on});Object.keys(S.mcp).forEach(function(id){var o=S.mcp[id];if(o&&o.custom&&o.on&&o.kind!=="edit")r.push({id:id,name:o.name,desc:{en:o.url,ms:o.url}})});return r}
+function fmt2(s,o){return s.replace(/\{(\w+)\}/g,function(_,k){return o[k]!=null?o[k]:""})}
+function ym(){var d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)}
+function mcpById(id){var c=catalog().filter(function(m){return m.id===id})[0];if(c)return c;var o=S.mcp[id];if(o&&o.custom)return {id:id,name:o.name,desc:{en:o.url,ms:o.url},auth:"apikey",kind:o.kind||"post"};return null}
+function logoHtml(m){var u=safeUrl(m.logo);if(u)return '<span class="mlogo"><img src="'+esc(u)+'" alt=""></span>';var hue=0,n=m.name||"?";for(var i=0;i<n.length;i++)hue=(hue*31+n.charCodeAt(i))%360;return '<span class="mlogo" style="--ml:hsl('+hue+' 55% 45%)">'+esc(n[0].toUpperCase())+'</span>'}
+function limitText(m){var f=m.freeLimit;if(!f||!f.type||!(+f.value>0))return"";return fmt2(t(f.type==="platforms"?"limitNoteP":"limitNoteM"),{n:+f.value})}
+function limitInfo(){var out=[],selN=Object.keys(S.sel).length,pl=Object.keys(S.plat).filter(function(k){return S.plat[k]}).length;
+ connectedPost().forEach(function(m){var o=S.mcp[m.id],f=m.freeLimit;if(!o||!f||!f.type||!(+f.value>0)||o.mode==="key"||o.custom)return;
+  var over=false;if(f.type==="platforms")over=pl>+f.value;else{var u=S.usage[m.id],used=u&&u.m===ym()?u.n:0;over=used+selN*Math.max(pl,1)>+f.value}
+  out.push({m:m,over:over})});return out}
+function modalHtml(){var m=mcpById(S.authFor);if(!m)return"";var a=m.auth||"apikey",o=S.mcp[m.id]||{},oauth=a==="oauth"||a==="both",key=a==="apikey"||(a==="both"&&S.mKey);
+ var h='<div class="modal" id="mback"><div class="mbox" role="dialog" aria-modal="true"><div class="mlogos"><span class="mlogo app">'+LG()+'</span><span class="mlink">⇄</span>'+logoHtml(m)+'</div><div style="text-align:center"><h2>'+t("authorize")+' '+esc(m.name)+'</h2><p class="muted" style="margin:6px 0 0">'+fmt2(t("wantsConnect"),{app:esc(BN()),n:esc(m.name)})+'</p></div>';
+ if(oauth){h+='<button class="btn primary block" id="m_auth"'+(safeUrl(m.authUrl)?'':' disabled')+'>'+fmt2(t("authBy"),{n:esc(m.name)})+'</button>';
+  h+=safeUrl(m.authUrl)?'<div class="small muted" style="text-align:center">'+fmt2(t("redirectNote"),{n:esc(m.name)})+(limitText(m)?'<br>'+t("freeBadge")+': '+esc(limitText(m)):'')+'</div>':'<div class="small" style="text-align:center;color:var(--bad)">'+t("noAuthUrl")+'</div>';
+  if(a==="both"&&!S.mKey)h+='<div class="sep">'+t("or")+'</div><button class="btn block" id="m_showkey">'+t("paidPlan")+'</button>'}
+ if(key){if(a==="apikey")h+='<div class="small muted" style="text-align:center">'+t("needKeyFirst")+'</div>';
+  h+='<label class="f">'+esc(m.keyLabel||t("apiKey"))+'<input id="m_key" type="password" autocomplete="off" value="'+esc(o.key||"")+'"></label><button class="btn primary block" id="m_conn"'+((o.key||"").trim()?'':' disabled')+'>'+t("connect")+'</button>';
+  if(safeUrl(m.upgradeUrl))h+='<a class="small" style="text-align:center" href="'+esc(safeUrl(m.upgradeUrl))+'" target="_blank" rel="noopener">'+t("docs")+'</a>'}
+ return h+'<div class="err" id="m_err" style="text-align:center"></div><button class="btn block" id="m_close">'+t("cancel")+'</button></div></div>'}
+function bindModal(){var m=mcpById(S.authFor);if(!m)return;
+ var close=function(){S.authFor=null;S.mKey=false;render()};
+ $("#m_close").onclick=close;$("#mback").onclick=function(e){if(e.target.id==="mback")close()};
+ var au=$("#m_auth");if(au)au.onclick=function(){var url=safeUrl(m.authUrl);if(!url){$("#m_err").textContent=t("noAuthUrl");return}
+  var a=new Uint8Array(12);crypto.getRandomValues(a);var st=Array.prototype.map.call(a,function(x){return("0"+x.toString(16)).slice(-2)}).join("");
+  var go=url.indexOf("{state}")>-1?url.replace("{state}",st):url+(url.indexOf("?")>-1?"&":"?")+"state="+st;
+  S.mcp[m.id]=Object.assign({},S.mcp[m.id],{on:false,pending:true,mode:"oauth",nonce:st});S.authFor=null;save();location.href=go};
+ var sk=$("#m_showkey");if(sk)sk.onclick=function(){S.mKey=true;render()};
+ var ki=$("#m_key");if(ki)ki.oninput=function(){var b=$("#m_conn");if(b)b.disabled=!ki.value.trim()};
+ var cn=$("#m_conn");if(cn)cn.onclick=function(){var k=ki.value.trim();if(!k){$("#m_err").textContent=t("keyReq");return}
+  S.mcp[m.id]=Object.assign({},S.mcp[m.id],{on:true,pending:false,mode:"key",key:k});S.authFor=null;S.mKey=false;save();render()}}
 function mcpRow(m){var o=S.mcp[m.id],id=esc(m.id);
- var h='<div class="conn" style="align-items:start"><div class="stack" style="gap:8px"><div><b>'+esc(m.name)+'</b> <span class="pill '+(o.on?'ok':'off')+'">'+(o.on?t("keySaved"):"—")+'</span><div class="small muted">'+esc(L10(m.desc))+'</div></div>';
- if(!o.on)h+='<label class="f">'+esc(m.keyLabel||t("apiKey"))+'<input type="password" autocomplete="off" data-key="'+id+'" value="'+esc(o.key||"")+'"></label><div class="err" id="e_'+id+'"></div>';
- if(safeUrl(m.docs))h+='<a class="small" href="'+esc(safeUrl(m.docs))+'" target="_blank" rel="noopener">'+t("docs")+'</a>';
- return h+'</div><div class="row" style="flex-wrap:nowrap"><button class="btn'+(o.on?'':' primary')+'" data-conn="'+id+'">'+(o.on?t("disconnect"):t("connect"))+'</button><button class="btn" data-rm="'+id+'" aria-label="'+t("remove")+'">✕</button></div></div>'}
+ var pill=o.on?(o.mode==="oauth"?'<span class="pill ok">'+t("connected")+'</span>':'<span class="pill ok">'+t("keySaved")+'</span>'):(o.pending?'<span class="pill off">'+t("waiting")+'</span>':'<span class="pill off">—</span>');
+ var sub=o.on&&o.mode==="oauth"?'<div class="small muted">'+t("freeBadge")+(limitText(m)?' · '+esc(limitText(m)):'')+'</div>':(o.on&&o.mode==="key"&&!o.custom?'<div class="small muted">'+t("paidBadge")+'</div>':'');
+ return '<div class="conn" style="align-items:center"><div class="who2">'+logoHtml(m).replace('class="mlogo"','class="mlogo sm"')+'<div style="min-width:0"><b>'+esc(m.name)+'</b> '+pill+'<div class="small muted">'+esc(L10(m.desc))+'</div>'+sub+'</div></div><div class="row" style="flex-wrap:nowrap"><button class="btn'+(o.on?'':' primary')+'" data-conn="'+id+'">'+(o.on?t("disconnect"):t("connect"))+'</button><button class="btn" data-rm="'+id+'" aria-label="'+t("remove")+'">✕</button></div></div>'}
 function bindSet(){
  document.querySelectorAll("[data-theme]").forEach(function(b){b.onclick=function(){S.theme=b.dataset.theme;save();render()}});
  $("#lang").onchange=function(e){S.lang=e.target.value;save();render()};
@@ -493,12 +539,10 @@ function bindSet(){
   if(!c.key.trim()){er.textContent=t("keyReq");return}
   S.mcp["c_"+Date.now().toString(36)]={custom:true,name:c.name.trim(),url:c.url.trim(),key:c.key.trim(),kind:c.kind,on:true};
   S.cm=null;S.mcpPick=false;save();render()};
- document.querySelectorAll("[data-add]").forEach(function(b){b.onclick=function(){S.mcp[b.dataset.add]={on:false,key:""};save();render()}});
+ document.querySelectorAll("[data-add]").forEach(function(b){b.onclick=function(){S.authFor=b.dataset.add;S.mKey=false;S.mcpPick=false;render()}});
  document.querySelectorAll("[data-rm]").forEach(function(b){b.onclick=function(){delete S.mcp[b.dataset.rm];save();render()}});
- document.querySelectorAll("[data-key]").forEach(function(i){i.oninput=function(){S.mcp[i.dataset.key].key=i.value}});
  document.querySelectorAll("[data-conn]").forEach(function(b){b.onclick=function(){var o=S.mcp[b.dataset.conn];
-  if(!o.on&&!(o.key||"").trim()){var e=document.getElementById("e_"+b.dataset.conn);if(e)e.textContent=t("keyReq");return}
-  o.on=!o.on;save();render()}});
+  if(o.on){o.on=false;o.pending=false;save();render()}else{S.authFor=b.dataset.conn;S.mKey=false;render()}}});
  $("#ksave").onclick=function(){S.keys.anth=$("#k_anth").value;S.keys.hf=$("#k_hf").value;save();this.textContent="✓ "+t("saved")};
  $("#out").onclick=function(){S.session="";S.auth="login";save();if(FB_ON&&FB())FB().logout();render()};
 }
@@ -521,6 +565,7 @@ function render(){
  app.innerHTML=shell(body,pg);
  document.querySelectorAll("[data-nav]").forEach(function(x){x.onclick=function(){S.view=x.dataset.nav;S.msg="";render();window.scrollTo(0,0)}});
  if(pg.builtin)(v==="clips"?bindClips:v==="studio"?bindStudio:v==="post"?bindPost:bindSet)();
+ if(S.authFor){app.insertAdjacentHTML("beforeend",modalHtml());bindModal()}
  enhancePw();
 }
 load();applyCfg();
@@ -531,7 +576,7 @@ window.SE_onUser=function(u,cfg){
   if(window.SE_pending)return;
   if(!u){S.session="";S.auth="login";render();return}
   window.SE_note="";
-  if(cfg){["theme","lang","mcp","keys","res","fps"].forEach(function(k){if(cfg[k]!==undefined)S[k]=cfg[k]})}
+  if(cfg){["theme","lang","mcp","usage","keys","res","fps"].forEach(function(k){if(cfg[k]!==undefined)S[k]=cfg[k]})}
   S.session=u.email;S.last=u.email;try{localStorage.setItem(KEY,JSON.stringify({lang:S.lang,theme:S.theme,last:S.last}))}catch(e){}
   if(S.auth!=="newpw")enter();
 };
