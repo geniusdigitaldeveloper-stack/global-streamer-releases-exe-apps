@@ -1,12 +1,33 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Settings document: the owner reads and writes it.
+    function signedIn() { return request.auth != null; }
+    // Admins are listed in /admins/{uid}. Only you add entries (console or scripts/make-admin.mjs); clients can never write there.
+    function isAdmin() { return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
+
+    match /admins/{id} {
+      allow read: if signedIn() && request.auth.uid == id;
+      allow write: if false;
+    }
+
     match /users/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
-      // Jobs are created and filled only by the server (Cloud Function and the Actions worker). The owner can read.
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      // A new user can only create their own profile as an active free user.
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['email', 'createdAt', 'status', 'plan', 'settings', 'lastLogin'])
+        && request.resource.data.status == 'active'
+        && request.resource.data.plan == 'free'
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.createdAt == request.time;
+      // Users change only their own settings. Admins change only plan and status.
+      allow update: if signedIn() && (
+        (request.auth.uid == uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['settings', 'lastLogin']))
+        || (isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'plan'])));
+      allow delete: if false;
+
+      // Jobs are created and filled only by the server. The owner and admins can read.
       match /jobs/{jobId} {
-        allow read: if request.auth != null && request.auth.uid == uid;
+        allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
         allow write: if false;
       }
     }

@@ -6,7 +6,7 @@ admin.initializeApp();
 const GH_TOKEN = defineSecret("GH_DISPATCH_TOKEN"); // fine-grained token, Contents: read/write on the repo (for repository_dispatch)
 const GH_REPO = process.env.GH_REPO || "geniusdigitaldeveloper-stack/global-streamer-releases-exe-apps";
 const HOSTS = ["youtube.com", "www.youtube.com", "m.youtube.com", "youtu.be"];
-const MAX_JOBS_PER_DAY = 10; // protects your Claude/Actions cost
+const LIMITS = { free: 5, pro: 30 }; // jobs per user per day; protects your Claude/Actions cost
 
 exports.createJob = onCall({ secrets: [GH_TOKEN] }, async (req) => {
   if (!req.auth) throw new HttpsError("unauthenticated", "Log in first.");
@@ -17,10 +17,13 @@ exports.createJob = onCall({ secrets: [GH_TOKEN] }, async (req) => {
   if (!["short", "long"].includes(mode)) throw new HttpsError("invalid-argument", "Invalid mode.");
 
   const uid = req.auth.uid;
+  const prof = await admin.firestore().doc(`users/${uid}`).get();
+  const p = prof.exists ? prof.data() : {};
+  if (p.status === "disabled") throw new HttpsError("permission-denied", "Account disabled.");
   const jobs = admin.firestore().collection("users").doc(uid).collection("jobs");
   const since = admin.firestore.Timestamp.fromMillis(Date.now() - 864e5);
   const recent = await jobs.where("createdAt", ">", since).count().get();
-  if (recent.data().count >= MAX_JOBS_PER_DAY) throw new HttpsError("resource-exhausted", "Daily limit reached.");
+  if (recent.data().count >= (LIMITS[p.plan] || LIMITS.free)) throw new HttpsError("resource-exhausted", "Daily limit reached.");
 
   const ref = jobs.doc();
   await ref.set({ status: "queued", msg: "queued", url: u.href, mode, clips: [], createdAt: admin.firestore.FieldValue.serverTimestamp() });

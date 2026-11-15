@@ -4,6 +4,12 @@ Sub-app of Global Streamer: paste a YouTube live replay or game recording, find 
 
 Plain static site (no build step). Open `index.html` through any static server.
 
+## Accounts and admin
+- Public app: `index.html`. Anyone can register. Login is handled by Firebase Auth (passwords are never stored in Firestore); Firestore `users/{uid}` holds email, plan (`free`/`pro`), status (`active`/`disabled`), settings.
+- Admin app: `admin/index.html` (same Firebase project). Only accounts listed in Firestore `admins/{uid}` get in. Clients cannot write `admins`.
+- Make yourself admin: register/log in once in the public app, then run `GOOGLE_APPLICATION_CREDENTIALS=key.json node scripts/make-admin.mjs your@email` or create the doc `admins/<your uid>` in the Firebase console.
+- Admin can list users, switch plan, and disable or enable accounts. A disabled user is signed out and cannot start jobs.
+
 ## Firebase setup
 1. Create a Firebase project, enable **Authentication** (Email/Password and Google) and **Firestore**.
 2. Register a Web app and paste its config into `firebase-config.js`.

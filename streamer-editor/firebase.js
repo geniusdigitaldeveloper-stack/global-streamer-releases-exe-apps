@@ -43,7 +43,27 @@ if (cfg && !/^PASTE/.test(cfg.apiKey || "PASTE")) {
   };
   A.onAuthStateChanged(auth, async (u) => {
     let s = null;
-    if (u) { try { const d = await F.getDoc(ref(u)); s = d.exists() ? d.data().settings : null; } catch (_) {} }
+    if (u) {
+      try {
+        const d = await F.getDoc(ref(u));
+        let data;
+        if (!d.exists()) {
+          // First login: store the profile (never the password; Auth keeps that).
+          data = { email: u.email, createdAt: F.serverTimestamp(), status: "active", plan: "free", settings: {} };
+          await F.setDoc(ref(u), data);
+        } else {
+          data = d.data();
+          F.updateDoc(ref(u), { lastLogin: F.serverTimestamp() }).catch(() => {});
+        }
+        if (data.status === "disabled") {
+          window.SE_note = "disabled";
+          await A.signOut(auth);
+          window.SE_onUser && window.SE_onUser(null);
+          return;
+        }
+        s = data.settings || null;
+      } catch (_) {}
+    }
     window.SE_onUser && window.SE_onUser(u, s);
   });
 }
