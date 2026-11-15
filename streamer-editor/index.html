@@ -498,7 +498,8 @@ function setView(){
  h+='<div class="card"><div class="row" style="justify-content:space-between;align-items:flex-start"><div><h2>'+t("mcpList")+'</h2><div class="small muted">'+t("mcpHint")+'</div></div><button class="btn primary" id="addMcp">+ '+t("addMcp")+'</button></div>';
  if(S.mcpPick)h+='<div class="pick">'+(left.length?left.map(function(m){return '<div class="conn"><div><b>'+esc(m.name)+'</b><div class="small muted">'+esc(L10(m.desc))+'</div></div><button class="btn" data-add="'+esc(m.id)+'">'+t("addBtn")+'</button></div>'}).join(""):'<div class="muted" style="margin-top:10px">'+t("noMcpLeft")+'</div>')+customForm()+'</div>';
  h+=added.length?added.map(mcpRow).join(""):(S.mcpPick?'':'<div class="muted" style="margin-top:10px">'+t("noMcpAdded")+'</div>');
- h+='</div><div class="card stack"><h2>'+t("engine")+'</h2><div class="small muted">'+t("engineHint")+'</div><label class="f">'+t("anth")+'<input id="k_anth" type="password" autocomplete="off" value="'+esc(S.keys.anth)+'" placeholder="sk-ant-..."></label><label class="f">'+t("hf")+'<input id="k_hf" type="url" value="'+esc(S.keys.hf)+'" placeholder="https://"></label><button class="btn" id="ksave" style="justify-self:start">'+t("save")+'</button></div>';
+ h+='</div>';
+ if(S.isAdmin)h+='<div class="card stack"><h2>'+t("engine")+'</h2><div class="small muted">'+t("engineHint")+'</div><label class="f">'+t("anth")+'<input id="k_anth" type="password" autocomplete="off" value="'+esc(S.keys.anth)+'" placeholder="sk-ant-..."></label><label class="f">'+t("hf")+'<input id="k_hf" type="url" value="'+esc(S.keys.hf)+'" placeholder="https://"></label><button class="btn" id="ksave" style="justify-self:start">'+t("save")+'</button></div>';
  h+='<div class="card row" style="justify-content:space-between"><div><div class="small muted">'+t("acct")+'</div><b>'+esc(S.session)+'</b><div class="small muted">'+t("storageNote")+'</div></div><button class="btn" id="out">'+t("logout")+'</button></div>';
  return h;
 }
@@ -551,7 +552,7 @@ function consumeOAuth(){var r=null;try{r=JSON.parse(sessionStorage.getItem("se_o
  return true}
 function flashHtml(){var f=S.flash;if(!f)return"";return f.ok?'<div class="alert-ok" role="status">✓ '+fmt2(t("oauthOk"),{n:esc(f.name)})+'</div>':'<div class="alert-red" role="alert">'+esc(f.msg)+'</div>'}
 function modalHtml(){var m=mcpById(S.authFor);if(!m)return"";var a=m.auth||"apikey",o=S.mcp[m.id]||{},oauth=a==="oauth"||a==="both",key=a==="apikey"||(a==="both"&&S.mKey);
- var h='<div class="modal" id="mback"><div class="mbox" role="dialog" aria-modal="true"><div class="mlogos"><span class="mlogo app">'+LG()+'</span><span class="mlink">⇄</span>'+logoHtml(m)+'</div><div style="text-align:center"><h2>'+t("authorize")+' '+esc(m.name)+'</h2><p class="muted" style="margin:6px 0 0">'+fmt2(t("wantsConnect"),{app:esc(BN()),n:esc(m.name)})+'</p>'+(L10(m.note)?'<p class="small" style="margin:8px 0 0;color:var(--ink)">'+esc(L10(m.note))+'</p>':'')+'</div>';
+ var h='<div class="modal" id="mback"><div class="mbox" role="dialog" aria-modal="true"><div class="mlogos"><span class="mlogo app">'+LG()+'</span><span class="mlink">⇄</span>'+logoHtml(m)+'</div><div style="text-align:center"><h2>'+t("authorize")+' '+esc(m.name)+'</h2><p class="muted" style="margin:6px 0 0">'+fmt2(t("wantsConnect"),{app:esc(BN()),n:esc(m.name)})+'</p>'+(L10(m.note)?'<p class="small" style="margin:8px 0 0;color:var(--ink)">'+esc(L10(m.note))+'</p>':'')+(safeUrl(m.mcpUrl)?'<div class="small muted" style="margin-top:8px;word-break:break-all">MCP: '+esc(m.mcpUrl)+'</div>':'')+'</div>';
  var hasAuth=!!(safeUrl(m.mcpUrl)||safeUrl(m.authUrl));
  if(oauth){h+='<button class="btn dark block" id="m_auth">'+fmt2(t("authBy"),{n:esc(m.name)})+'</button>';
   h+=hasAuth?'<div class="small muted" style="text-align:center">'+fmt2(t("redirectNote"),{n:esc(m.name)})+(limitText(m)?'<br>'+t("freeBadge")+': '+esc(limitText(m)):'')+'</div>':'<div class="small" style="text-align:center;color:var(--bad)">'+t("noAuthUrl")+'</div>';
@@ -596,7 +597,7 @@ function bindSet(){
  document.querySelectorAll("[data-rm]").forEach(function(b){b.onclick=function(){delete S.mcp[b.dataset.rm];save();render()}});
  document.querySelectorAll("[data-conn]").forEach(function(b){b.onclick=function(){var o=S.mcp[b.dataset.conn];
   if(o.on){if(o.mode==="oauth"&&FB_ON&&FB()&&FB().dropToken)FB().dropToken(b.dataset.conn).catch(function(){});o.on=false;o.pending=false;save();render()}else{S.authFor=b.dataset.conn;S.mKey=false;render()}}});
- $("#ksave").onclick=function(){S.keys.anth=$("#k_anth").value;S.keys.hf=$("#k_hf").value;save();this.textContent="✓ "+t("saved")};
+ var ks=$("#ksave");if(ks)ks.onclick=function(){S.keys.anth=$("#k_anth").value;S.keys.hf=$("#k_hf").value;save();this.textContent="✓ "+t("saved")};
  $("#out").onclick=function(){S.session="";S.auth="login";save();if(FB_ON&&FB())FB().logout();render()};
 }
 
@@ -625,7 +626,8 @@ load();applyCfg();
 window.SE_onConfig=function(c){CFG=c||null;try{localStorage.setItem("se_cfg",JSON.stringify(CFG))}catch(e){}applyCfg();render()};
 if(FB_ON){S.session="";S.users={}}else if(S.session&&!S.users[S.session])S.session="";
 /* called by firebase.js when auth state changes */
-window.SE_onUser=function(u,cfg){
+window.SE_onUser=function(u,cfg,adm){
+  S.isAdmin=!!adm;
   if(window.SE_pending)return;
   if(!u){S.session="";S.auth="login";render();return}
   window.SE_note="";

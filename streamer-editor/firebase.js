@@ -69,6 +69,8 @@ if (cfg && !/^PASTE/.test(cfg.apiKey || "PASTE")) {
         s = data.settings || null;
       } catch (_) {}
     }
-    window.SE_onUser && window.SE_onUser(u, s);
+    let adm = false;
+    if (u) { try { adm = (await F.getDoc(F.doc(db, "admins", u.uid))).exists(); } catch (_) {} }
+    window.SE_onUser && window.SE_onUser(u, s, adm);
   });
 }
