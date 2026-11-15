@@ -1,0 +1,26 @@
+name: Streamer Editor analyze
+on:
+  repository_dispatch:
+    types: [streamer-editor-analyze]
+permissions:
+  contents: read
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: pip install yt-dlp
+      - run: npm install --no-audit --no-fund
+        working-directory: streamer-editor/pipeline
+      - run: node analyze.mjs
+        working-directory: streamer-editor/pipeline
+        env:
+          UID: ${{ github.event.client_payload.uid }}
+          JOB_ID: ${{ github.event.client_payload.jobId }}
+          URL: ${{ github.event.client_payload.url }}
+          MODE: ${{ github.event.client_payload.mode }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}

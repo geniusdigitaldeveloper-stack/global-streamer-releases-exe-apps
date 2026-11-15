@@ -5,9 +5,12 @@ if (cfg && !/^PASTE/.test(cfg.apiKey || "PASTE")) {
   const { initializeApp } = await import(B + "firebase-app.js");
   const A = await import(B + "firebase-auth.js");
   const F = await import(B + "firebase-firestore.js");
+  const FN = await import(B + "firebase-functions.js");
   const app = initializeApp(cfg);
   const auth = A.getAuth(app);
   const db = F.getFirestore(app);
+  const fns = FN.getFunctions(app, cfg.functionsRegion || "us-central1");
+  let unsub = null;
   const ref = (u) => F.doc(db, "users", u.uid);
   window.SE_FB = {
     login: (e, p) => A.signInWithEmailAndPassword(auth, e, p),
@@ -30,7 +33,13 @@ if (cfg && !/^PASTE/.test(cfg.apiKey || "PASTE")) {
       await A.linkWithCredential(u, A.EmailAuthProvider.credential(u.email, p));
     },
     saveSettings: (d) => F.setDoc(ref(auth.currentUser), { settings: d }, { merge: true }),
-    logout: () => A.signOut(auth),
+    // Starts a cloud analysis job and streams its progress. cb gets the job document each time it changes.
+    startJob: async (url, mode, cb) => {
+      if (unsub) unsub();
+      const r = await FN.httpsCallable(fns, "createJob")({ url, mode });
+      unsub = F.onSnapshot(F.doc(db, "users", auth.currentUser.uid, "jobs", r.data.jobId), (d) => cb(d.data()));
+    },
+    logout: () => { if (unsub) unsub(); return A.signOut(auth); },
   };
   A.onAuthStateChanged(auth, async (u) => {
     let s = null;

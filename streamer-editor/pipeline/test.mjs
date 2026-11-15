@@ -1,0 +1,11 @@
+import assert from "node:assert/strict";
+import { parseVtt, parseClips, chunkTranscript, buildPrompt } from "./lib.mjs";
+const vtt = `WEBVTT\nKind: captions\n\n00:00:01.000 --> 00:00:03.000\nHello <c>chat</c>\n\n00:00:03.000 --> 00:00:05.000\nHello chat\n\n00:01:10.500 --> 00:01:14.000\nNo way that just happened\n`;
+const cues = parseVtt(vtt);
+assert.equal(cues.length, 2); assert.equal(cues[1].start, 70.5); assert.equal(cues[0].text, "Hello chat");
+const clips = parseClips('Here: [{"start":70,"end":130,"title":"Clutch","score":120},{"start":100,"end":150,"title":"overlap"},{"start":5,"end":6,"title":"too short"}]', 120);
+assert.equal(clips.length, 1); assert.equal(clips[0].end, 120); assert.equal(clips[0].score, 100); assert.equal(clips[0].dur, 50);
+assert.deepEqual(parseClips("no json"), []);
+assert.ok(chunkTranscript(cues, 40).length >= 2);
+assert.ok(buildPrompt("long", "x").includes("Do not cut it"));
+console.log("pipeline tests ok");
