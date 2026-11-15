@@ -233,6 +233,7 @@ html.cfgbg .banner,html.cfgbg .auth-hero{background:var(--bgr)!important}
 .cb-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
 .cb-stat b{display:block;font:600 26px/1.2 var(--head);color:var(--c)}
 .cb-call{border-left:4px solid var(--c);background:color-mix(in srgb,var(--c) 10%,var(--surface));padding:12px 16px;border-radius:10px}
+.cform{display:grid;gap:12px;padding:14px 0 8px;margin-top:10px;border-top:1px solid var(--line)}
 .pick{border:1px dashed var(--line);border-radius:var(--radius);padding:4px 14px;margin-top:12px}
 </style>
 </head>
@@ -443,7 +444,7 @@ function bindStudio(){
 
 var PLATS=[["youtube","YouTube Shorts"],["tiktok","TikTok"],["instagram","Instagram Reels"],["facebook","Facebook Reels"]];
 function postView(){
- var conn=catalog().filter(function(m){return m.kind!=="edit"&&S.mcp[m.id]&&S.mcp[m.id].on}),n=Object.keys(S.sel).length;
+ var conn=connectedPost(),n=Object.keys(S.sel).length;
  var h='<div class="head"><h1>'+t("nPost")+'</h1></div><div class="card"><h2>'+t("mcp")+'</h2>';
  h+=conn.length?conn.map(function(m){return '<div class="conn"><div><b>'+esc(m.name)+'</b><div class="small muted">'+esc(L10(m.desc))+'</div></div><span class="pill ok">'+t("keySaved")+'</span></div>'}).join(""):'<div class="muted" style="margin-top:6px">'+t("noPostMcp")+'</div>';
  h+='<div class="small muted" style="margin-top:6px">'+t("nSettings")+' → '+t("mcpList")+'</div></div>';
@@ -454,7 +455,7 @@ function bindPost(){
  document.querySelectorAll("[data-plat]").forEach(function(b){b.onclick=function(){S.plat[b.dataset.plat]=!S.plat[b.dataset.plat];render()}});
  document.querySelectorAll("[data-when]").forEach(function(b){b.onclick=function(){S.post.when=b.dataset.when;render()}});
  var c=$("#cap");if(c)c.oninput=function(){S.post.cap=c.value};
- $("#pp").onclick=function(){var any=catalog().some(function(m){return m.kind!=="edit"&&S.mcp[m.id]&&S.mcp[m.id].on}),ok=Object.keys(S.plat).some(function(k){return S.plat[k]});
+ $("#pp").onclick=function(){var any=connectedPost().length>0,ok=Object.keys(S.plat).some(function(k){return S.plat[k]});
   if(!Object.keys(S.sel).length){S.msg=t("noSel")}else if(!any||!ok){S.msg=t("pickPlat")}else{S.msg="";S.postedM+=Object.keys(S.sel).length;var e=$("#perr");e.style.color="var(--ok)";e.textContent="✓ "+t("posted");return}
   render()};
 }
@@ -463,14 +464,18 @@ function setView(){
  var h='<div class="head"><h1>'+t("nSettings")+'</h1></div><div class="card stack"><h2>'+t("setTheme")+'</h2><div class="themes">';
  [["gaming","tGaming",["#F1EEFF","#7C3AED","#67D6EA"]],["blue","tFormal",["#F4F7FB","#1F5FBF","#FFFFFF"]],["green","tGreen",["#F4F7F4","#2B7A57","#FFFFFF"]],["dark","tDark",["#111214","#8AB4FF","#1A1B1E"]]].forEach(function(x){h+='<button class="tcard" data-theme="'+x[0]+'" aria-pressed="'+(S.theme===x[0])+'"><div class="sw">'+x[2].map(function(c){return '<i style="background:'+c+'"></i>'}).join("")+'</div><b class="small">'+t(x[1])+'</b></button>'});
  h+='</div><label class="f" style="max-width:260px">'+t("lang")+'<select id="lang"><option value="en"'+(S.lang==="en"?' selected':'')+'>English</option><option value="ms"'+(S.lang==="ms"?' selected':'')+'>Bahasa Melayu</option></select></label></div>';
- var added=catalog().filter(function(m){return S.mcp[m.id]}),left=catalog().filter(function(m){return !S.mcp[m.id]});
+ var cat=catalog(),added=cat.filter(function(m){return S.mcp[m.id]}),left=cat.filter(function(m){return !S.mcp[m.id]});
+ Object.keys(S.mcp).forEach(function(id){var o=S.mcp[id];if(o&&o.custom)added.push({id:id,name:o.name,desc:{en:o.url,ms:o.url},keyLabel:t("apiKey"),kind:o.kind||"post"})});
  h+='<div class="card"><div class="row" style="justify-content:space-between;align-items:flex-start"><div><h2>'+t("mcpList")+'</h2><div class="small muted">'+t("mcpHint")+'</div></div><button class="btn primary" id="addMcp">+ '+t("addMcp")+'</button></div>';
- if(S.mcpPick)h+='<div class="pick">'+(left.length?left.map(function(m){return '<div class="conn"><div><b>'+esc(m.name)+'</b><div class="small muted">'+esc(L10(m.desc))+'</div></div><button class="btn" data-add="'+esc(m.id)+'">'+t("addBtn")+'</button></div>'}).join(""):'<div class="muted" style="margin-top:10px">'+t("noMcpLeft")+'</div>')+'</div>';
+ if(S.mcpPick)h+='<div class="pick">'+(left.length?left.map(function(m){return '<div class="conn"><div><b>'+esc(m.name)+'</b><div class="small muted">'+esc(L10(m.desc))+'</div></div><button class="btn" data-add="'+esc(m.id)+'">'+t("addBtn")+'</button></div>'}).join(""):'<div class="muted" style="margin-top:10px">'+t("noMcpLeft")+'</div>')+customForm()+'</div>';
  h+=added.length?added.map(mcpRow).join(""):(S.mcpPick?'':'<div class="muted" style="margin-top:10px">'+t("noMcpAdded")+'</div>');
  h+='</div><div class="card stack"><h2>'+t("engine")+'</h2><div class="small muted">'+t("engineHint")+'</div><label class="f">'+t("anth")+'<input id="k_anth" type="password" autocomplete="off" value="'+esc(S.keys.anth)+'" placeholder="sk-ant-..."></label><label class="f">'+t("hf")+'<input id="k_hf" type="url" value="'+esc(S.keys.hf)+'" placeholder="https://"></label><button class="btn" id="ksave" style="justify-self:start">'+t("save")+'</button></div>';
  h+='<div class="card row" style="justify-content:space-between"><div><div class="small muted">'+t("acct")+'</div><b>'+esc(S.session)+'</b><div class="small muted">'+t("storageNote")+'</div></div><button class="btn" id="out">'+t("logout")+'</button></div>';
  return h;
 }
+function customForm(){var c=S.cm||(S.cm={name:"",url:"",key:"",kind:"post"});
+ return '<div class="cform"><h3>'+t("customMcp")+'</h3><label class="f">'+t("mcpName")+'<input id="cm_name" type="text" autocomplete="off" value="'+esc(c.name)+'"></label><label class="f">'+t("mcpLink")+'<input id="cm_url" type="url" placeholder="https://" autocomplete="off" value="'+esc(c.url)+'"></label><label class="f">'+t("apiKey")+'<input id="cm_key" type="password" autocomplete="off" value="'+esc(c.key)+'"></label><label class="f">'+t("mcpKind")+'<select id="cm_kind"><option value="post"'+(c.kind==="post"?' selected':'')+'>'+t("kPost")+'</option><option value="edit"'+(c.kind==="edit"?' selected':'')+'>'+t("kEdit")+'</option></select></label><div class="err" id="cm_err"></div><button class="btn primary" id="cm_add" style="justify-self:start">'+t("addBtn")+'</button></div>'}
+function connectedPost(){var r=catalog().filter(function(m){return m.kind!=="edit"&&S.mcp[m.id]&&S.mcp[m.id].on});Object.keys(S.mcp).forEach(function(id){var o=S.mcp[id];if(o&&o.custom&&o.on&&o.kind!=="edit")r.push({id:id,name:o.name,desc:{en:o.url,ms:o.url}})});return r}
 function mcpRow(m){var o=S.mcp[m.id],id=esc(m.id);
  var h='<div class="conn" style="align-items:start"><div class="stack" style="gap:8px"><div><b>'+esc(m.name)+'</b> <span class="pill '+(o.on?'ok':'off')+'">'+(o.on?t("keySaved"):"—")+'</span><div class="small muted">'+esc(L10(m.desc))+'</div></div>';
  if(!o.on)h+='<label class="f">'+esc(m.keyLabel||t("apiKey"))+'<input type="password" autocomplete="off" data-key="'+id+'" value="'+esc(o.key||"")+'"></label><div class="err" id="e_'+id+'"></div>';
@@ -480,6 +485,14 @@ function bindSet(){
  document.querySelectorAll("[data-theme]").forEach(function(b){b.onclick=function(){S.theme=b.dataset.theme;save();render()}});
  $("#lang").onchange=function(e){S.lang=e.target.value;save();render()};
  $("#addMcp").onclick=function(){S.mcpPick=!S.mcpPick;render()};
+ ["name","url","key"].forEach(function(k){var e=$("#cm_"+k);if(e)e.oninput=function(){S.cm[k]=e.value}});
+ var ck=$("#cm_kind");if(ck)ck.onchange=function(){S.cm.kind=ck.value};
+ var ca=$("#cm_add");if(ca)ca.onclick=function(){var c=S.cm,er=$("#cm_err");
+  if(!c.name.trim()){er.textContent=t("errName");return}
+  if(!safeUrl(c.url.trim())){er.textContent=t("errLink");return}
+  if(!c.key.trim()){er.textContent=t("keyReq");return}
+  S.mcp["c_"+Date.now().toString(36)]={custom:true,name:c.name.trim(),url:c.url.trim(),key:c.key.trim(),kind:c.kind,on:true};
+  S.cm=null;S.mcpPick=false;save();render()};
  document.querySelectorAll("[data-add]").forEach(function(b){b.onclick=function(){S.mcp[b.dataset.add]={on:false,key:""};save();render()}});
  document.querySelectorAll("[data-rm]").forEach(function(b){b.onclick=function(){delete S.mcp[b.dataset.rm];save();render()}});
  document.querySelectorAll("[data-key]").forEach(function(i){i.oninput=function(){S.mcp[i.dataset.key].key=i.value}});
