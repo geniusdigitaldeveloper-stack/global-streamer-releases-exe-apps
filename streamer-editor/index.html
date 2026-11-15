@@ -31,7 +31,7 @@ button{cursor:pointer}
 .btn.primary:hover{filter:brightness(1.08)}
 .btn.block{width:100%}
 .btn:disabled{opacity:.5;cursor:not-allowed}
-input[type=text],input[type=email],input[type=password],input[type=url],input[type=time],input[type=datetime-local],select,textarea{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px;min-height:42px}
+input[type=text],input[type=email],input[type=password],input[type=url],input[type=time],input[type=date],input[type=datetime-local],select,textarea{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px;min-height:42px}
 label.f{display:grid;gap:5px;font-weight:500;font-size:13px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;min-width:0}
 .stack{display:grid;gap:14px}
@@ -274,7 +274,8 @@ html[data-app-theme="dark"] .btn.dark{background:#000;border-color:#3A3F4D}
 .ce.more{background:none;color:var(--muted)}
 .cdots{display:none;gap:3px;flex-wrap:wrap}.cdots i{width:6px;height:6px;border-radius:50%;background:var(--c)}
 .cen{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
-.ctm{font:600 14px var(--head);color:var(--c);min-width:48px}
+.ctm{font:600 14px var(--head);color:var(--c);min-width:76px;white-space:nowrap}
+.tp{display:flex;gap:6px;align-items:center}.tp select{width:auto;min-width:62px;padding:8px 10px}.tp b{color:var(--muted)}
 @media (max-width:760px){.cd{min-height:54px;padding:4px;align-items:center}.ce{display:none}.cdots{display:flex;justify-content:center}.cen{grid-template-columns:auto minmax(0,1fr) auto}.cen .pill{display:none}}
 </style>
 </head>
@@ -491,12 +492,22 @@ function postView(){
  var h='<div class="head"><h1>'+t("nPost")+'</h1></div><div class="card"><h2>'+t("mcp")+'</h2>';
  h+=conn.length?conn.map(function(m){return '<div class="conn"><div><b>'+esc(m.name)+'</b><div class="small muted">'+esc(L10(m.desc))+'</div></div><span class="pill ok">'+t("connected")+'</span></div>'}).join(""):'<div class="muted" style="margin-top:6px">'+t("noPostMcp")+'</div>';
  h+='<div class="small muted" style="margin-top:6px">'+t("nSettings")+' → '+t("mcpList")+'</div></div>';
- h+='<div class="card stack"><h2>'+t("pickClips")+'</h2>'+(n?'<div class="small">'+Object.keys(S.sel).map(function(i){return esc(S.clips[i].title)}).join(" · ")+'</div>':'<div class="muted">'+t("noSel")+'</div>')+'<h2>'+t("platforms")+'</h2><div class="seg">'+PLATS.map(function(p){return '<button data-plat="'+p[0]+'" aria-pressed="'+!!S.plat[p[0]]+'">'+p[1]+'</button>'}).join("")+'</div>'+limitNotes()+'<label class="f">'+t("caption")+'<textarea id="cap" rows="3">'+esc(S.post.cap)+'</textarea></label><div class="seg"><button data-when="now" aria-pressed="'+(S.post.when==="now")+'">'+t("now")+'</button><button data-when="sched" aria-pressed="'+(S.post.when==="sched")+'">'+t("sched")+'</button></div>'+(S.post.when==="sched"?'<input id="dt" type="datetime-local" style="width:100%;max-width:280px;padding:9px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)">':'')+'<div class="err" id="perr">'+esc(S.msg)+'</div><button class="btn primary" id="pp">'+t("postBtn")+'</button></div>';
+ h+='<div class="card stack"><h2>'+t("pickClips")+'</h2>'+(n?'<div class="small">'+Object.keys(S.sel).map(function(i){return esc(S.clips[i].title)}).join(" · ")+'</div>':'<div class="muted">'+t("noSel")+'</div>')+'<h2>'+t("platforms")+'</h2><div class="seg">'+PLATS.map(function(p){return '<button data-plat="'+p[0]+'" aria-pressed="'+!!S.plat[p[0]]+'">'+p[1]+'</button>'}).join("")+'</div>'+limitNotes()+'<label class="f">'+t("caption")+'<textarea id="cap" rows="3">'+esc(S.post.cap)+'</textarea></label><div class="seg"><button data-when="now" aria-pressed="'+(S.post.when==="now")+'">'+t("now")+'</button><button data-when="sched" aria-pressed="'+(S.post.when==="sched")+'">'+t("sched")+'</button></div>'+(S.post.when==="sched"?'<div class="row"><input id="dt_d" type="date" value="'+ymd(new Date())+'" style="max-width:190px">'+tpHtml("dt_t",nowRounded())+'</div>':'')+'<div class="err" id="perr">'+esc(S.msg)+'</div><button class="btn primary" id="pp">'+t("postBtn")+'</button></div>';
  return h;
 }
+function fmt12(t){var m=(t||"").match(/^(\d{1,2}):(\d{2})$/);if(!m)return t||"";var x=+m[1],ap=x>=12?"PM":"AM";x=x%12||12;return x+":"+m[2]+" "+ap}
+function tpHtml(id,val){var m=(val||"09:00").match(/^(\d{1,2}):(\d{2})$/)||["","9","00"],h24=+m[1],mi=+m[2],ap=h24>=12?"PM":"AM",h12=h24%12||12,mins=[];
+ for(var i=0;i<60;i+=5)mins.push(i);if(mins.indexOf(mi)<0){mins.push(mi);mins.sort(function(a,b){return a-b})}
+ var o=function(v,l,s){return '<option value="'+v+'"'+(s?' selected':'')+'>'+l+'</option>'};
+ var r='<span class="tp" id="'+id+'"><select aria-label="Hour" data-tp="h">';for(var x=1;x<=12;x++)r+=o(x,x,x===h12);
+ r+='</select><b>:</b><select aria-label="Minute" data-tp="m">';mins.forEach(function(x){r+=o(x,pad2(x),x===mi)});
+ return r+'</select><select aria-label="AM/PM" data-tp="p">'+o("AM","AM",ap==="AM")+o("PM","PM",ap==="PM")+'</select></span>'}
+function getTp(id){var e=document.getElementById(id);if(!e)return"";var x=+e.querySelector('[data-tp="h"]').value,m=+e.querySelector('[data-tp="m"]').value,p=e.querySelector('[data-tp="p"]').value;if(p==="PM"&&x<12)x+=12;if(p==="AM"&&x===12)x=0;return pad2(x)+":"+pad2(m)}
+function setTp(id,val){var e=document.getElementById(id);if(!e||!val)return;var n=document.createElement("div");n.innerHTML=tpHtml(id,val);e.parentNode.replaceChild(n.firstChild,e)}
+function nowRounded(){var d=new Date(),m=Math.ceil(d.getMinutes()/5)*5,x=d.getHours();if(m===60){m=0;x=(x+1)%24}return pad2(x)+":"+pad2(m)}
 function pad2(n){return(n<10?"0":"")+n}
 function ymd(d){return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate())}
-function addCalFromPost(){var dt=$("#dt"),v=dt&&dt.value?dt.value:"",now=new Date(),d=v?v.slice(0,10):ymd(now),tm=v?v.slice(11,16):pad2(now.getHours())+":"+pad2(now.getMinutes());
+function addCalFromPost(){var dd=$("#dt_d"),now=new Date(),d=dd&&dd.value?dd.value:ymd(now),tm=dd?(getTp("dt_t")||nowRounded()):pad2(now.getHours())+":"+pad2(now.getMinutes());
  var title=(S.post.cap||"").trim().slice(0,60)||Object.keys(S.sel).map(function(i){return S.clips[i]&&S.clips[i].title}).filter(Boolean).join(", ").slice(0,60)||"Post";
  var cp=connectedPost();S.cal.push({id:"e"+Date.now().toString(36),d:d,t:tm,title:title,pl:Object.keys(S.plat).filter(function(k){return S.plat[k]}),mcp:cp[0]?cp[0].id:"",st:"planned"});S.calSel=d;save()}
 function calView(){
@@ -506,21 +517,21 @@ function calView(){
  wd.forEach(function(w){h+='<div class="cw">'+esc(w)+'</div>'});
  for(var i=0;i<start;i++)h+='<div></div>';
  for(var d=1;d<=days;d++){var key=cm.y+"-"+pad2(cm.m+1)+"-"+pad2(d),it=S.cal.filter(function(e){return e.d===key}).sort(function(a,b){return a.t<b.t?-1:1});
-  h+='<button class="cd'+(key===today?' today':'')+(key===sel?' sel':'')+'" data-cd="'+key+'"><span class="cn">'+d+'</span>'+it.slice(0,2).map(function(e){return '<span class="ce">'+esc(e.t+" "+e.title)+'</span>'}).join("")+(it.length>2?'<span class="ce more">+'+(it.length-2)+' '+t("calMore")+'</span>':'')+(it.length?'<span class="cdots">'+it.slice(0,4).map(function(){return '<i></i>'}).join("")+'</span>':'')+'</button>'}
+  h+='<button class="cd'+(key===today?' today':'')+(key===sel?' sel':'')+'" data-cd="'+key+'"><span class="cn">'+d+'</span>'+it.slice(0,2).map(function(e){return '<span class="ce">'+esc(fmt12(e.t)+" "+e.title)+'</span>'}).join("")+(it.length>2?'<span class="ce more">+'+(it.length-2)+' '+t("calMore")+'</span>':'')+(it.length?'<span class="cdots">'+it.slice(0,4).map(function(){return '<i></i>'}).join("")+'</span>':'')+'</button>'}
  h+='</div></div>';
  var list=S.cal.filter(function(e){return e.d===sel}).sort(function(a,b){return a.t<b.t?-1:1});
  var mc=connectedPost(),cpl=S.calPl||(S.calPl=[]);
  h+='<div class="card stack"><h2>'+esc(new Date(sel+"T00:00:00").toLocaleDateString(loc,{weekday:"long",day:"numeric",month:"long"}))+'</h2>';
- h+=list.length?list.map(function(e){var m=e.mcp?mcpById(e.mcp):null;return '<div class="cen"><div class="ctm">'+esc(e.t)+'</div><div style="min-width:0"><b>'+esc(e.title)+'</b><div class="small muted">'+esc((e.pl||[]).map(function(k){var p=PLATS.filter(function(x){return x[0]===k})[0];return p?p[1]:k}).join(", "))+(m?' · '+esc(m.name):'')+'</div></div><span class="pill">'+t("calPlanned")+'</span><button class="btn" data-cdel="'+esc(e.id)+'" aria-label="'+t("calDel")+'">✕</button></div>'}).join(""):'<div class="muted">'+t("calNone")+'</div>';
- h+='<div class="cform"><label class="f">'+t("calTitle")+'<input id="cal_t" type="text" maxlength="80"></label><div class="two"><label class="f">'+t("calTime")+'<input id="cal_tm" type="time" value="09:00"></label><label class="f">'+t("calMcp")+'<select id="cal_mcp"><option value="">'+t("calNoMcp")+'</option>'+mc.map(function(m){return '<option value="'+esc(m.id)+'">'+esc(m.name)+'</option>'}).join("")+'</select></label></div><div class="small muted">'+t("calPlat")+'</div><div class="seg">'+PLATS.map(function(p){return '<button data-cpl="'+p[0]+'" aria-pressed="'+(cpl.indexOf(p[0])>-1)+'">'+p[1]+'</button>'}).join("")+'</div><div class="err" id="cal_err"></div><button class="btn dark" id="cal_add" style="justify-self:start">+ '+t("calAdd")+'</button><div class="small muted">'+t("calNote")+'</div></div></div>';
+ h+=list.length?list.map(function(e){var m=e.mcp?mcpById(e.mcp):null;return '<div class="cen"><div class="ctm">'+esc(fmt12(e.t))+'</div><div style="min-width:0"><b>'+esc(e.title)+'</b><div class="small muted">'+esc((e.pl||[]).map(function(k){var p=PLATS.filter(function(x){return x[0]===k})[0];return p?p[1]:k}).join(", "))+(m?' · '+esc(m.name):'')+'</div></div><span class="pill">'+t("calPlanned")+'</span><button class="btn" data-cdel="'+esc(e.id)+'" aria-label="'+t("calDel")+'">✕</button></div>'}).join(""):'<div class="muted">'+t("calNone")+'</div>';
+ h+='<div class="cform"><label class="f">'+t("calTitle")+'<input id="cal_t" type="text" maxlength="80"></label><div class="two"><label class="f">'+t("calTime")+''+tpHtml("cal_tm","09:00")+'</label><label class="f">'+t("calMcp")+'<select id="cal_mcp"><option value="">'+t("calNoMcp")+'</option>'+mc.map(function(m){return '<option value="'+esc(m.id)+'">'+esc(m.name)+'</option>'}).join("")+'</select></label></div><div class="small muted">'+t("calPlat")+'</div><div class="seg">'+PLATS.map(function(p){return '<button data-cpl="'+p[0]+'" aria-pressed="'+(cpl.indexOf(p[0])>-1)+'">'+p[1]+'</button>'}).join("")+'</div><div class="err" id="cal_err"></div><button class="btn dark" id="cal_add" style="justify-self:start">+ '+t("calAdd")+'</button><div class="small muted">'+t("calNote")+'</div></div></div>';
  return h}
 function bindCal(){
  document.querySelectorAll("[data-cm]").forEach(function(b){b.onclick=function(){var v=+b.dataset.cm,c=S.calM,n=new Date();if(v===0){S.calM={y:n.getFullYear(),m:n.getMonth()};S.calSel=ymd(n)}else{var d=new Date(c.y,c.m+v,1);S.calM={y:d.getFullYear(),m:d.getMonth()}}render()}});
  document.querySelectorAll("[data-cd]").forEach(function(b){b.onclick=function(){S.calSel=b.dataset.cd;render()}});
  document.querySelectorAll("[data-cdel]").forEach(function(b){b.onclick=function(){S.cal=S.cal.filter(function(e){return e.id!==b.dataset.cdel});save();render()}});
- document.querySelectorAll("[data-cpl]").forEach(function(b){b.onclick=function(){var l=S.calPl,i=l.indexOf(b.dataset.cpl);if(i>-1)l.splice(i,1);else l.push(b.dataset.cpl);var v1=$("#cal_t").value,v2=$("#cal_tm").value,v3=$("#cal_mcp").value;render();$("#cal_t").value=v1;$("#cal_tm").value=v2;$("#cal_mcp").value=v3}});
+ document.querySelectorAll("[data-cpl]").forEach(function(b){b.onclick=function(){var l=S.calPl,i=l.indexOf(b.dataset.cpl);if(i>-1)l.splice(i,1);else l.push(b.dataset.cpl);var v1=$("#cal_t").value,v2=getTp("cal_tm"),v3=$("#cal_mcp").value;render();$("#cal_t").value=v1;setTp("cal_tm",v2);$("#cal_mcp").value=v3}});
  var add=$("#cal_add");if(add)add.onclick=function(){var ti=$("#cal_t").value.trim();if(!ti){$("#cal_err").textContent=t("calNeedTitle");return}
-  S.cal.push({id:"e"+Date.now().toString(36),d:S.calSel||ymd(new Date()),t:$("#cal_tm").value||"09:00",title:ti.slice(0,80),pl:(S.calPl||[]).slice(),mcp:$("#cal_mcp").value,st:"planned"});S.calPl=[];save();render()}}
+  S.cal.push({id:"e"+Date.now().toString(36),d:S.calSel||ymd(new Date()),t:getTp("cal_tm")||"09:00",title:ti.slice(0,80),pl:(S.calPl||[]).slice(),mcp:$("#cal_mcp").value,st:"planned"});S.calPl=[];save();render()}}
 function bindPost(){
  document.querySelectorAll("[data-plat]").forEach(function(b){b.onclick=function(){S.plat[b.dataset.plat]=!S.plat[b.dataset.plat];render()}});
  document.querySelectorAll("[data-when]").forEach(function(b){b.onclick=function(){S.post.when=b.dataset.when;render()}});
