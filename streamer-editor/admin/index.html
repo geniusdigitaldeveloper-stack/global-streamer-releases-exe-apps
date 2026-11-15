@@ -129,6 +129,31 @@ svg{display:block}
   .lab{display:block;color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+body{background:radial-gradient(900px 500px at 90% -10%,rgba(37,99,235,.13),transparent 60%),radial-gradient(700px 420px at -5% 15%,rgba(56,189,248,.16),transparent 60%),var(--bg);background-attachment:fixed}
+.logo{background:linear-gradient(135deg,#2563EB,#38BDF8)}
+.btn.primary{background:linear-gradient(135deg,#2563EB,#4F46E5)}
+.ico.b{background:linear-gradient(135deg,#DCE8FF,#BFD3FF)}.ico.g{background:linear-gradient(135deg,#D7F5E5,#B6EBD0)}.ico.r{background:linear-gradient(135deg,#FDE3E3,#FAC8C8)}.ico.v{background:linear-gradient(135deg,#ECE6FD,#D8CCFA)}.ico.s{background:linear-gradient(135deg,#DAF2FC,#BAE6F8)}
+.kpi{transition:transform .15s,box-shadow .15s}.kpi:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(15,27,51,.12)}
+.welcome{position:relative;overflow:hidden;border-radius:var(--r);padding:26px 28px;color:#fff;background:linear-gradient(120deg,#1E40AF,#2563EB 50%,#38BDF8);box-shadow:0 12px 30px rgba(37,99,235,.28)}
+.welcome:before{content:"";position:absolute;right:-50px;top:-70px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.14)}
+.welcome:after{content:"";position:absolute;right:120px;bottom:-100px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.09)}
+.welcome>*{position:relative;z-index:1}
+.welcome h2{font-size:22px;font-weight:600}.welcome p{margin:6px 0 0;opacity:.88;max-width:34em}
+.nav button[aria-current=page]{background:linear-gradient(135deg,#E8F0FE,#F0F5FF);box-shadow:inset 3px 0 0 var(--accent)}
+.hero:before{content:"";position:absolute;width:420px;height:420px;border-radius:50%;right:-130px;top:-130px;background:rgba(255,255,255,.12)}
+.hero:after{content:"";position:absolute;width:300px;height:300px;border-radius:50%;left:-90px;bottom:-110px;background:rgba(255,255,255,.09)}
+.hero{position:relative;overflow:hidden}.hero>*{position:relative;z-index:1}
+.mockst{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:420px;margin-top:26px}
+.mockst div{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(8px);border-radius:14px;padding:12px;animation:float 6s ease-in-out infinite}
+.mockst div:nth-child(2){animation-delay:-2s}.mockst div:nth-child(3){animation-delay:-4s}
+.mockst b{display:block;font:600 20px/1 var(--head)}.mockst span{font-size:11px;opacity:.85}
+@keyframes float{50%{transform:translateY(-8px)}}
+.pw{position:relative;display:block;width:100%}.pw .input{padding-right:48px}
+.eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;width:38px;height:38px;display:grid;place-items:center;color:var(--muted);border-radius:8px;padding:0}
+.eye:hover{color:var(--accent);background:var(--accent-soft)}.eye svg{width:20px;height:20px}
+.fbox{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:28px;box-shadow:0 18px 48px rgba(15,27,51,.12)}
+@media (prefers-reduced-motion:reduce){.mockst div{animation:none}}
 </style>
 </head>
 <body>
@@ -136,7 +161,7 @@ svg{display:block}
 <div class="login" id="login" hidden>
   <div class="hero">
     <div class="brand"><span class="logo">SE</span>Streamer Editor</div>
-    <div><h2>Urus pengguna aplikasi anda di satu tempat.</h2><p>Lihat pendaftaran baharu, tukar pelan dan lumpuhkan akaun dengan satu sentuhan.</p></div>
+    <div><h2>Urus pengguna aplikasi anda di satu tempat.</h2><p>Lihat pendaftaran baharu, tukar pelan dan lumpuhkan akaun dengan satu sentuhan.</p><div class="mockst" aria-hidden="true"><div><b>Pengguna</b><span>jumlah</span></div><div><b>Pro</b><span>pelan</span></div><div><b>Aktif</b><span>status</span></div></div></div>
     <ul><li><i>✓</i>Hanya akaun admin boleh masuk</li><li><i>✓</i>Data pengguna dalam Firestore</li><li><i>✓</i>Kata laluan dikendalikan Firebase Auth</li></ul>
   </div>
   <div class="formside"><div class="fbox">
@@ -162,6 +187,7 @@ svg{display:block}
     <div class="top"><div><div class="muted small" id="date"></div><h1 id="title">Ringkasan</h1></div><button class="btn" data-out id="outTop" style="display:none">Log keluar</button></div>
 
     <section id="v-overview" style="display:grid;gap:14px">
+      <div class="welcome"><h2>Selamat datang kembali</h2><p id="welcomeP">Ini ringkasan pengguna aplikasi anda.</p></div>
       <div class="kpis" id="kpis"></div>
       <div class="two">
         <div class="card"><h3>Pendaftaran 14 hari lepas</h3><div class="sub">Bilangan akaun baharu setiap hari</div><div id="barchart"></div></div>
@@ -189,6 +215,12 @@ const F = await import(B + "firebase-firestore.js");
 const app = initializeApp(cfg), auth = A.getAuth(app), db = F.getFirestore(app);
 const $ = (i) => document.getElementById(i);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYEOFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18M10.6 5.1A10.7 10.7 0 0112 5c6.4 0 10 7 10 7a17 17 0 01-3.2 4M6.5 6.5C3.8 8.3 2 12 2 12s3.6 7 10 7a10 10 0 004.5-1.1M9.9 9.9a3 3 0 004.2 4.2"/></svg>';
+(() => { const i = document.getElementById("pw"), w = document.createElement("span"); w.className = "pw"; i.parentNode.insertBefore(w, i); w.appendChild(i);
+  const b = document.createElement("button"); b.type = "button"; b.className = "eye"; b.setAttribute("aria-label", "Tunjuk kata laluan"); b.innerHTML = EYE;
+  b.onclick = () => { const show = i.type === "password"; i.type = show ? "text" : "password"; b.innerHTML = show ? EYEOFF : EYE; b.setAttribute("aria-label", show ? "Sembunyi kata laluan" : "Tunjuk kata laluan"); };
+  w.appendChild(b); })();
 const I = {
   home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>',
   users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.4 3.4-5.5 6.5-5.5s5.9 2.1 6.5 5.5"/><path d="M16 4.7a3.5 3.5 0 010 6.6M18 14.8c1.9.7 3.2 2.5 3.6 5.2"/></svg>',
@@ -223,7 +255,7 @@ A.onAuthStateChanged(auth, async (u) => {
   if (!ok) { await A.signOut(auth); bad("Akaun ini bukan admin."); return; }
   bad("");
   $("login").hidden = true; $("app").hidden = false; $("tabbar").hidden = false;
-  $("av").textContent = ini(u.email); $("meMail").textContent = u.email;
+  $("av").textContent = ini(u.email); $("welcomeP").textContent = "Log masuk sebagai " + u.email + ". Ini ringkasan pengguna aplikasi anda."; $("meMail").textContent = u.email;
   $("date").textContent = new Date().toLocaleDateString("ms-MY", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   unsub = F.onSnapshot(F.collection(db, "users"), (snap) => { users = snap.docs.map((d) => ({ id: d.id, ...d.data() })); draw(); }, () => toast("Tidak dapat baca senarai pengguna."));
   F.getDocs(F.collection(db, "admins")).then((s) => { admins = new Set(s.docs.map((d) => d.id)); draw(); }).catch(() => {});
@@ -261,11 +293,11 @@ function bars() {
   users.forEach((x) => { const t = secs(x) * 1000; days.forEach((o) => { if (t >= o.d.getTime() && t < o.d.getTime() + 864e5) o.c++; }); });
   const max = Math.max(4, ...days.map((o) => o.c)), top = Math.ceil(max / 4) * 4;
   const W = 560, H = 200, L = 30, Bt = 26, ch = H - Bt - 8, bw = (W - L) / 14;
-  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Pendaftaran 14 hari lepas">`;
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Pendaftaran 14 hari lepas"><defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4F8CFF"/><stop offset="1" stop-color="#2563EB"/></linearGradient></defs>`;
   for (let i = 0; i <= 4; i++) { const v = (top / 4) * i, y = 8 + ch - (v / top) * ch; s += `<line x1="${L}" x2="${W}" y1="${y}" y2="${y}" stroke="#E3E9F2"/><text x="${L - 8}" y="${y + 4}" text-anchor="end" font-size="11" fill="#62708A">${v}</text>`; }
   days.forEach((o, i) => {
     const h = (o.c / top) * ch, x = L + i * bw + bw * 0.2, y = 8 + ch - h;
-    s += `<rect x="${x}" y="${y}" width="${bw * 0.6}" height="${Math.max(h, o.c ? 2 : 0)}" rx="4" fill="#2563EB"><title>${o.d.toLocaleDateString("ms-MY")}: ${o.c}</title></rect>`;
+    s += `<rect x="${x}" y="${y}" width="${bw * 0.6}" height="${Math.max(h, o.c ? 2 : 0)}" rx="4" fill="url(#bg)"><title>${o.d.toLocaleDateString("ms-MY")}: ${o.c}</title></rect>`;
     if (i % 2 === 1 || i === 13) s += `<text x="${x + bw * 0.3}" y="${H - 6}" text-anchor="middle" font-size="11" fill="#62708A">${o.d.getDate()}/${o.d.getMonth() + 1}</text>`;
   });
   $("barchart").innerHTML = s + "</svg>";
