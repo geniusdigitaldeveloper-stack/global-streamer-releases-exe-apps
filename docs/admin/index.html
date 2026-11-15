@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Global Streamer Admin</title>
+<meta name="theme-color" content="#0b1020">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="../assets/favicon-32.png">
+<link rel="apple-touch-icon" href="../assets/logo-192.png">
+<style>
+  :root { --bg:#0b1020; --panel:#121a33; --panel2:#18224a; --line:#26335f; --text:#eaf0ff; --muted:#93a3cf; --blue:#2ea8ff; --green:#22c98a; --red:#ff4d66; --gold:#ffc928; color-scheme: dark; }
+  @media (prefers-color-scheme: light) { :root:not([data-theme=dark]) { } }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; }
+  body { min-height: 100vh; padding: 0 16px 60px; background: radial-gradient(900px 500px at 80% -10%, rgba(46,168,255,.18), transparent), radial-gradient(700px 400px at 0% 0%, rgba(122,92,255,.16), transparent), var(--bg); }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  header { display: flex; align-items: center; gap: 12px; padding: 18px 0 8px; }
+  header img { width: 40px; height: 40px; border-radius: 10px; }
+  header h1 { font-size: 18px; margin: 0; letter-spacing: .04em; }
+  header small { color: var(--muted); display: block; font-size: 12px; }
+  .sp { flex: 1; }
+  .card { background: linear-gradient(180deg, var(--panel2), var(--panel)); border: 1px solid var(--line); border-radius: 18px; padding: 18px; margin: 14px 0; box-shadow: 0 12px 30px rgba(0,0,0,.3); animation: in .5s cubic-bezier(.32,.72,0,1) both; }
+  @keyframes in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  h2 { margin: 0 0 4px; font-size: 16px; letter-spacing: .02em; }
+  p.sub { margin: 0 0 12px; color: var(--muted); font-size: 13px; }
+  input[type=email], input[type=password], input[type=text] { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: #0a1130; color: var(--text); font: inherit; }
+  input:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+  button { font: inherit; font-weight: 700; border: 0; border-radius: 12px; padding: 11px 16px; cursor: pointer; background: #24336a; color: #fff; transition: transform .25s cubic-bezier(.32,.72,0,1), filter .2s; }
+  button:hover { filter: brightness(1.15); } button:active { transform: scale(.96); }
+  button.primary { background: linear-gradient(90deg, #2ea8ff, #7a5cff); }
+  button.ghost { background: transparent; border: 1px solid var(--line); color: var(--muted); }
+  button.danger { background: #5a1f2c; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .row > input { flex: 1; min-width: 200px; }
+  .grid { display: grid; gap: 10px; }
+  .msg { margin-top: 10px; padding: 10px 12px; border-radius: 12px; font-size: 13px; border: 1px solid var(--line); display: none; white-space: pre-wrap; }
+  .msg.show { display: block; } .msg.ok { border-color: rgba(34,201,138,.6); } .msg.bad { border-color: rgba(255,77,102,.7); color: #ffb3bd; }
+  /* suis gaya iOS */
+  .sw { display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 14px; background: rgba(255,255,255,.04); border: 1px solid var(--line); margin: 8px 0; }
+  .sw .t { flex: 1; } .sw .t b { display: block; font-size: 15px; } .sw .t span { color: var(--muted); font-size: 12.5px; }
+  .tog { position: relative; width: 56px; height: 32px; flex: none; }
+  .tog input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; z-index: 2; }
+  .tog i { position: absolute; inset: 0; border-radius: 99px; background: #3a456f; transition: background .35s cubic-bezier(.32,.72,0,1); }
+  .tog i::after { content: ''; position: absolute; left: 3px; top: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.4); transition: transform .35s cubic-bezier(.32,.72,0,1); }
+  .tog input:checked + i { background: var(--green); } .tog input:checked + i::after { transform: translateX(24px); }
+  .tog input:disabled { cursor: wait; }
+  .acc { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); margin: 6px 0; background: rgba(255,255,255,.03); }
+  .acc .e { flex: 1; word-break: break-all; } .acc .e small { display: block; color: var(--muted); }
+  .chip { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 12px; font-weight: 800; letter-spacing: .05em; }
+  .chip.on { background: rgba(34,201,138,.18); color: #7df0c2; } .chip.off { background: rgba(255,77,102,.16); color: #ff9aa9; }
+  .log { font-size: 12.5px; color: var(--muted); } .log div { padding: 4px 0; border-bottom: 1px dashed var(--line); }
+  .hidden { display: none !important; }
+  a { color: var(--blue); }
+  kbd { background: #0a1130; border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="../assets/logo-96.png" alt="" width="40" height="40">
+    <div><h1>GLOBAL STREAMER · ADMIN</h1><small>Kawal ciri aplikasi untuk semua pengguna</small></div>
+    <div class="sp"></div>
+    <button id="install" class="ghost hidden" type="button">⬇ Pasang sebagai aplikasi</button>
+    <button id="logout" class="ghost hidden" type="button">Log keluar</button>
+  </header>
+
+  <!-- log masuk -->
+  <section id="login" class="card hidden">
+    <h2>Log masuk admin</h2>
+    <p class="sub">Hanya akaun admin Global Streamer boleh mengubah tetapan. Orang lain boleh membuka halaman ini tetapi tidak boleh mengubah apa-apa.</p>
+    <div class="grid">
+      <input id="email" type="email" autocomplete="email" placeholder="Emel admin">
+      <input id="pass" type="password" autocomplete="current-password" placeholder="Kata laluan">
+      <div class="row"><button id="doLogin" class="primary" type="button">Log masuk</button><button id="doReset" class="ghost" type="button">Lupa kata laluan</button></div>
+    </div>
+    <div id="loginMsg" class="msg"></div>
+  </section>
+
+  <!-- papan pemuka -->
+  <main id="dash" class="hidden">
+    <section class="card">
+      <div class="row"><div style="flex:1"><h2>Bot bercakap (Suara &amp; Bot AI)</h2><p class="sub" style="margin:0">Status semasa: <span id="stAll" class="chip off">…</span> semua pengguna · <span id="stOwner" class="chip off">…</span> pemilik</p></div></div>
+      <div class="sw"><div class="t"><b>Hidupkan untuk SEMUA pengguna</b><span>Apabila HIDUP, fungsi bot bercakap terbuka dalam aplikasi awam. Setiap pengguna tetap memasukkan kunci API (Anthropic dan ElevenLabs) milik sendiri.</span></div><label class="tog"><input id="tAll" type="checkbox"><i></i></label></div>
+      <div class="sw"><div class="t"><b>Hidupkan untuk akaun pemilik (saya)</b><span>Hanya akaun admin ini. Tidak menjejaskan pengguna lain.</span></div><label class="tog"><input id="tOwner" type="checkbox"><i></i></label></div>
+      <div id="cfgMsg" class="msg"></div>
+    </section>
+
+    <section class="card">
+      <h2>Akaun dibenarkan (tanda akaun yang boleh guna)</h2>
+      <p class="sub">Tambah emel pengguna yang didaftar dalam Firebase Authentication. Akaun yang ditanda boleh guna bot walaupun suis "semua pengguna" MATI. Emel disimpan hanya untuk admin; aplikasi hanya melihat cincang (hash).</p>
+      <div class="row"><input id="newEmail" type="email" placeholder="emel@contoh.com"><button id="addEmail" class="primary" type="button">Tambah</button></div>
+      <div id="accs" style="margin-top:8px"></div>
+      <div id="accMsg" class="msg"></div>
+    </section>
+
+    <section class="card">
+      <h2>Aplikasi awam</h2>
+      <p class="sub" id="ver">Memuat versi terkini…</p>
+      <div class="row"><a id="lnkExe" href="https://github.com/GeniusDigitalDeveloper/global-streamer-releases-exe-apps/releases/latest/download/Global-Streamer-Setup.exe"><button class="primary" type="button">Muat turun EXE</button></a><a id="lnkZip" href="https://github.com/GeniusDigitalDeveloper/global-streamer-releases-exe-apps/releases/latest/download/Global-Streamer-Portable.zip"><button type="button">Muat turun Zip</button></a></div>
+    </section>
+
+    <section class="card">
+      <h2>Log perubahan</h2>
+      <div id="logs" class="log">Memuat…</div>
+    </section>
+  </main>
+
+  <section id="denied" class="card hidden">
+    <h2>Akaun ini bukan admin</h2>
+    <p class="sub">Anda log masuk sebagai <b id="who"></b>. UID akaun: <kbd id="uid"></kbd>. Tetapan hanya boleh diubah oleh admin Global Streamer.</p>
+    <button id="logout2" class="ghost" type="button">Log keluar</button>
+  </section>
+</div>
+
+<script type="module">
+  const CFG = { apiKey: 'AIzaSyAtePWOylqHpbCEGPAqXzyB5NbirOm6OaY', authDomain: 'global-streamer-izzul.firebaseapp.com', projectId: 'global-streamer-izzul', storageBucket: 'global-streamer-izzul.firebasestorage.app', messagingSenderId: '1052989097209', appId: '1:1052989097209:web:344132f8621ad399f9ce28' };
+  const V = '10.14.1', base = 'https://www.gstatic.com/firebasejs/' + V + '/';
+  // Mod DEMO (?demo=1): data contoh dalam pelayar sahaja, tiada sambungan Firebase. Untuk pratonton paparan.
+  const DEMO = /[?&]demo=1/.test(location.search);
+  const demoMods = () => {
+    const store = { 'config/voicebot': { enabledAll: false, ownerOn: true, allowHashes: [] }, 'adminConfig/voicebotAccounts': { accounts: [{ email: 'amir@contoh.com', on: true }, { email: 'sara@contoh.com', on: false }] } };
+    const logs = [{ by: 'admin@contoh.com', change: 'Pemilik: HIDUP', at: { toDate: () => new Date() } }], subs = {};
+    const emit = (p) => (subs[p] || []).forEach((cb) => cb({ exists: () => p in store, data: () => store[p] }));
+    const emitLogs = () => (subs.adminLogs || []).forEach((cb) => cb({ empty: !logs.length, forEach: (f) => logs.forEach((l) => f({ data: () => l })) }));
+    return [
+      { initializeApp: () => ({}) },
+      { getAuth: () => ({}), onAuthStateChanged: (a, cb) => { setTimeout(() => cb({ uid: 'demo', email: 'admin@contoh.com' }), 60); }, signInWithEmailAndPassword: async () => {}, signOut: async () => {}, sendPasswordResetEmail: async () => {} },
+      { getFirestore: () => ({}), doc: (d, c, i) => ({ p: c + '/' + i }), collection: (d, c) => ({ p: c }), query: (c) => c, limit: () => 0, orderBy: () => 0, serverTimestamp: () => new Date(), getDocs: async () => ({}),
+        setDoc: async (r, d) => { store[r.p] = Object.assign({}, store[r.p] || {}, d); emit(r.p); }, addDoc: async (r, d) => { logs.unshift({ by: d.by, change: d.change, at: { toDate: () => new Date() } }); emitLogs(); },
+        onSnapshot: (r, cb) => { (subs[r.p] = subs[r.p] || []).push(cb); setTimeout(() => (r.p === 'adminLogs' ? emitLogs() : emit(r.p)), 60); return () => {}; } },
+    ];
+  };
+  const [appM, authM, fsM] = DEMO ? demoMods() : await Promise.all([import(base + 'firebase-app.js'), import(base + 'firebase-auth.js'), import(base + 'firebase-firestore.js')]);
+  const app = appM.initializeApp(CFG), auth = authM.getAuth(app), db = fsM.getFirestore(app);
+  const $ = (id) => document.getElementById(id);
+  const show = (id, on) => $(id).classList.toggle('hidden', !on);
+  const say = (id, t, cls) => { const e = $(id); e.textContent = t || ''; e.className = 'msg' + (t ? ' show ' + (cls || '') : ''); };
+  const sha = async (s) => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(s).trim().toLowerCase())))).map((b) => b.toString(16).padStart(2, '0')).join('');
+  const errText = (e) => ({ 'auth/invalid-credential': 'Emel atau kata laluan salah.', 'auth/user-not-found': 'Akaun tidak dijumpai.', 'auth/wrong-password': 'Kata laluan salah.', 'auth/too-many-requests': 'Terlalu banyak percubaan. Cuba sebentar lagi.', 'auth/operation-not-allowed': 'Log masuk emel belum dihidupkan di Firebase Console > Authentication.', 'auth/invalid-email': 'Format emel tidak sah.', 'permission-denied': 'Tiada kebenaran (bukan admin).' }[e && e.code] || ('Ralat: ' + ((e && (e.code || e.message)) || '?')));
+
+  const cfgRef = fsM.doc(db, 'config', 'voicebot'), accRef = fsM.doc(db, 'adminConfig', 'voicebotAccounts');
+  let user = null, unsub = [];
+  let cfg = { enabledAll: false, ownerOn: true, allowHashes: [] }, accounts = [];
+
+  async function log(change) { try { await fsM.addDoc(fsM.collection(db, 'adminLogs'), { at: fsM.serverTimestamp(), by: user.email || user.uid, change }); } catch (e) { /* log gagal tidak menghalang */ } }
+  async function save(patch, what) {
+    const next = Object.assign({}, cfg, patch);
+    await fsM.setDoc(cfgRef, { enabledAll: !!next.enabledAll, ownerOn: next.ownerOn !== false, allowHashes: next.allowHashes || [], updatedAt: fsM.serverTimestamp(), updatedBy: user.email || user.uid }, { merge: true });
+    if (what) log(what);
+  }
+  function paintCfg() {
+    $('tAll').checked = !!cfg.enabledAll; $('tOwner').checked = cfg.ownerOn !== false;
+    $('stAll').textContent = cfg.enabledAll ? 'HIDUP' : 'MATI'; $('stAll').className = 'chip ' + (cfg.enabledAll ? 'on' : 'off');
+    $('stOwner').textContent = cfg.ownerOn !== false ? 'HIDUP' : 'MATI'; $('stOwner').className = 'chip ' + (cfg.ownerOn !== false ? 'on' : 'off');
+  }
+  async function saveAccounts(list, what) {
+    accounts = list;
+    const allowHashes = await Promise.all(list.filter((a) => a.on).map((a) => sha(a.email)));
+    await fsM.setDoc(accRef, { accounts: list, updatedAt: fsM.serverTimestamp() });
+    await save({ allowHashes }, what);
+  }
+  function paintAccs() {
+    const box = $('accs'); box.innerHTML = '';
+    if (!accounts.length) { box.innerHTML = '<p class="sub">Belum ada akaun. Tambah emel di atas.</p>'; return; }
+    accounts.forEach((a, i) => {
+      const row = document.createElement('div'); row.className = 'acc';
+      row.innerHTML = '<label class="tog"><input type="checkbox"><i></i></label><div class="e"></div><button class="danger" type="button">Buang</button>';
+      row.querySelector('input').checked = !!a.on;
+      row.querySelector('.e').innerHTML = '<span></span><small></small>'; row.querySelector('.e span').textContent = a.email; row.querySelector('.e small').textContent = a.on ? 'Dibenarkan guna bot' : 'Tidak dibenarkan';
+      row.querySelector('input').onchange = async (ev) => { ev.target.disabled = true; try { const l = accounts.map((x, j) => (j === i ? { email: x.email, on: ev.target.checked } : x)); await saveAccounts(l, (ev.target.checked ? 'Benarkan ' : 'Sekat ') + a.email); say('accMsg', 'Disimpan.', 'ok'); } catch (e) { say('accMsg', errText(e), 'bad'); } paintAccs(); };
+      row.querySelector('button').onclick = async () => { if (!confirm('Buang ' + a.email + '?')) return; try { await saveAccounts(accounts.filter((_, j) => j !== i), 'Buang ' + a.email); say('accMsg', 'Dibuang.', 'ok'); } catch (e) { say('accMsg', errText(e), 'bad'); } paintAccs(); };
+      box.append(row);
+    });
+  }
+  async function startDash() {
+    // sahkan admin: hanya admin boleh membaca adminLogs
+    try { await fsM.getDocs(fsM.query(fsM.collection(db, 'adminLogs'), fsM.limit(1))); }
+    catch (e) { $('who').textContent = user.email || ''; $('uid').textContent = user.uid; show('login', false); show('dash', false); show('denied', true); return; }
+    show('login', false); show('denied', false); show('dash', true);
+    unsub.push(fsM.onSnapshot(cfgRef, (s) => { cfg = Object.assign({ enabledAll: false, ownerOn: true, allowHashes: [] }, s.exists() ? s.data() : {}); paintCfg(); }, (e) => say('cfgMsg', errText(e), 'bad')));
+    unsub.push(fsM.onSnapshot(accRef, (s) => { accounts = s.exists() ? (s.data().accounts || []) : []; paintAccs(); }, () => {}));
+    unsub.push(fsM.onSnapshot(fsM.query(fsM.collection(db, 'adminLogs'), fsM.orderBy('at', 'desc'), fsM.limit(12)), (s) => {
+      const box = $('logs'); box.innerHTML = ''; if (s.empty) { box.textContent = 'Belum ada perubahan.'; return; }
+      s.forEach((d) => { const x = d.data(), t = x.at && x.at.toDate ? x.at.toDate().toLocaleString('ms-MY') : ''; const r = document.createElement('div'); r.textContent = t + ' · ' + (x.by || '') + ' · ' + (x.change || ''); box.append(r); });
+    }, () => {}));
+  }
+  function stopDash() { unsub.forEach((f) => f()); unsub = []; }
+  async function toggle(key, el, label) {
+    el.disabled = true;
+    try { await save({ [key]: el.checked }, label + (el.checked ? ' HIDUP' : ' MATI')); say('cfgMsg', 'Disimpan. Aplikasi akan mengikut dalam beberapa minit.', 'ok'); }
+    catch (e) { el.checked = !el.checked; say('cfgMsg', errText(e), 'bad'); }
+    el.disabled = false;
+  }
+  $('tAll').onchange = (e) => toggle('enabledAll', e.target, 'Semua pengguna:');
+  $('tOwner').onchange = (e) => toggle('ownerOn', e.target, 'Pemilik:');
+  $('addEmail').onclick = async () => {
+    const em = $('newEmail').value.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { say('accMsg', 'Emel tidak sah.', 'bad'); return; }
+    if (accounts.some((a) => a.email === em)) { say('accMsg', 'Emel sudah ada.', 'bad'); return; }
+    try { await saveAccounts(accounts.concat([{ email: em, on: true }]), 'Tambah dan benarkan ' + em); $('newEmail').value = ''; say('accMsg', 'Ditambah dan dibenarkan.', 'ok'); } catch (e) { say('accMsg', errText(e), 'bad'); }
+    paintAccs();
+  };
+  $('doLogin').onclick = async () => { say('loginMsg', 'Log masuk…'); try { await authM.signInWithEmailAndPassword(auth, $('email').value.trim(), $('pass').value); say('loginMsg', ''); } catch (e) { say('loginMsg', errText(e), 'bad'); } };
+  $('pass').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('doLogin').click(); });
+  $('doReset').onclick = async () => { const em = $('email').value.trim(); if (!em) { say('loginMsg', 'Masukkan emel dahulu.', 'bad'); return; } try { await authM.sendPasswordResetEmail(auth, em); say('loginMsg', 'Emel tetapan semula kata laluan dihantar.', 'ok'); } catch (e) { say('loginMsg', errText(e), 'bad'); } };
+  const out = () => authM.signOut(auth); $('logout').onclick = out; $('logout2').onclick = out;
+  authM.onAuthStateChanged(auth, (u) => {
+    user = u; stopDash();
+    show('logout', !!u);
+    if (!u) { show('dash', false); show('denied', false); show('login', true); return; }
+    startDash();
+  });
+
+  // versi aplikasi awam
+  fetch('https://api.github.com/repos/GeniusDigitalDeveloper/global-streamer-releases-exe-apps/releases/latest').then((r) => r.json()).then((j) => { $('ver').textContent = 'Versi terkini: ' + (j.tag_name || j.name || '?') + (j.published_at ? ' · ' + new Date(j.published_at).toLocaleDateString('ms-MY') : ''); }).catch(() => { $('ver').textContent = 'Versi terkini: (tidak dapat dimuat)'; });
+
+  // pasang sebagai aplikasi (Chrome)
+  let deferred = null;
+  window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferred = e; show('install', true); });
+  $('install').onclick = async () => { if (!deferred) return; deferred.prompt(); await deferred.userChoice; deferred = null; show('install', false); };
+  window.addEventListener('appinstalled', () => show('install', false));
+  if (DEMO) { const d = document.createElement('div'); d.style.cssText = 'position:fixed;left:0;right:0;bottom:0;padding:8px 14px;background:#ffc928;color:#1b1200;font-weight:800;text-align:center;font-size:13px;z-index:9'; d.textContent = 'MOD DEMO: data contoh dalam pelayar sahaja. Panel sebenar disambung ke Firebase.'; document.body.append(d); }
+  else if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
+</script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Admin tunggal (UID Firebase Auth pemilik sistem)
+    function isAdmin() {
+      return request.auth != null && request.auth.uid == 'zm2T9nBDCmTjhvPqCbemSmi9rVa2';
+    }
+    function signedIn() { return request.auth != null; }
+    function isOwner(uid) { return signedIn() && request.auth.uid == uid; }
+
+    // Pengguna: sesiapa yang ditambah dalam Authentication terus ada akses.
+    // Admin boleh sekat seseorang dengan menetapkan licenses/{uid}.active = false.
+    function notBlocked(uid) {
+      return !exists(/databases/$(database)/documents/licenses/$(uid))
+        || get(/databases/$(database)/documents/licenses/$(uid)).data.get('active', true) == true;
+    }
+
+    // Profil pengguna dibuat automatik pada log masuk pertama
+    match /users/{uid} {
+      allow read: if isAdmin() || isOwner(uid);
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['displayName','email','createdAt','lastLogin','settings']);
+      allow update: if isOwner(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName','lastLogin','settings']);
+      allow write: if isAdmin();
+    }
+
+    // Lesen / status akses: pemilik baca sahaja, admin urus
+    match /licenses/{uid} {
+      allow read: if isAdmin() || isOwner(uid);
+      allow write: if isAdmin();
+    }
+
+    // Data awam: meta turnamen, template rasmi, versi aplikasi
+    match /meta/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /templates/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /releases/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Template peribadi pengguna
+    match /users/{uid}/templates/{tid} {
+      allow read, write: if (isOwner(uid) && notBlocked(uid)) || isAdmin();
+    }
+
+    // Log aktiviti admin
+    match /adminLogs/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    // Suis ciri (cth Suara & Bot AI): app membaca tanpa log masuk; hanya admin boleh ubah.
+    // Dokumen awam hanya mengandungi suis dan cincang (hash) emel, bukan emel sebenar.
+    match /config/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    // Senarai emel sebenar yang dibenarkan: admin sahaja
+    match /adminConfig/{doc} {
+      allow read, write: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
