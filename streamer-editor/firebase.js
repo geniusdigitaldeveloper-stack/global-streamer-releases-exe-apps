@@ -39,6 +39,9 @@ if (cfg && !/^PASTE/.test(cfg.apiKey || "PASTE")) {
       const r = await FN.httpsCallable(fns, "createJob")({ url, mode });
       unsub = F.onSnapshot(F.doc(db, "users", auth.currentUser.uid, "jobs", r.data.jobId), (d) => cb(d.data()));
     },
+    // OAuth tokens live in a private doc that only the owner can read (admins cannot).
+    saveToken: (id, t) => F.setDoc(F.doc(db, "users", auth.currentUser.uid, "private", "oauth"), { [id]: t }, { merge: true }),
+    dropToken: (id) => F.setDoc(F.doc(db, "users", auth.currentUser.uid, "private", "oauth"), { [id]: F.deleteField() }, { merge: true }),
     logout: () => { if (unsub) unsub(); return A.signOut(auth); },
   };
   // Site settings (banner, pages, texts, MCP list) edited by the admin. Public read.

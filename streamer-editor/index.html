@@ -256,6 +256,7 @@ html[data-app-theme="dark"] .btn.dark{background:#000;border-color:#3A3F4D}
 .mlogo.img{background:#fff;border:1px solid var(--line);padding:8px}.mlogo.img.sm{padding:5px}.mlogo.img img{object-fit:contain;border-radius:6px}
 .mlink{color:var(--muted);font-size:22px}
 .who2{display:flex;gap:12px;align-items:center;min-width:0}
+.alert-ok{background:#16A36A;color:#fff;border-radius:var(--radius);padding:12px 14px;font-weight:600}
 .alert-red{border:1px solid color-mix(in srgb,var(--bad) 45%,var(--line));background:color-mix(in srgb,var(--bad) 10%,var(--surface));color:var(--bad);border-radius:var(--radius);padding:12px 14px;font-weight:500}
 .alert-red .upg{color:var(--bad);text-decoration:underline;white-space:nowrap}
 </style>
@@ -489,7 +490,7 @@ function bindPost(){
 }
 
 function setView(){
- var h='<div class="head"><h1>'+t("nSettings")+'</h1></div><div class="card stack"><h2>'+t("setTheme")+'</h2><div class="themes">';
+ var h='<div class="head"><h1>'+t("nSettings")+'</h1></div>'+flashHtml()+'<div class="card stack"><h2>'+t("setTheme")+'</h2><div class="themes">';
  [["gaming","tGaming",["#F1EEFF","#7C3AED","#67D6EA"]],["blue","tFormal",["#F4F7FB","#1F5FBF","#FFFFFF"]],["green","tGreen",["#F4F7F4","#2B7A57","#FFFFFF"]],["dark","tDark",["#111214","#8AB4FF","#1A1B1E"]]].forEach(function(x){h+='<button class="tcard" data-theme="'+x[0]+'" aria-pressed="'+(S.theme===x[0])+'"><div class="sw">'+x[2].map(function(c){return '<i style="background:'+c+'"></i>'}).join("")+'</div><b class="small">'+t(x[1])+'</b></button>'});
  h+='</div><label class="f" style="max-width:260px">'+t("lang")+'<select id="lang"><option value="en"'+(S.lang==="en"?' selected':'')+'>English</option><option value="ms"'+(S.lang==="ms"?' selected':'')+'>Bahasa Melayu</option></select></label></div>';
  var cat=catalog(),added=cat.filter(function(m){return S.mcp[m.id]}),left=cat.filter(function(m){return !S.mcp[m.id]});
@@ -518,10 +519,39 @@ function limitInfo(){var out=[],selN=Object.keys(S.sel).length,pl=Object.keys(S.
  connectedPost().forEach(function(m){var o=S.mcp[m.id],f=m.freeLimit;if(!o||!f||!f.type||!(+f.value>0)||o.mode==="key"||o.custom)return;
   var over=false;if(f.type==="platforms")over=pl>+f.value;else{var u=S.usage[m.id],used=u&&u.m===ym()?u.n:0;over=used+selN*Math.max(pl,1)>+f.value}
   out.push({m:m,over:over})});return out}
+function b64u(buf){return btoa(String.fromCharCode.apply(null,new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
+function rnd(n){var a=new Uint8Array(n);crypto.getRandomValues(a);return b64u(a)}
+function jget(url){return fetch(url,{headers:{Accept:"application/json"}}).then(function(r){if(!r.ok)throw new Error("http"+r.status);return r.json()})}
+function firstOk(urls){var p=Promise.reject(new Error("none"));urls.forEach(function(u){p=p.catch(function(){return jget(u)})});return p}
+async function startOAuth(m){
+ var u=new URL(m.mcpUrl),path=u.pathname!=="/"?u.pathname:"",pr=null;
+ try{pr=await firstOk([u.origin+"/.well-known/oauth-protected-resource"+path,u.origin+"/.well-known/oauth-protected-resource"])}catch(e){}
+ var au=new URL((pr&&pr.authorization_servers&&pr.authorization_servers[0])||u.origin),ap=au.pathname!=="/"?au.pathname:"";
+ var meta=await firstOk([au.origin+"/.well-known/oauth-authorization-server"+ap,au.origin+"/.well-known/oauth-authorization-server"]);
+ var ru=location.origin+"/oauth-callback.html",key="se_oc_"+m.id,c=null;
+ try{c=JSON.parse(localStorage.getItem(key)||"null")}catch(e){}
+ if(!(c&&c.redirect===ru&&c.as===meta.issuer)){
+  var r=await fetch(meta.registration_endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({client_name:BN(),redirect_uris:[ru],grant_types:["authorization_code","refresh_token"],response_types:["code"],token_endpoint_auth_method:"none"})});
+  if(!r.ok)throw new Error("register"+r.status);var j=await r.json();c={client_id:j.client_id,redirect:ru,as:meta.issuer};
+  try{localStorage.setItem(key,JSON.stringify(c))}catch(e){}}
+ var verifier=rnd(48),state=rnd(16),chal=b64u(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(verifier)));
+ sessionStorage.setItem("se_oauth",JSON.stringify({id:m.id,name:m.name,verifier:verifier,state:state,client:c.client_id,token:meta.token_endpoint,mcp:m.mcpUrl,redirect:ru}));
+ var q=new URLSearchParams({response_type:"code",client_id:c.client_id,redirect_uri:ru,code_challenge:chal,code_challenge_method:"S256",state:state,resource:m.mcpUrl});
+ if(m.scopes)q.set("scope",m.scopes);
+ location.href=meta.authorization_endpoint+(meta.authorization_endpoint.indexOf("?")>-1?"&":"?")+q.toString()}
+function consumeOAuth(){var r=null;try{r=JSON.parse(sessionStorage.getItem("se_oauth_result")||"null");sessionStorage.removeItem("se_oauth_result")}catch(e){}
+ if(!r)return false;
+ if(r.ok){S.mcp[r.id]={on:true,mode:"oauth",exp:r.exp||0,mcp:r.mcp};
+  try{if(FB_ON&&FB()&&FB().saveToken)FB().saveToken(r.id,{access:r.access,refresh:r.refresh,exp:r.exp,mcp:r.mcp}).catch(function(){})}catch(e){}
+  save();S.flash={ok:true,name:r.name||r.id}}
+ else S.flash={ok:false,msg:t("oauthFail")};
+ return true}
+function flashHtml(){var f=S.flash;if(!f)return"";return f.ok?'<div class="alert-ok" role="status">✓ '+fmt2(t("oauthOk"),{n:esc(f.name)})+'</div>':'<div class="alert-red" role="alert">'+esc(f.msg)+'</div>'}
 function modalHtml(){var m=mcpById(S.authFor);if(!m)return"";var a=m.auth||"apikey",o=S.mcp[m.id]||{},oauth=a==="oauth"||a==="both",key=a==="apikey"||(a==="both"&&S.mKey);
  var h='<div class="modal" id="mback"><div class="mbox" role="dialog" aria-modal="true"><div class="mlogos"><span class="mlogo app">'+LG()+'</span><span class="mlink">⇄</span>'+logoHtml(m)+'</div><div style="text-align:center"><h2>'+t("authorize")+' '+esc(m.name)+'</h2><p class="muted" style="margin:6px 0 0">'+fmt2(t("wantsConnect"),{app:esc(BN()),n:esc(m.name)})+'</p></div>';
- if(oauth){h+='<button class="btn dark block" id="m_auth"'+(safeUrl(m.authUrl)?'':' disabled')+'>'+fmt2(t("authBy"),{n:esc(m.name)})+'</button>';
-  h+=safeUrl(m.authUrl)?'<div class="small muted" style="text-align:center">'+fmt2(t("redirectNote"),{n:esc(m.name)})+(limitText(m)?'<br>'+t("freeBadge")+': '+esc(limitText(m)):'')+'</div>':'<div class="small" style="text-align:center;color:var(--bad)">'+t("noAuthUrl")+'</div>';
+ var hasAuth=!!(safeUrl(m.mcpUrl)||safeUrl(m.authUrl));
+ if(oauth){h+='<button class="btn dark block" id="m_auth">'+fmt2(t("authBy"),{n:esc(m.name)})+'</button>';
+  h+=hasAuth?'<div class="small muted" style="text-align:center">'+fmt2(t("redirectNote"),{n:esc(m.name)})+(limitText(m)?'<br>'+t("freeBadge")+': '+esc(limitText(m)):'')+'</div>':'<div class="small" style="text-align:center;color:var(--bad)">'+t("noAuthUrl")+'</div>';
   if(a==="both"&&!S.mKey)h+='<div class="sep">'+t("or")+'</div><button class="btn block" id="m_showkey">'+t("paidPlan")+'</button>'}
  if(key){if(a==="apikey")h+='<div class="small muted" style="text-align:center">'+t("needKeyFirst")+'</div>';
   h+='<label class="f">'+esc(m.keyLabel||t("apiKey"))+'<input id="m_key" type="password" autocomplete="off" value="'+esc(o.key||"")+'"></label><button class="btn dark block" id="m_conn"'+((o.key||"").trim()?'':' disabled')+'>'+t("connect")+'</button>';
@@ -530,9 +560,11 @@ function modalHtml(){var m=mcpById(S.authFor);if(!m)return"";var a=m.auth||"apik
 function bindModal(){var m=mcpById(S.authFor);if(!m)return;
  var close=function(){S.authFor=null;S.mKey=false;render()};
  $("#m_close").onclick=close;$("#mback").onclick=function(e){if(e.target.id==="mback")close()};
- var au=$("#m_auth");if(au)au.onclick=function(){var url=safeUrl(m.authUrl);if(!url){$("#m_err").textContent=t("noAuthUrl");return}
-  var a=new Uint8Array(12);crypto.getRandomValues(a);var st=Array.prototype.map.call(a,function(x){return("0"+x.toString(16)).slice(-2)}).join("");
-  var go=url.indexOf("{state}")>-1?url.replace("{state}",st):url+(url.indexOf("?")>-1?"&":"?")+"state="+st;
+ var au=$("#m_auth");if(au)au.onclick=async function(){var er=$("#m_err");er.textContent="";
+  if(safeUrl(m.mcpUrl)){var lab=au.textContent;au.disabled=true;au.textContent=fmt2(t("opening"),{n:m.name});
+   try{await startOAuth(m)}catch(e){au.disabled=false;au.textContent=lab;er.textContent=fmt2(t("discoverFail"),{n:m.name})}return}
+  var url=safeUrl(m.authUrl);if(!url){er.textContent=t("noAuthUrl");return}
+  var st=rnd(12),go=url.indexOf("{state}")>-1?url.replace("{state}",st):url+(url.indexOf("?")>-1?"&":"?")+"state="+st;
   S.mcp[m.id]=Object.assign({},S.mcp[m.id],{on:false,pending:true,mode:"oauth",nonce:st});S.authFor=null;save();location.href=go};
  var sk=$("#m_showkey");if(sk)sk.onclick=function(){S.mKey=true;render()};
  var ki=$("#m_key");if(ki)ki.oninput=function(){var b=$("#m_conn");if(b)b.disabled=!ki.value.trim()};
@@ -560,7 +592,7 @@ function bindSet(){
  document.querySelectorAll("[data-add]").forEach(function(b){b.onclick=function(){S.authFor=b.dataset.add;S.mKey=false;S.mcpPick=false;render()}});
  document.querySelectorAll("[data-rm]").forEach(function(b){b.onclick=function(){delete S.mcp[b.dataset.rm];save();render()}});
  document.querySelectorAll("[data-conn]").forEach(function(b){b.onclick=function(){var o=S.mcp[b.dataset.conn];
-  if(o.on){o.on=false;o.pending=false;save();render()}else{S.authFor=b.dataset.conn;S.mKey=false;render()}}});
+  if(o.on){if(o.mode==="oauth"&&FB_ON&&FB()&&FB().dropToken)FB().dropToken(b.dataset.conn).catch(function(){});o.on=false;o.pending=false;save();render()}else{S.authFor=b.dataset.conn;S.mKey=false;render()}}});
  $("#ksave").onclick=function(){S.keys.anth=$("#k_anth").value;S.keys.hf=$("#k_hf").value;save();this.textContent="✓ "+t("saved")};
  $("#out").onclick=function(){S.session="";S.auth="login";save();if(FB_ON&&FB())FB().logout();render()};
 }
@@ -581,7 +613,7 @@ function render(){
  var pg=pageOf(S.view),v=pg.id;S.view=v;
  var body=pg.builtin?blocksHtml(pg.blocks)+(v==="clips"?clipsView():v==="studio"?studioView():v==="post"?postView():setView()):(blocksHtml(pg.blocks)||'<div class="card muted">'+t("pageEmpty")+'</div>');
  app.innerHTML=shell(body,pg);
- document.querySelectorAll("[data-nav]").forEach(function(x){x.onclick=function(){S.view=x.dataset.nav;S.msg="";render();window.scrollTo(0,0)}});
+ document.querySelectorAll("[data-nav]").forEach(function(x){x.onclick=function(){S.view=x.dataset.nav;S.msg="";S.flash=null;render();window.scrollTo(0,0)}});
  if(pg.builtin)(v==="clips"?bindClips:v==="studio"?bindStudio:v==="post"?bindPost:bindSet)();
  if(S.authFor){app.insertAdjacentHTML("beforeend",modalHtml());bindModal()}
  enhancePw();
@@ -596,7 +628,7 @@ window.SE_onUser=function(u,cfg){
   window.SE_note="";
   if(cfg){["theme","lang","mcp","usage","keys","res","fps"].forEach(function(k){if(cfg[k]!==undefined)S[k]=cfg[k]})}
   S.session=u.email;S.last=u.email;try{localStorage.setItem(KEY,JSON.stringify({lang:S.lang,theme:S.theme,last:S.last}))}catch(e){}
-  if(S.auth!=="newpw")enter();
+  if(S.auth!=="newpw"){if(consumeOAuth()){S.view="settings";render()}else enter()}
 };
 render();
 })();

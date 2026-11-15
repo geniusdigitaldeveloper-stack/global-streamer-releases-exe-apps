@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Connecting…</title>
+<style>body{margin:0;min-height:100vh;display:grid;place-items:center;font:16px system-ui,sans-serif;background:#F4F7FB;color:#14213D}</style>
+</head>
+<body>
+<p id="m">Finishing the connection…</p>
+<script>
+(async function () {
+  var p = new URLSearchParams(location.search), st = null, out;
+  try { st = JSON.parse(sessionStorage.getItem("se_oauth") || "null"); } catch (e) {}
+  try {
+    if (p.get("error")) throw new Error(p.get("error"));
+    if (!st || !p.get("code") || p.get("state") !== st.state) throw new Error("state");
+    var body = new URLSearchParams({ grant_type: "authorization_code", code: p.get("code"), redirect_uri: st.redirect, client_id: st.client, code_verifier: st.verifier, resource: st.mcp });
+    var r = await fetch(st.token, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded", Accept: "application/json" }, body: body });
+    var j = await r.json();
+    if (!r.ok || !j.access_token) throw new Error(j.error || "http" + r.status);
+    out = { ok: true, id: st.id, name: st.name, access: j.access_token, refresh: j.refresh_token || "", exp: j.expires_in ? Date.now() + j.expires_in * 1000 : 0, mcp: st.mcp };
+  } catch (e) { out = { ok: false, id: st && st.id, name: st && st.name, error: String(e.message || e) }; }
+  try { sessionStorage.removeItem("se_oauth"); sessionStorage.setItem("se_oauth_result", JSON.stringify(out)); } catch (e) {}
+  location.replace("/");
+})();
+</script>
+</body>
+</html>

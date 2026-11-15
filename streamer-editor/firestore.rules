@@ -36,6 +36,11 @@ service cloud.firestore {
         || (isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'plan'])));
       allow delete: if false;
 
+      // OAuth tokens for connected MCPs. Only the owner can read or write them (admins cannot).
+      match /private/{doc} {
+        allow read, write: if signedIn() && request.auth.uid == uid;
+      }
+
       // Jobs are created and filled only by the server. The owner and admins can read.
       match /jobs/{jobId} {
         allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
