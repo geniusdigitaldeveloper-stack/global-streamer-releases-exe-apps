@@ -237,6 +237,15 @@ html.cfgbg .banner,html.cfgbg .auth-hero{background:var(--bgr)!important}
 .pick{border:1px dashed var(--line);border-radius:var(--radius);padding:4px 14px;margin-top:12px}
 
 /* ---- authorize modal + limit alerts ---- */
+.btn.dark{background:#0B0F19;border-color:#0B0F19;color:#fff;box-shadow:none}
+.btn.dark:hover{background:#1c2333;border-color:#1c2333;color:#fff}
+html[data-app-theme="dark"] .btn.dark{background:#000;border-color:#3A3F4D}
+.btn.dark:disabled{background:#0B0F19;opacity:.45}
+.btn.green{background:#16A36A;border-color:#16A36A;color:#fff;box-shadow:none}
+.btn.green:hover{background:#16A36A;border-color:#16A36A;color:#fff}
+.btn.green.static{cursor:default;display:inline-flex;align-items:center}
+.btn.green:disabled{opacity:1;cursor:default}
+.pill.ok.solid{background:#16A36A;color:#fff}
 .modal{position:fixed;inset:0;background:rgba(10,16,30,.55);display:grid;place-items:center;padding:16px;z-index:50}
 .mbox{background:var(--surface);color:var(--ink);border-radius:20px;max-width:420px;width:100%;padding:24px;display:grid;gap:14px;box-shadow:0 30px 80px rgba(0,0,0,.35);max-height:92vh;overflow:auto}
 .mlogos{display:flex;align-items:center;justify-content:center;gap:14px}
@@ -462,7 +471,7 @@ function limitNotes(){return limitInfo().filter(function(x){return x.over}).map(
 function postView(){
  var conn=connectedPost(),n=Object.keys(S.sel).length;
  var h='<div class="head"><h1>'+t("nPost")+'</h1></div><div class="card"><h2>'+t("mcp")+'</h2>';
- h+=conn.length?conn.map(function(m){return '<div class="conn"><div><b>'+esc(m.name)+'</b><div class="small muted">'+esc(L10(m.desc))+'</div></div><span class="pill ok">'+(S.mcp[m.id]&&S.mcp[m.id].mode==="oauth"?t("connected"):t("keySaved"))+'</span></div>'}).join(""):'<div class="muted" style="margin-top:6px">'+t("noPostMcp")+'</div>';
+ h+=conn.length?conn.map(function(m){return '<div class="conn"><div><b>'+esc(m.name)+'</b><div class="small muted">'+esc(L10(m.desc))+'</div></div><span class="pill ok">'+t("connected")+'</span></div>'}).join(""):'<div class="muted" style="margin-top:6px">'+t("noPostMcp")+'</div>';
  h+='<div class="small muted" style="margin-top:6px">'+t("nSettings")+' → '+t("mcpList")+'</div></div>';
  h+='<div class="card stack"><h2>'+t("pickClips")+'</h2>'+(n?'<div class="small">'+Object.keys(S.sel).map(function(i){return esc(S.clips[i].title)}).join(" · ")+'</div>':'<div class="muted">'+t("noSel")+'</div>')+'<h2>'+t("platforms")+'</h2><div class="seg">'+PLATS.map(function(p){return '<button data-plat="'+p[0]+'" aria-pressed="'+!!S.plat[p[0]]+'">'+p[1]+'</button>'}).join("")+'</div>'+limitNotes()+'<label class="f">'+t("caption")+'<textarea id="cap" rows="3">'+esc(S.post.cap)+'</textarea></label><div class="seg"><button data-when="now" aria-pressed="'+(S.post.when==="now")+'">'+t("now")+'</button><button data-when="sched" aria-pressed="'+(S.post.when==="sched")+'">'+t("sched")+'</button></div>'+(S.post.when==="sched"?'<input id="dt" type="datetime-local" style="width:100%;max-width:280px;padding:9px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)">':'')+'<div class="err" id="perr">'+esc(S.msg)+'</div><button class="btn primary" id="pp">'+t("postBtn")+'</button></div>';
  return h;
@@ -511,11 +520,11 @@ function limitInfo(){var out=[],selN=Object.keys(S.sel).length,pl=Object.keys(S.
   out.push({m:m,over:over})});return out}
 function modalHtml(){var m=mcpById(S.authFor);if(!m)return"";var a=m.auth||"apikey",o=S.mcp[m.id]||{},oauth=a==="oauth"||a==="both",key=a==="apikey"||(a==="both"&&S.mKey);
  var h='<div class="modal" id="mback"><div class="mbox" role="dialog" aria-modal="true"><div class="mlogos"><span class="mlogo app">'+LG()+'</span><span class="mlink">⇄</span>'+logoHtml(m)+'</div><div style="text-align:center"><h2>'+t("authorize")+' '+esc(m.name)+'</h2><p class="muted" style="margin:6px 0 0">'+fmt2(t("wantsConnect"),{app:esc(BN()),n:esc(m.name)})+'</p></div>';
- if(oauth){h+='<button class="btn primary block" id="m_auth"'+(safeUrl(m.authUrl)?'':' disabled')+'>'+fmt2(t("authBy"),{n:esc(m.name)})+'</button>';
+ if(oauth){h+='<button class="btn dark block" id="m_auth"'+(safeUrl(m.authUrl)?'':' disabled')+'>'+fmt2(t("authBy"),{n:esc(m.name)})+'</button>';
   h+=safeUrl(m.authUrl)?'<div class="small muted" style="text-align:center">'+fmt2(t("redirectNote"),{n:esc(m.name)})+(limitText(m)?'<br>'+t("freeBadge")+': '+esc(limitText(m)):'')+'</div>':'<div class="small" style="text-align:center;color:var(--bad)">'+t("noAuthUrl")+'</div>';
   if(a==="both"&&!S.mKey)h+='<div class="sep">'+t("or")+'</div><button class="btn block" id="m_showkey">'+t("paidPlan")+'</button>'}
  if(key){if(a==="apikey")h+='<div class="small muted" style="text-align:center">'+t("needKeyFirst")+'</div>';
-  h+='<label class="f">'+esc(m.keyLabel||t("apiKey"))+'<input id="m_key" type="password" autocomplete="off" value="'+esc(o.key||"")+'"></label><button class="btn primary block" id="m_conn"'+((o.key||"").trim()?'':' disabled')+'>'+t("connect")+'</button>';
+  h+='<label class="f">'+esc(m.keyLabel||t("apiKey"))+'<input id="m_key" type="password" autocomplete="off" value="'+esc(o.key||"")+'"></label><button class="btn dark block" id="m_conn"'+((o.key||"").trim()?'':' disabled')+'>'+t("connect")+'</button>';
   if(safeUrl(m.upgradeUrl))h+='<a class="small" style="text-align:center" href="'+esc(safeUrl(m.upgradeUrl))+'" target="_blank" rel="noopener">'+t("docs")+'</a>'}
  return h+'<div class="err" id="m_err" style="text-align:center"></div><button class="btn block" id="m_close">'+t("cancel")+'</button></div></div>'}
 function bindModal(){var m=mcpById(S.authFor);if(!m)return;
@@ -528,11 +537,14 @@ function bindModal(){var m=mcpById(S.authFor);if(!m)return;
  var sk=$("#m_showkey");if(sk)sk.onclick=function(){S.mKey=true;render()};
  var ki=$("#m_key");if(ki)ki.oninput=function(){var b=$("#m_conn");if(b)b.disabled=!ki.value.trim()};
  var cn=$("#m_conn");if(cn)cn.onclick=function(){var k=ki.value.trim();if(!k){$("#m_err").textContent=t("keyReq");return}
-  S.mcp[m.id]=Object.assign({},S.mcp[m.id],{on:true,pending:false,mode:"key",key:k});S.authFor=null;S.mKey=false;save();render()}}
+  S.mcp[m.id]=Object.assign({},S.mcp[m.id],{on:true,pending:false,mode:"key",key:k});save();
+  cn.className="btn green block";cn.textContent="✓ "+t("connected");cn.disabled=true;
+  setTimeout(function(){S.authFor=null;S.mKey=false;render()},900)}}
 function mcpRow(m){var o=S.mcp[m.id],id=esc(m.id);
- var pill=o.on?(o.mode==="oauth"?'<span class="pill ok">'+t("connected")+'</span>':'<span class="pill ok">'+t("keySaved")+'</span>'):(o.pending?'<span class="pill off">'+t("waiting")+'</span>':'<span class="pill off">—</span>');
+ var pill=o.on?'<span class="pill ok solid">'+t("connected")+'</span>':(o.pending?'<span class="pill off">'+t("waiting")+'</span>':'<span class="pill off">—</span>');
  var sub=o.on&&o.mode==="oauth"?'<div class="small muted">'+t("freeBadge")+(limitText(m)?' · '+esc(limitText(m)):'')+'</div>':(o.on&&o.mode==="key"&&!o.custom?'<div class="small muted">'+t("paidBadge")+'</div>':'');
- return '<div class="conn" style="align-items:center"><div class="who2">'+logoHtml(m,true)+'<div style="min-width:0"><b>'+esc(m.name)+'</b> '+pill+'<div class="small muted">'+esc(L10(m.desc))+'</div>'+sub+'</div></div><div class="row" style="flex-wrap:nowrap"><button class="btn'+(o.on?'':' primary')+'" data-conn="'+id+'">'+(o.on?t("disconnect"):t("connect"))+'</button><button class="btn" data-rm="'+id+'" aria-label="'+t("remove")+'">✕</button></div></div>'}
+ var btns=o.on?'<span class="btn green static">✓ '+t("connected")+'</span><button class="btn" data-conn="'+id+'">'+t("disconnect")+'</button>':'<button class="btn dark" data-conn="'+id+'">'+t("connect")+'</button>';
+ return '<div class="conn" style="align-items:center"><div class="who2">'+logoHtml(m,true)+'<div style="min-width:0"><b>'+esc(m.name)+'</b> '+pill+'<div class="small muted">'+esc(L10(m.desc))+'</div>'+sub+'</div></div><div class="row" style="justify-content:flex-end">'+btns+'<button class="btn" data-rm="'+id+'" aria-label="'+t("remove")+'">✕</button></div></div>'}
 function bindSet(){
  document.querySelectorAll("[data-theme]").forEach(function(b){b.onclick=function(){S.theme=b.dataset.theme;save();render()}});
  $("#lang").onchange=function(e){S.lang=e.target.value;save();render()};
