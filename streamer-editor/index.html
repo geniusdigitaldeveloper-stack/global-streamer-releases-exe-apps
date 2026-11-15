@@ -560,6 +560,7 @@ function modalHtml(){var m=mcpById(S.authFor);if(!m)return"";var a=m.auth||"apik
  if(key){if(a==="apikey")h+='<div class="small muted" style="text-align:center">'+t("needKeyFirst")+'</div>';
   h+='<label class="f">'+esc(m.keyLabel||t("apiKey"))+'<input id="m_key" type="password" autocomplete="off" value="'+esc(o.key||"")+'"></label><button class="btn dark block" id="m_conn"'+((o.key||"").trim()?'':' disabled')+'>'+t("connect")+'</button>';
   if(safeUrl(m.keyUrl))h+='<a class="small" style="text-align:center" href="'+esc(safeUrl(m.keyUrl))+'" target="_blank" rel="noopener">'+t("docs")+' →</a>'}
+ if(safeUrl(m.signupUrl))h+='<a class="small" style="text-align:center;font-weight:600" href="'+esc(safeUrl(m.signupUrl))+'" target="_blank" rel="noopener">'+fmt2(t("signup"),{n:esc(m.name)})+' ↗</a>';
  return h+'<div class="err" id="m_err" style="text-align:center"></div><button class="btn block" id="m_close">'+t("cancel")+'</button></div></div>'}
 function bindModal(){var m=mcpById(S.authFor);if(!m)return;
  var close=function(){S.authFor=null;S.mKey=false;render()};
