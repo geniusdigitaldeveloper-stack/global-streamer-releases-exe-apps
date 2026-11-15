@@ -244,6 +244,7 @@ html.cfgbg .banner,html.cfgbg .auth-hero{background:var(--bgr)!important}
 .mlogo.app{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#38BDF8))}
 .mlogo.sm{width:40px;height:40px;border-radius:12px;font-size:16px}
 .mlogo img{width:100%;height:100%;object-fit:cover}
+.mlogo.img{background:#fff;border:1px solid var(--line);padding:8px}.mlogo.img.sm{padding:5px}.mlogo.img img{object-fit:contain;border-radius:6px}
 .mlink{color:var(--muted);font-size:22px}
 .who2{display:flex;gap:12px;align-items:center;min-width:0}
 .alert-red{border:1px solid color-mix(in srgb,var(--bad) 45%,var(--line));background:color-mix(in srgb,var(--bad) 10%,var(--surface));color:var(--bad);border-radius:var(--radius);padding:12px 14px;font-weight:500}
@@ -483,7 +484,7 @@ function setView(){
  [["gaming","tGaming",["#F1EEFF","#7C3AED","#67D6EA"]],["blue","tFormal",["#F4F7FB","#1F5FBF","#FFFFFF"]],["green","tGreen",["#F4F7F4","#2B7A57","#FFFFFF"]],["dark","tDark",["#111214","#8AB4FF","#1A1B1E"]]].forEach(function(x){h+='<button class="tcard" data-theme="'+x[0]+'" aria-pressed="'+(S.theme===x[0])+'"><div class="sw">'+x[2].map(function(c){return '<i style="background:'+c+'"></i>'}).join("")+'</div><b class="small">'+t(x[1])+'</b></button>'});
  h+='</div><label class="f" style="max-width:260px">'+t("lang")+'<select id="lang"><option value="en"'+(S.lang==="en"?' selected':'')+'>English</option><option value="ms"'+(S.lang==="ms"?' selected':'')+'>Bahasa Melayu</option></select></label></div>';
  var cat=catalog(),added=cat.filter(function(m){return S.mcp[m.id]}),left=cat.filter(function(m){return !S.mcp[m.id]});
- Object.keys(S.mcp).forEach(function(id){var o=S.mcp[id];if(o&&o.custom)added.push({id:id,name:o.name,desc:{en:o.url,ms:o.url},keyLabel:t("apiKey"),kind:o.kind||"post"})});
+ Object.keys(S.mcp).forEach(function(id){var o=S.mcp[id];if(o&&o.custom)added.push({id:id,name:o.name,desc:{en:o.url,ms:o.url},keyLabel:t("apiKey"),kind:o.kind||"post",fav:favOf(o.url)})});
  h+='<div class="card"><div class="row" style="justify-content:space-between;align-items:flex-start"><div><h2>'+t("mcpList")+'</h2><div class="small muted">'+t("mcpHint")+'</div></div><button class="btn primary" id="addMcp">+ '+t("addMcp")+'</button></div>';
  if(S.mcpPick)h+='<div class="pick">'+(left.length?left.map(function(m){return '<div class="conn"><div><b>'+esc(m.name)+'</b><div class="small muted">'+esc(L10(m.desc))+'</div></div><button class="btn" data-add="'+esc(m.id)+'">'+t("addBtn")+'</button></div>'}).join(""):'<div class="muted" style="margin-top:10px">'+t("noMcpLeft")+'</div>')+customForm()+'</div>';
  h+=added.length?added.map(mcpRow).join(""):(S.mcpPick?'':'<div class="muted" style="margin-top:10px">'+t("noMcpAdded")+'</div>');
@@ -496,8 +497,13 @@ function customForm(){var c=S.cm||(S.cm={name:"",url:"",key:"",kind:"post"});
 function connectedPost(){var r=catalog().filter(function(m){return m.kind!=="edit"&&S.mcp[m.id]&&S.mcp[m.id].on});Object.keys(S.mcp).forEach(function(id){var o=S.mcp[id];if(o&&o.custom&&o.on&&o.kind!=="edit")r.push({id:id,name:o.name,desc:{en:o.url,ms:o.url}})});return r}
 function fmt2(s,o){return s.replace(/\{(\w+)\}/g,function(_,k){return o[k]!=null?o[k]:""})}
 function ym(){var d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)}
-function mcpById(id){var c=catalog().filter(function(m){return m.id===id})[0];if(c)return c;var o=S.mcp[id];if(o&&o.custom)return {id:id,name:o.name,desc:{en:o.url,ms:o.url},auth:"apikey",kind:o.kind||"post"};return null}
-function logoHtml(m){var u=safeUrl(m.logo);if(u)return '<span class="mlogo"><img src="'+esc(u)+'" alt=""></span>';var hue=0,n=m.name||"?";for(var i=0;i<n.length;i++)hue=(hue*31+n.charCodeAt(i))%360;return '<span class="mlogo" style="--ml:hsl('+hue+' 55% 45%)">'+esc(n[0].toUpperCase())+'</span>'}
+function mcpById(id){var c=catalog().filter(function(m){return m.id===id})[0];if(c)return c;var o=S.mcp[id];if(o&&o.custom)return {id:id,name:o.name,desc:{en:o.url,ms:o.url},auth:"apikey",kind:o.kind||"post",fav:favOf(o.url)};return null}
+function imgSrc(u){u=u||"";return /^assets\/[\w.\/-]+$/.test(u)?u:safeUrl(u)}
+function favOf(u){try{return new URL(u).origin+"/favicon.ico"}catch(e){return""}}
+function logoHtml(m,sm){var n=m.name||"?",l=esc(n[0].toUpperCase()),hue=0;for(var i=0;i<n.length;i++)hue=(hue*31+n.charCodeAt(i))%360;
+ var src=imgSrc(m.logo)||(m.fav&&safeUrl(m.fav))||"",c="mlogo"+(sm?" sm":"");
+ if(src)return '<span class="'+c+' img" data-l="'+l+'" style="--ml:hsl('+hue+' 55% 45%)"><img src="'+esc(src)+'" alt="'+esc(n)+'" onerror="var p=this.parentNode;p.classList.remove(\'img\');p.textContent=p.getAttribute(\'data-l\')"></span>';
+ return '<span class="'+c+'" style="--ml:hsl('+hue+' 55% 45%)">'+l+'</span>'}
 function limitText(m){var f=m.freeLimit;if(!f||!f.type||!(+f.value>0))return"";return fmt2(t(f.type==="platforms"?"limitNoteP":"limitNoteM"),{n:+f.value})}
 function limitInfo(){var out=[],selN=Object.keys(S.sel).length,pl=Object.keys(S.plat).filter(function(k){return S.plat[k]}).length;
  connectedPost().forEach(function(m){var o=S.mcp[m.id],f=m.freeLimit;if(!o||!f||!f.type||!(+f.value>0)||o.mode==="key"||o.custom)return;
@@ -526,7 +532,7 @@ function bindModal(){var m=mcpById(S.authFor);if(!m)return;
 function mcpRow(m){var o=S.mcp[m.id],id=esc(m.id);
  var pill=o.on?(o.mode==="oauth"?'<span class="pill ok">'+t("connected")+'</span>':'<span class="pill ok">'+t("keySaved")+'</span>'):(o.pending?'<span class="pill off">'+t("waiting")+'</span>':'<span class="pill off">—</span>');
  var sub=o.on&&o.mode==="oauth"?'<div class="small muted">'+t("freeBadge")+(limitText(m)?' · '+esc(limitText(m)):'')+'</div>':(o.on&&o.mode==="key"&&!o.custom?'<div class="small muted">'+t("paidBadge")+'</div>':'');
- return '<div class="conn" style="align-items:center"><div class="who2">'+logoHtml(m).replace('class="mlogo"','class="mlogo sm"')+'<div style="min-width:0"><b>'+esc(m.name)+'</b> '+pill+'<div class="small muted">'+esc(L10(m.desc))+'</div>'+sub+'</div></div><div class="row" style="flex-wrap:nowrap"><button class="btn'+(o.on?'':' primary')+'" data-conn="'+id+'">'+(o.on?t("disconnect"):t("connect"))+'</button><button class="btn" data-rm="'+id+'" aria-label="'+t("remove")+'">✕</button></div></div>'}
+ return '<div class="conn" style="align-items:center"><div class="who2">'+logoHtml(m,true)+'<div style="min-width:0"><b>'+esc(m.name)+'</b> '+pill+'<div class="small muted">'+esc(L10(m.desc))+'</div>'+sub+'</div></div><div class="row" style="flex-wrap:nowrap"><button class="btn'+(o.on?'':' primary')+'" data-conn="'+id+'">'+(o.on?t("disconnect"):t("connect"))+'</button><button class="btn" data-rm="'+id+'" aria-label="'+t("remove")+'">✕</button></div></div>'}
 function bindSet(){
  document.querySelectorAll("[data-theme]").forEach(function(b){b.onclick=function(){S.theme=b.dataset.theme;save();render()}});
  $("#lang").onchange=function(e){S.lang=e.target.value;save();render()};

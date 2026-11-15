@@ -457,16 +457,20 @@ function textRows() {
   $("trows").innerHTML = Object.keys(en).filter((k) => !q || k.toLowerCase().includes(q) || en[k].toLowerCase().includes(q) || (ms[k] || "").toLowerCase().includes(q)).map((k) =>
     `<div class="trow"><code>${esc(k)}</code><input class="input" data-p="texts.en.${esc(k)}" value="${esc(cfg.texts.en[k] ?? "")}" placeholder="${esc(en[k])}" aria-label="${esc(k)} English"><input class="input" data-p="texts.ms.${esc(k)}" value="${esc(cfg.texts.ms[k] ?? "")}" placeholder="${esc(ms[k] || en[k])}" aria-label="${esc(k)} Bahasa Melayu"></div>`).join("") || '<div class="muted">Tiada padanan.</div>';
 }
+function logoPrev(u) {
+  const src = /^assets\/[\w.\/-]+$/.test(u || "") ? "../" + u : (/^https:\/\/[^\s"'()<>]+$/.test(u || "") ? u : "");
+  return src ? `<img src="${esc(src)}" alt="" style="width:32px;height:32px;object-fit:contain;border:1px solid var(--line);border-radius:8px;padding:3px;background:#fff" onerror="this.remove()">` : "";
+}
 function mcpTab() {
   const kinds = [["post", "Siaran (media sosial)"], ["edit", "Suntingan (suara, video, imej)"]];
   const auths = [["oauth", "Kebenaran sahaja (tiada kunci API)"], ["both", "Kebenaran, atau kunci API untuk pelan berbayar"], ["apikey", "Kunci API sahaja (wajib)"]];
   const limits = [["", "Tiada had"], ["platforms", "Had bilangan platform"], ["posts", "Had hantaran sebulan"]];
-  return `<div class="muted small">Pengguna memilih MCP daripada senarai ini dalam Tetapan, dan setiap satu perlukan kunci API pengguna sendiri.</div>` + cfg.mcps.map((m, i) => `<div class="card ecard"><div class="bh"><b>${esc(m.name || "MCP baharu")}</b><button class="btn sm danger" data-act="delMcp" data-i="${i}">Padam</button></div>
+  return `<div class="muted small">Pengguna memilih MCP daripada senarai ini dalam Tetapan, dan setiap satu perlukan kunci API pengguna sendiri.</div>` + cfg.mcps.map((m, i) => `<div class="card ecard"><div class="bh"><div style="display:flex;gap:10px;align-items:center;min-width:0">${logoPrev(m.logo)}<b>${esc(m.name || "MCP baharu")}</b></div><button class="btn sm danger" data-act="delMcp" data-i="${i}">Padam</button></div>
     <div class="g2">${inp("Nama", `mcps.${i}.name`)}${sel("Jenis", `mcps.${i}.kind`, kinds)}</div>
     <div class="g2">${inp("Keterangan (English)", `mcps.${i}.desc.en`)}${inp("Keterangan (Bahasa Melayu)", `mcps.${i}.desc.ms`)}</div>
     <div class="g2">${inp("Label kunci API", `mcps.${i}.keyLabel`, "Contoh: Zernio API key")}${inp("Pautan untuk dapatkan kunci (https, pilihan)", `mcps.${i}.docs`, "https://...")}</div>
     <div class="g2">${sel("Cara sambung", `mcps.${i}.auth`, auths)}${inp("Pautan kebenaran (authorize URL, https)", `mcps.${i}.authUrl`, "https://... (boleh guna {state})")}</div>
-    <div class="g2">${inp("Pautan logo MCP (https, pilihan)", `mcps.${i}.logo`, "https://...")}${inp("Pautan naik taraf pelan (https)", `mcps.${i}.upgradeUrl`, "https://...")}</div>
+    <div class="g2">${inp("Pautan logo MCP (https atau assets/...)", `mcps.${i}.logo`, "https://...")}${inp("Pautan naik taraf pelan (https)", `mcps.${i}.upgradeUrl`, "https://...")}</div>
     <div class="g2">${sel("Had pelan percuma", `mcps.${i}.freeLimit.type`, limits)}${inp("Nilai had (contoh 2 platform atau 20 hantaran)", `mcps.${i}.freeLimit.value`, "0", "number")}</div>
     ${chk("Dipaparkan kepada pengguna", `mcps.${i}.enabled`)}</div>`).join("") + `<div><button class="btn primary" data-act="addMcp">+ Tambah MCP</button></div>`;
 }
@@ -500,7 +504,7 @@ function cleaned() {
   delete o.updatedAt; return o;
 }
 function validUrls(o) {
-  const ok = (u) => !u || /^https:\/\/[^\s"'()<>]+$/.test(u);
+  const ok = (u) => !u || /^https:\/\/[^\s"'()<>]+$/.test(u) || /^assets\/[\w.\/-]+$/.test(u);
   if (!ok(o.banner.image)) return "URL imej banner mesti bermula dengan https://";
   for (const p of o.pages) for (const b of p.blocks) if ((b.type === "image" || b.type === "button") && !ok(b.url)) return "URL gambar dan pautan mesti bermula dengan https://";
   for (const m of o.mcps) if (!ok(m.docs) || !ok(m.authUrl) || !ok(m.logo) || !ok(m.upgradeUrl)) return "Semua pautan MCP mesti bermula dengan https://";
