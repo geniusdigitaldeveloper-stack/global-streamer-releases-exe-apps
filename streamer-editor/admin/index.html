@@ -369,8 +369,8 @@ function upd(id, d, msg) { F.updateDoc(F.doc(db, "users", id), d).then(() => toa
 
 /* ---------- site editor (edits Firestore config/site, read by the public app) ---------- */
 const SH = window.SE_SHARED;
-const BUILT = ["clips", "studio", "post", "settings"];
-const BNAME = { clips: "Klip / Clips", studio: "Studio", post: "Siar / Post", settings: "Tetapan / Settings" };
+const BUILT = ["clips", "studio", "post", "calendar", "settings"];
+const BNAME = { clips: "Klip / Clips", studio: "Studio", post: "Siar / Post", calendar: "Kalendar / Calendar", settings: "Tetapan / Settings" };
 const BTYPES = [["heading", "Tajuk"], ["text", "Teks"], ["image", "Gambar"], ["button", "Butang"], ["stat", "Kad statistik"], ["callout", "Notis"]];
 let cfg = null, tab = "banner", openPage = -1, dirty = false, resetArm = 0;
 const clone = (o) => JSON.parse(JSON.stringify(o));
