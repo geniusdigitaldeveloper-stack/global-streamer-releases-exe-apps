@@ -384,7 +384,7 @@ function normalize(c) {
   BUILT.forEach((id) => { if (!c.pages.some((p) => p.id === id)) c.pages.push(d.pages.find((p) => p.id === id)); });
   c.pages.forEach((p) => { p.title = Object.assign({ en: "", ms: "" }, p.title); p.blocks = p.blocks || []; });
   if (!Array.isArray(c.mcps)) c.mcps = d.mcps;
-  c.mcps.forEach((m) => { m.desc = Object.assign({ en: "", ms: "" }, m.desc); m.auth = m.auth || "apikey"; m.authUrl = m.authUrl || ""; m.mcpUrl = m.mcpUrl || ""; m.scopes = m.scopes || ""; m.logo = m.logo || ""; m.upgradeUrl = m.upgradeUrl || ""; m.freeLimit = Object.assign({ type: "", value: 0 }, m.freeLimit); });
+  c.mcps.forEach((m) => { m.desc = Object.assign({ en: "", ms: "" }, m.desc); m.auth = m.auth || "apikey"; m.authUrl = m.authUrl || ""; m.mcpUrl = m.mcpUrl || ""; m.keyUrl = m.keyUrl || ""; m.authServer = m.authServer || ""; m.note = Object.assign({ en: "", ms: "" }, m.note); m.scopes = m.scopes || ""; m.logo = m.logo || ""; m.upgradeUrl = m.upgradeUrl || ""; m.freeLimit = Object.assign({ type: "", value: 0 }, m.freeLimit); });
   return c;
 }
 const gp = (o, p) => p.split(".").reduce((a, k) => (a == null ? a : a[k]), o);
@@ -473,6 +473,8 @@ function mcpTab() {
     <div class="g2">${inp("Skop kebenaran (pilihan)", `mcps.${i}.scopes`, "contoh: mcp:read mcp:write")}${inp("Pautan kebenaran manual (pilihan)", `mcps.${i}.authUrl`, "https://... (guna jika tiada pautan MCP)")}</div>
     <div class="g2">${inp("Pautan logo MCP (https atau assets/...)", `mcps.${i}.logo`, "https://...")}${inp("Pautan naik taraf pelan (https)", `mcps.${i}.upgradeUrl`, "https://...")}</div>
     <div class="g2">${sel("Had pelan percuma", `mcps.${i}.freeLimit.type`, limits)}${inp("Nilai had (contoh 2 platform atau 20 hantaran)", `mcps.${i}.freeLimit.value`, "0", "number")}</div>
+    <div class="g2">${inp("Catatan untuk pengguna (English)", `mcps.${i}.note.en`)}${inp("Catatan untuk pengguna (Bahasa Melayu)", `mcps.${i}.note.ms`)}</div>
+    <div class="g2">${inp("Pautan untuk dapatkan kunci API (https)", `mcps.${i}.keyUrl`, "https://...")}${inp("Pelayan kebenaran (pilihan, jika metadata tak boleh dibaca)", `mcps.${i}.authServer`, "https://...")}</div>
     ${chk("Dipaparkan kepada pengguna", `mcps.${i}.enabled`)}</div>`).join("") + `<div><button class="btn primary" data-act="addMcp">+ Tambah MCP</button></div>`;
 }
 /* events */
@@ -508,7 +510,7 @@ function validUrls(o) {
   const ok = (u) => !u || /^https:\/\/[^\s"'()<>]+$/.test(u) || /^assets\/[\w.\/-]+$/.test(u);
   if (!ok(o.banner.image)) return "URL imej banner mesti bermula dengan https://";
   for (const p of o.pages) for (const b of p.blocks) if ((b.type === "image" || b.type === "button") && !ok(b.url)) return "URL gambar dan pautan mesti bermula dengan https://";
-  for (const m of o.mcps) if (!ok(m.docs) || !ok(m.authUrl) || !ok(m.mcpUrl) || !ok(m.logo) || !ok(m.upgradeUrl)) return "Semua pautan MCP mesti bermula dengan https://";
+  for (const m of o.mcps) if (!ok(m.docs) || !ok(m.authUrl) || !ok(m.mcpUrl) || !ok(m.keyUrl) || !ok(m.authServer) || !ok(m.logo) || !ok(m.upgradeUrl)) return "Semua pautan MCP mesti bermula dengan https://";
   return "";
 }
 $("siteSave").onclick = async () => {

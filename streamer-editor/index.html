@@ -526,11 +526,14 @@ function firstOk(urls){var p=Promise.reject(new Error("none"));urls.forEach(func
 async function startOAuth(m){
  var u=new URL(m.mcpUrl),path=u.pathname!=="/"?u.pathname:"",pr=null;
  try{pr=await firstOk([u.origin+"/.well-known/oauth-protected-resource"+path,u.origin+"/.well-known/oauth-protected-resource"])}catch(e){}
- var au=new URL((pr&&pr.authorization_servers&&pr.authorization_servers[0])||u.origin),ap=au.pathname!=="/"?au.pathname:"";
+ var au=new URL(safeUrl(m.authServer)||(pr&&pr.authorization_servers&&pr.authorization_servers[0])||u.origin),ap=au.pathname!=="/"?au.pathname:"";
  var meta=await firstOk([au.origin+"/.well-known/oauth-authorization-server"+ap,au.origin+"/.well-known/oauth-authorization-server"]);
  var ru=location.origin+"/oauth-callback.html",key="se_oc_"+m.id,c=null;
  try{c=JSON.parse(localStorage.getItem(key)||"null")}catch(e){}
- if(!(c&&c.redirect===ru&&c.as===meta.issuer)){
+ if(!meta.registration_endpoint){
+  if(meta.client_id_metadata_document_supported)c={client_id:location.origin+"/oauth-client.json",redirect:ru,as:meta.issuer};
+  else throw new Error("noreg")}
+ else if(!(c&&c.redirect===ru&&c.as===meta.issuer)){
   var r=await fetch(meta.registration_endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({client_name:BN(),redirect_uris:[ru],grant_types:["authorization_code","refresh_token"],response_types:["code"],token_endpoint_auth_method:"none"})});
   if(!r.ok)throw new Error("register"+r.status);var j=await r.json();c={client_id:j.client_id,redirect:ru,as:meta.issuer};
   try{localStorage.setItem(key,JSON.stringify(c))}catch(e){}}
@@ -548,14 +551,14 @@ function consumeOAuth(){var r=null;try{r=JSON.parse(sessionStorage.getItem("se_o
  return true}
 function flashHtml(){var f=S.flash;if(!f)return"";return f.ok?'<div class="alert-ok" role="status">✓ '+fmt2(t("oauthOk"),{n:esc(f.name)})+'</div>':'<div class="alert-red" role="alert">'+esc(f.msg)+'</div>'}
 function modalHtml(){var m=mcpById(S.authFor);if(!m)return"";var a=m.auth||"apikey",o=S.mcp[m.id]||{},oauth=a==="oauth"||a==="both",key=a==="apikey"||(a==="both"&&S.mKey);
- var h='<div class="modal" id="mback"><div class="mbox" role="dialog" aria-modal="true"><div class="mlogos"><span class="mlogo app">'+LG()+'</span><span class="mlink">⇄</span>'+logoHtml(m)+'</div><div style="text-align:center"><h2>'+t("authorize")+' '+esc(m.name)+'</h2><p class="muted" style="margin:6px 0 0">'+fmt2(t("wantsConnect"),{app:esc(BN()),n:esc(m.name)})+'</p></div>';
+ var h='<div class="modal" id="mback"><div class="mbox" role="dialog" aria-modal="true"><div class="mlogos"><span class="mlogo app">'+LG()+'</span><span class="mlink">⇄</span>'+logoHtml(m)+'</div><div style="text-align:center"><h2>'+t("authorize")+' '+esc(m.name)+'</h2><p class="muted" style="margin:6px 0 0">'+fmt2(t("wantsConnect"),{app:esc(BN()),n:esc(m.name)})+'</p>'+(L10(m.note)?'<p class="small" style="margin:8px 0 0;color:var(--ink)">'+esc(L10(m.note))+'</p>':'')+'</div>';
  var hasAuth=!!(safeUrl(m.mcpUrl)||safeUrl(m.authUrl));
  if(oauth){h+='<button class="btn dark block" id="m_auth">'+fmt2(t("authBy"),{n:esc(m.name)})+'</button>';
   h+=hasAuth?'<div class="small muted" style="text-align:center">'+fmt2(t("redirectNote"),{n:esc(m.name)})+(limitText(m)?'<br>'+t("freeBadge")+': '+esc(limitText(m)):'')+'</div>':'<div class="small" style="text-align:center;color:var(--bad)">'+t("noAuthUrl")+'</div>';
   if(a==="both"&&!S.mKey)h+='<div class="sep">'+t("or")+'</div><button class="btn block" id="m_showkey">'+t("paidPlan")+'</button>'}
  if(key){if(a==="apikey")h+='<div class="small muted" style="text-align:center">'+t("needKeyFirst")+'</div>';
   h+='<label class="f">'+esc(m.keyLabel||t("apiKey"))+'<input id="m_key" type="password" autocomplete="off" value="'+esc(o.key||"")+'"></label><button class="btn dark block" id="m_conn"'+((o.key||"").trim()?'':' disabled')+'>'+t("connect")+'</button>';
-  if(safeUrl(m.upgradeUrl))h+='<a class="small" style="text-align:center" href="'+esc(safeUrl(m.upgradeUrl))+'" target="_blank" rel="noopener">'+t("docs")+'</a>'}
+  if(safeUrl(m.keyUrl))h+='<a class="small" style="text-align:center" href="'+esc(safeUrl(m.keyUrl))+'" target="_blank" rel="noopener">'+t("docs")+' →</a>'}
  return h+'<div class="err" id="m_err" style="text-align:center"></div><button class="btn block" id="m_close">'+t("cancel")+'</button></div></div>'}
 function bindModal(){var m=mcpById(S.authFor);if(!m)return;
  var close=function(){S.authFor=null;S.mKey=false;render()};
