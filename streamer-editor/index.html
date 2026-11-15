@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Streamer Editor</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap">
+<style>
+/* Layout: left rail (desktop) / bottom tab bar (phone); content max 1200px; clip grid 5 columns on desktop, fewer on narrow screens */
+:root{
+  --bg:#F4F7FB;--surface:#FFFFFF;--ink:#14213D;--muted:#5B6B82;--line:#DDE4EE;--accent:#1F5FBF;--accent-ink:#FFFFFF;--accent-soft:#E6EEFB;--ok:#1E8E5A;--warn:#B7791F;--bad:#C0392B;--thumb1:#BFD4F5;--thumb2:#8FB2EA;--radius:10px;--head:'Poppins',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;--sub:#38BDF8;
+}
+html[data-app-theme="green"]{--bg:#F4F7F4;--ink:#16291F;--muted:#586B5F;--line:#DCE6DE;--accent:#2B7A57;--accent-soft:#E2F1E9;--thumb1:#BDE0CD;--thumb2:#8CC4A7}
+html[data-app-theme="gaming"]{--bg:#F1EEFF;--ink:#1D1640;--muted:#645C8A;--line:#DAD3F7;--accent:#7C3AED;--accent-soft:#EBE2FF;--thumb1:#C9B8F8;--thumb2:#67D6EA;--radius:14px}
+html[data-app-theme="dark"]{--bg:#111214;--surface:#1A1B1E;--ink:#E8E9EB;--muted:#9B9EA6;--line:#2B2D32;--accent:#8AB4FF;--accent-ink:#0E1626;--accent-soft:#22262F;--ok:#4CC38A;--warn:#E0B04A;--bad:#F0786B;--thumb1:#2B3140;--thumb2:#3A4256;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));overflow-wrap:anywhere}
+h1,h2,h3{font-family:var(--head);margin:0;text-wrap:balance}
+h1{font-size:22px;font-weight:600}h2{font-size:17px;font-weight:600}h3{font-size:14px;font-weight:600}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.muted{color:var(--muted)}.small{font-size:12px}
+.btn{border:1px solid var(--line);background:var(--surface);padding:9px 14px;border-radius:var(--radius);font-weight:500;min-height:40px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.block{width:100%}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+input[type=text],input[type=email],input[type=password],input[type=url],select,textarea{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px;min-height:42px}
+label.f{display:grid;gap:5px;font-weight:500;font-size:13px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;min-width:0}
+.stack{display:grid;gap:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row>*{min-width:0}
+.grow{flex:1 1 200px}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:500;background:var(--accent-soft);color:var(--accent)}
+.pill.ok{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}
+.pill.off{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+/* auth */
+.auth{min-height:100%;display:grid;place-items:center;padding-block:32px}
+.auth-box{width:100%;max-width:400px;display:grid;gap:16px}
+.brand{font-family:var(--head);font-weight:700;font-size:20px;display:flex;align-items:center;gap:10px}
+.logo{width:30px;height:30px;border-radius:8px;background:var(--accent);display:grid;place-items:center;color:var(--accent-ink);font-size:14px}
+.gbtn{display:flex;align-items:center;justify-content:center;gap:10px}
+.sep{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}.sep:before,.sep:after{content:"";flex:1;border-top:1px solid var(--line)}
+.err{color:var(--bad);font-size:13px;min-height:18px}
+.acct{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px}
+.acct:hover{border-color:var(--accent)}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:600;flex:none}
+.toast{display:flex;gap:10px;align-items:flex-start;background:var(--accent-soft);border:1px solid var(--line);border-radius:var(--radius);padding:12px}
+/* shell */
+.shell{display:grid;grid-template-columns:200px minmax(0,1fr);gap:24px;max-width:1280px;margin:0 auto;min-height:100%}
+.rail{position:sticky;top:0;align-self:start;padding-block:20px;display:grid;gap:18px;height:100vh}
+.nav{display:grid;gap:4px;align-content:start}
+.nav button{display:flex;align-items:center;gap:10px;border:0;background:none;padding:10px 12px;border-radius:var(--radius);color:var(--muted);font-weight:500;text-align:left}
+.nav button[aria-current=page]{background:var(--accent-soft);color:var(--accent)}
+.nav svg{width:18px;height:18px;flex:none}
+.main{padding-block:20px 40px;display:grid;gap:18px;align-content:start;min-width:0}
+.head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+.grid5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.clip{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;text-align:left;padding:0;display:block;width:100%}
+.clip[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.thumb{aspect-ratio:16/10;background:linear-gradient(135deg,var(--thumb1),var(--thumb2));position:relative}
+.thumb .dur{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.65);color:#fff;border-radius:6px;padding:1px 6px;font-size:11px}
+.thumb .sc{position:absolute;left:6px;top:6px}
+.clip .meta{padding:8px 10px;display:grid;gap:2px}
+.clip .ttl{font-weight:600;font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.studio{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start}
+.stage{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);padding:12px;display:grid;place-items:center}
+.screen{position:relative;max-width:100%;border-radius:8px;overflow:hidden;background:#0d1117;width:100%}
+.screen .pic{position:absolute;inset:0;background:radial-gradient(circle at 30% 30%,#4f8cff,transparent 55%),radial-gradient(circle at 75% 70%,#a259ff,transparent 55%),#1b2433}
+.screen .cap{position:absolute;left:6%;right:6%;bottom:10%;text-align:center;font:600 clamp(13px,2.4vw,20px)/1.3 'Poppins',sans-serif;color:var(--sub);text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.screen .cap i{font-style:italic}
+.screen .play{position:absolute;inset:0;margin:auto;width:54px;height:54px;border-radius:50%;border:0;background:rgba(255,255,255,.9);color:#111;display:grid;place-items:center}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 12px;font-size:13px}
+.seg button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{border:0;background:none;padding:9px 12px;color:var(--muted);font-weight:500;border-bottom:2px solid transparent;white-space:nowrap}
+.tabs button[aria-selected=true]{color:var(--accent);border-color:var(--accent)}
+.sl{display:grid;gap:4px}
+.sl .top{display:flex;justify-content:space-between;font-size:13px;font-weight:500}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.bar{height:8px;background:var(--bg);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.bar>div{height:100%;background:var(--accent);width:0;transition:width .2s}
+.conn{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.conn:first-child{border-top:0}
+.themes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.tcard{border:2px solid var(--line);background:var(--surface);border-radius:var(--radius);padding:8px;text-align:left;display:grid;gap:6px}
+.tcard[aria-pressed=true]{border-color:var(--accent)}
+.sw{display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid rgba(0,0,0,.1)}
+.sw i{flex:1}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.chk{display:flex;gap:10px;align-items:flex-start}
+.chk input{margin-top:3px;width:18px;height:18px;accent-color:var(--accent);flex:none}
+.tab-bar{display:none}
+@media (max-width:1000px){.grid5{grid-template-columns:repeat(3,minmax(0,1fr))}.studio{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:760px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:0}
+  .rail{display:none}
+  .main{padding-bottom:90px}
+  .tab-bar{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));z-index:5}
+  .tab-bar button{border:0;background:none;display:grid;justify-items:center;gap:2px;font-size:11px;color:var(--muted);padding:6px 2px}
+  .tab-bar button[aria-current=page]{color:var(--accent)}
+  .tab-bar svg{width:22px;height:22px}
+  .grid5{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .two,.themes{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .conn{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@keyframes sh{from{background-position:0 0}to{background-position:200% 0}}
+.screen.playing .pic{animation:pulse 3s ease-in-out infinite alternate}
+@keyframes pulse{to{transform:scale(1.08)}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="firebase-config.js"></script>
+<script>
+(function(){
+var L={en:{
+app:"Streamer Editor",login:"Log in",register:"Create account",email:"Email",pw:"Password",pw2:"Confirm password",google:"Continue with Google",or:"or",
+noacct:"No account yet?",haveacct:"Already have an account?",pick:"Choose an account",pickSub:"Select the email to register with.",
+mismatch:"Passwords do not match.",short:"Password must be at least 8 characters.",bademail:"Enter a valid email address.",wrong:"Wrong email or password.",exists:"This email is already registered. Log in instead.",
+notif:"Notification sent to",notifSub:"Your account was registered with this email.",newpw:"Create a new password for your account",cont:"Save and continue",welcomeBack:"Welcome back",other:"Use a different email",
+nClips:"Clips",nStudio:"Studio",nPost:"Post",nSettings:"Settings",
+src:"YouTube live replay or game recording",srcHint:"Paste the saved live link. The app finds hook moments and cuts them for you.",analyze:"Find hooks",analyzing:"Analyzing",
+demo:"Demo preview: the AI analysis here is simulated. Real cutting needs the cloud engine in Settings.",
+found:"clips found",hook:"Hook",sel:"Selected",showMore:"Show more",edit:"Edit in Studio",none:"No clips yet. Paste a link above and tap Find hooks.",
+preview:"Preview",ratio:"Screen size",ratioSq:"Square",tLight:"Lighting",tColor:"Colour",tSound:"Sound",tFx:"Effects",tExport:"Export",
+bright:"Brightness",contrast:"Contrast",sat:"Saturation",warm:"Warmth",glow:"Glow",vig:"Vignette",
+presets:"Colour presets",pNone:"Original",pCine:"Cinematic",pVivid:"Vivid",pWarm:"Warm",pCool:"Cool",pBW:"Black and white",
+sfx:"Sound effects",music:"Background music",duck:"Lower music under voice",loud:"Normalise loudness",
+fxHook:"Zoom on hook",fxShake:"Screen shake on hits",fxTrans:"Transitions",fxCaps:"Auto subtitles",fxSilence:"Cut silent gaps",
+res:"Resolution",fps:"Frame rate",fpsNote:"Frame rate is limited by the source recording.",exp:"Export selected clips",exporting:"Rendering in cloud",done:"Done. Ready to post.",
+postTo:"Post to",mcp:"Connected through MCP",free:"Free plan",freeX:"2 accounts at the same time",freeM:"Up to 20 videos a month",
+subM:"I have a Metricool subscription",subKey:"Metricool subscription API key",apiKey:"API key",connect:"Connect",connected:"Connected",disconnect:"Disconnect",
+caption:"Caption and hashtags",when:"When",now:"Post now",sched:"Schedule",postBtn:"Post",queued:"Queued",usedM:"used this month",
+pickClips:"Clips to post",noSel:"Select clips in the Clips tab first.",pickPlat:"Connect an MCP and choose at least one platform.",posted:"Sent to the posting queue.",
+setTheme:"Colour theme",tGaming:"Gaming",tFormal:"Formal blue",tGreen:"Formal green",tDark:"Dark grey",
+lang:"Language",mcpList:"MCP connections",mcpHint:"Only the free-plan tools are shown first.",
+engine:"Cloud editing engine",engineHint:"The editor runs in the cloud with Claude. Add your key so the app can edit for you.",anth:"Anthropic API key",hf:"Hyperframes render endpoint",
+defExp:"Default export",logout:"Log out",acct:"Account",save:"Save",saved:"Saved",
+platforms:"Platforms",storageNote:"This preview stores data only in your browser."
+},ms:{
+app:"Streamer Editor",login:"Log masuk",register:"Daftar akaun",email:"E-mel",pw:"Kata laluan",pw2:"Sahkan kata laluan",google:"Teruskan dengan Google",or:"atau",
+noacct:"Belum ada akaun?",haveacct:"Sudah ada akaun?",pick:"Pilih akaun",pickSub:"Pilih e-mel untuk mendaftar.",
+mismatch:"Kata laluan tidak sama.",short:"Kata laluan sekurang-kurangnya 8 aksara.",bademail:"Masukkan e-mel yang sah.",wrong:"E-mel atau kata laluan salah.",exists:"E-mel ini sudah berdaftar. Sila log masuk.",
+notif:"Notifikasi dihantar ke",notifSub:"Akaun anda telah didaftarkan dengan e-mel ini.",newpw:"Cipta kata laluan baharu untuk akaun anda",cont:"Simpan dan teruskan",welcomeBack:"Selamat kembali",other:"Guna e-mel lain",
+nClips:"Klip",nStudio:"Studio",nPost:"Siar",nSettings:"Tetapan",
+src:"Ulang tayang live YouTube atau rakaman game",srcHint:"Tampal pautan live yang disimpan. Aplikasi cari momen hook dan potong untuk anda.",analyze:"Cari hook",analyzing:"Sedang analisis",
+demo:"Pratonton demo: analisis AI di sini hanya simulasi. Pemotongan sebenar perlukan enjin awan dalam Tetapan.",
+found:"klip dijumpai",hook:"Hook",sel:"Dipilih",showMore:"Papar lagi",edit:"Edit dalam Studio",none:"Belum ada klip. Tampal pautan di atas dan tekan Cari hook.",
+preview:"Pratonton",ratio:"Saiz skrin",ratioSq:"Petak",tLight:"Pencahayaan",tColor:"Warna",tSound:"Bunyi",tFx:"Kesan",tExport:"Eksport",
+bright:"Kecerahan",contrast:"Kontras",sat:"Ketepuan",warm:"Kehangatan",glow:"Cahaya",vig:"Vinyet",
+presets:"Pratetap warna",pNone:"Asal",pCine:"Sinematik",pVivid:"Terang",pWarm:"Hangat",pCool:"Sejuk",pBW:"Hitam putih",
+sfx:"Kesan bunyi",music:"Muzik latar",duck:"Perlahankan muzik semasa suara",loud:"Seragamkan kelantangan",
+fxHook:"Zum pada hook",fxShake:"Gegaran skrin pada hentakan",fxTrans:"Peralihan",fxCaps:"Sari kata automatik",fxSilence:"Potong jeda senyap",
+res:"Resolusi",fps:"Kadar bingkai",fpsNote:"Kadar bingkai terhad kepada rakaman asal.",exp:"Eksport klip dipilih",exporting:"Sedang render di awan",done:"Siap. Sedia untuk disiar.",
+postTo:"Siar ke",mcp:"Disambung melalui MCP",free:"Pelan percuma",freeX:"2 akaun serentak",freeM:"Sehingga 20 video sebulan",
+subM:"Saya melanggan Metricool",subKey:"Kunci API langganan Metricool",apiKey:"Kunci API",connect:"Sambung",connected:"Bersambung",disconnect:"Putus",
+caption:"Kapsyen dan hashtag",when:"Bila",now:"Siar sekarang",sched:"Jadualkan",postBtn:"Siar",queued:"Dalam giliran",usedM:"digunakan bulan ini",
+pickClips:"Klip untuk disiar",noSel:"Pilih klip dalam tab Klip dahulu.",pickPlat:"Sambung MCP dan pilih sekurang-kurangnya satu platform.",posted:"Dihantar ke giliran siaran.",
+setTheme:"Tema warna",tGaming:"Gaming",tFormal:"Formal biru",tGreen:"Formal hijau",tDark:"Kelabu gelap",
+lang:"Bahasa",mcpList:"Sambungan MCP",mcpHint:"Alat pelan percuma dipaparkan dahulu.",
+engine:"Enjin edit awan",engineHint:"Editor berjalan di awan bersama Claude. Masukkan kunci supaya aplikasi boleh edit untuk anda.",anth:"Kunci API Anthropic",hf:"Titik akhir render Hyperframes",
+defExp:"Eksport lalai",logout:"Log keluar",acct:"Akaun",save:"Simpan",saved:"Disimpan",
+platforms:"Platform",storageNote:"Pratonton ini menyimpan data dalam pelayar anda sahaja."
+}};
+var S={lang:"en",theme:"blue",users:{},last:"",session:"",view:"clips",auth:"login",tmp:null,
+ clips:[],shown:25,sel:{},cur:null,ratio:"16:9",fx:{bright:100,contrast:100,sat:100,warm:0,glow:0,vig:0},preset:"none",
+ sfx:{whoosh:true,hit:true,riser:false,pop:false},opts:{duck:true,loud:true,hook:true,shake:false,trans:true,caps:true,silence:true},
+ tab:"light",res:"1080p",fps:60,mcp:{xenial:{on:false,key:""},metricool:{on:false,key:"",sub:false,subKey:""}},plat:{},post:{cap:"",when:"now"},postedM:3,keys:{anth:"",hf:""},msg:""};
+var KEY="se_v1";
+var FB_ON=!!(window.FIREBASE_CONFIG&&!/^PASTE/.test(window.FIREBASE_CONFIG.apiKey||"PASTE"));
+var FB=function(){return window.SE_FB};
+function load(){try{var d=JSON.parse(localStorage.getItem(KEY)||"{}");for(var k in d)S[k]=d[k];}catch(e){}}
+var saveT;
+function cloudSave(){if(!FB_ON||!S.session||!FB())return;clearTimeout(saveT);saveT=setTimeout(function(){FB().saveSettings({theme:S.theme,lang:S.lang,mcp:S.mcp,keys:S.keys,res:S.res,fps:S.fps}).catch(function(){})},600)}
+function save(){cloudSave();try{localStorage.setItem(KEY,JSON.stringify(FB_ON?{lang:S.lang,theme:S.theme,last:S.last}:{lang:S.lang,theme:S.theme,users:S.users,last:S.last,session:S.session,mcp:S.mcp,keys:S.keys,res:S.res,fps:S.fps}));}catch(e){}}
+function t(k){return (L[S.lang]&&L[S.lang][k])||L.en[k]||k}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+var $=function(s,r){return (r||document).querySelector(s)};
+var app=$("#app");
+var ICON={clips:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9.5v5l4-2.5z"/></svg>',
+studio:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>',
+post:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l16-8-6 16-3-7z"/></svg>',
+settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>'};
+var G='<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.2 5.5-4.7 7.2l7.3 5.7c4.3-4 6.7-9.9 6.7-17.4z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 010-9.4l-7.9-6.1a24 24 0 000 21.6l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.3-5.7c-2 1.4-4.9 2.3-8.6 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
+
+/* ---------- auth ---------- */
+function authView(){
+ var a=S.auth,h='<div class="auth"><div class="auth-box"><div class="brand"><span class="logo">SE</span>'+t("app")+'</div>';
+ if(a==="login"){
+  var known=S.last&&(FB_ON||S.users[S.last]);
+  h+='<div class="card stack"><h1>'+(known?t("welcomeBack"):t("login"))+'</h1>';
+  if(known){h+='<div class="acct" style="cursor:default"><span class="avatar">'+esc(S.last[0].toUpperCase())+'</span><span style="min-width:0"><b>'+esc(S.last)+'</b></span></div><input type="hidden" id="em" value="'+esc(S.last)+'">';}
+  else h+='<label class="f">'+t("email")+'<input id="em" type="email" autocomplete="email"></label>';
+  h+='<label class="f">'+t("pw")+'<input id="pw" type="password" autocomplete="current-password"></label><div class="err" id="err"></div><button class="btn primary block" id="go">'+t("login")+'</button>';
+  if(known)h+='<button class="btn block" id="other">'+t("other")+'</button>';
+  h+='<div class="sep">'+t("or")+'</div><button class="btn block gbtn" id="g">'+G+t("google")+'</button></div><div class="small muted" style="text-align:center">'+t("noacct")+' <a href="#" id="toReg">'+t("register")+'</a></div>';
+ }else if(a==="register"){
+  h+='<div class="card stack"><h1>'+t("register")+'</h1><label class="f">'+t("email")+'<input id="em" type="email" autocomplete="email"></label><label class="f">'+t("pw")+'<input id="pw" type="password" autocomplete="new-password"></label><label class="f">'+t("pw2")+'<input id="pw2" type="password" autocomplete="new-password"></label><div class="err" id="err"></div><button class="btn primary block" id="go">'+t("register")+'</button><div class="sep">'+t("or")+'</div><button class="btn block gbtn" id="g">'+G+t("google")+'</button></div><div class="small muted" style="text-align:center">'+t("haveacct")+' <a href="#" id="toLog">'+t("login")+'</a></div>';
+ }else if(a==="pick"){
+  var em=["geniusdigitaldeveloper@gmail.com","streamer.demo@gmail.com"];
+  h+='<div class="card stack"><h1>'+t("pick")+'</h1><div class="muted">'+t("pickSub")+'</div>';
+  em.forEach(function(e){h+='<button class="acct" data-pick="'+esc(e)+'"><span class="avatar">'+esc(e[0].toUpperCase())+'</span><span style="min-width:0">'+esc(e)+'</span></button>'});
+  h+='<button class="btn block" id="toReg">←</button></div>';
+ }else if(a==="newpw"){
+  h+='<div class="stack"><div class="toast"><span>✉</span><div><b>'+t("notif")+' '+esc(S.tmp)+'</b><div class="small muted">'+t("notifSub")+'</div></div></div><div class="card stack"><h2>'+t("newpw")+'</h2><label class="f">'+t("pw")+'<input id="pw" type="password" autocomplete="new-password"></label><label class="f">'+t("pw2")+'<input id="pw2" type="password" autocomplete="new-password"></label><div class="err" id="err"></div><button class="btn primary block" id="go">'+t("cont")+'</button></div></div>';
+ }
+ return h+'</div></div>';
+}
+function bindAuth(){
+ var g=function(id){return document.getElementById(id)};
+ var on=function(id,fn){var e=g(id);if(e)e.onclick=function(ev){ev.preventDefault();fn()}};
+ on("toReg",function(){S.auth="register";render()});on("toLog",function(){S.auth="login";render()});
+ on("other",function(){S.last="";save();render()});
+ on("g",function(){
+  if(!FB_ON){S.auth="pick";render();return}
+  if(!FB())return;
+  window.SE_pending=true;
+  FB().google().then(function(r){window.SE_pending=false;
+    if(r.needsPassword){S.tmp=r.email;S.auth="newpw";render()}else{S.session=r.email;S.last=r.email;save();enter()}
+  }).catch(function(){window.SE_pending=false;var er=document.getElementById("err");if(er)er.textContent=t("wrong")});
+ });
+ document.querySelectorAll("[data-pick]").forEach(function(b){b.onclick=function(){S.tmp=b.dataset.pick;S.auth="newpw";render()}});
+ var go=g("go");if(!go)return;
+ var act=function(){
+  var er=g("err"),em=g("em")&&g("em").value.trim().toLowerCase(),pw=g("pw").value,p2=g("pw2")&&g("pw2").value;
+  if(FB_ON){
+   if(!FB()){er.textContent="…";return}
+   var fail=function(e){var c=(e&&e.code)||"";er.textContent=c==="auth/email-already-in-use"?t("exists"):c==="auth/weak-password"?t("short"):c==="auth/invalid-email"?t("bademail"):t("wrong")};
+   if(S.auth==="login"){FB().login(em,pw).then(function(){S.last=em;save()}).catch(fail);return}
+   if(S.auth==="register"){if(pw.length<8){er.textContent=t("short");return}if(pw!==p2){er.textContent=t("mismatch");return}FB().register(em,pw).then(function(){S.last=em;save()}).catch(fail);return}
+   if(S.auth==="newpw"){if(pw.length<8){er.textContent=t("short");return}if(pw!==p2){er.textContent=t("mismatch");return}FB().setPassword(pw).then(function(){S.session=S.tmp;S.last=S.tmp;save();enter()}).catch(fail);return}
+  }
+  if(S.auth==="login"){var u=S.users[em];if(!u||u.pw!==pw){er.textContent=t("wrong");return}S.session=em;S.last=em;save();enter();return}
+  if(S.auth==="register"){if(!/^\S+@\S+\.\S+$/.test(em)){er.textContent=t("bademail");return}if(S.users[em]){er.textContent=t("exists");return}}
+  if(pw.length<8){er.textContent=t("short");return}
+  if(pw!==p2){er.textContent=t("mismatch");return}
+  if(S.auth==="newpw")em=S.tmp;
+  S.users[em]={pw:pw};S.session=em;S.last=em;save();enter();
+ };
+ go.onclick=act;
+ document.querySelectorAll(".auth input").forEach(function(i){i.onkeydown=function(e){if(e.key==="Enter")act()}});
+}
+function enter(){S.view="clips";render()}
+
+/* ---------- app ---------- */
+var TITLES=["He didn't expect that clutch","The moment chat exploded","Impossible 1v4 comeback","Rage quit, then this happened","Secret trick nobody uses","Best play of the stream","Donation reaction","Insane last-second win","Wait for the ending","How I found the glitch","Squad wipe in 3 seconds","Chat predicted it","Funniest fail today","The settings that changed everything","Boss fight first try","Unreal headshot","Plot twist at 2 AM","Viewer challenge accepted","This should be illegal","Total silence, then chaos","Perfect timing","Never do this in ranked","Hidden loot spot","Sub goal hit live","Almost lost it all"];
+function mk(n){var o=[],s=137;for(var i=0;i<n;i++){s=(s*9301+49297)%233280;var sc=Math.round(98-i*1.6-(s%9));var d=18+(s%47);o.push({id:i,title:TITLES[i%TITLES.length],score:Math.max(52,sc),dur:d,at:Math.floor(60+i*83+(s%40))})}return o}
+function fmt(s){var m=Math.floor(s/60),x=s%60;return m+":"+(x<10?"0":"")+x}
+function nav(){var items=[["clips","nClips"],["studio","nStudio"],["post","nPost"],["settings","nSettings"]];
+ return items.map(function(i){return '<button data-nav="'+i[0]+'"'+(S.view===i[0]?' aria-current="page"':'')+'>'+ICON[i[0]]+'<span>'+t(i[1])+'</span></button>'}).join("")}
+function shell(body){return '<div class="shell"><aside class="rail"><div class="brand"><span class="logo">SE</span>'+t("app")+'</div><nav class="nav">'+nav()+'</nav></aside><main class="main">'+body+'</main></div><nav class="tab-bar">'+nav()+'</nav>'}
+
+function clipsView(){
+ var h='<div class="head"><h1>'+t("nClips")+'</h1></div><div class="card stack"><label class="f">'+t("src")+'<div class="row"><input class="grow" id="url" type="url" placeholder="https://www.youtube.com/live/..." value="https://www.youtube.com/live/demo-stream" style="flex:1 1 220px"><button class="btn primary" id="an">'+t("analyze")+'</button></div></label><div class="small muted">'+t("srcHint")+'</div><div class="bar" id="pbar" hidden><div></div></div><div class="small muted">'+t("demo")+'</div></div>';
+ if(!S.clips.length)return h+'<div class="card muted">'+t("none")+'</div>';
+ var n=Object.keys(S.sel).length;
+ h+='<div class="head"><h2>'+S.clips.length+' '+t("found")+' <span class="pill">'+t("sel")+': '+n+'</span></h2><button class="btn primary" id="toStudio"'+(S.cur===null?' disabled':'')+'>'+t("edit")+'</button></div><div class="grid5">';
+ S.clips.slice(0,S.shown).forEach(function(c){
+  h+='<div class="clip" role="group"><button class="clip" style="border:0" data-clip="'+c.id+'" aria-pressed="'+(S.cur===c.id)+'"><div class="thumb"><span class="pill sc">'+t("hook")+' '+c.score+'</span><span class="dur">'+fmt(c.dur)+'</span></div></button><div class="meta"><div class="ttl">'+esc(c.title)+'</div><label class="chk small muted"><input type="checkbox" data-sel="'+c.id+'"'+(S.sel[c.id]?' checked':'')+'>'+fmt(c.at)+' · '+t("sel")+'</label></div></div>';
+ });
+ h+='</div>';
+ if(S.shown<S.clips.length)h+='<button class="btn" id="more">'+t("showMore")+'</button>';
+ return h;
+}
+function bindClips(){
+ var an=$("#an");if(an)an.onclick=function(){
+  var b=$("#pbar");b.hidden=false;var f=b.firstChild,p=0;an.disabled=true;an.textContent=t("analyzing")+"…";
+  var iv=setInterval(function(){p+=8+Math.random()*10;f.style.width=Math.min(p,100)+"%";if(p>=100){clearInterval(iv);S.clips=mk(30);S.shown=25;S.sel={};S.cur=0;render()}},160);
+ };
+ document.querySelectorAll("[data-clip]").forEach(function(b){b.onclick=function(){S.cur=+b.dataset.clip;S.view="studio";render()}});
+ document.querySelectorAll("[data-sel]").forEach(function(b){b.onchange=function(){if(b.checked)S.sel[b.dataset.sel]=1;else delete S.sel[b.dataset.sel];render()}});
+ var m=$("#more");if(m)m.onclick=function(){S.shown+=25;render()};
+ var ts=$("#toStudio");if(ts)ts.onclick=function(){S.view="studio";render()};
+}
+
+var PRESETS={none:"",cine:"contrast(1.15) saturate(.9) sepia(.15)",vivid:"saturate(1.5) contrast(1.08)",warm:"sepia(.35) saturate(1.2)",cool:"hue-rotate(15deg) saturate(1.1) brightness(1.03)",bw:"grayscale(1) contrast(1.1)"};
+var RATIOS=[["16:9","16/9"],["9:16","9/16"],["1:1","1/1"],["4:5","4/5"]];
+function filt(){var f=S.fx;return "brightness("+f.bright/100+") contrast("+f.contrast/100+") saturate("+f.sat/100+") sepia("+Math.max(0,f.warm)/200+") hue-rotate("+Math.min(0,f.warm)*-.4+"deg) "+PRESETS[S.preset]}
+function applyFx(){var p=$("#pic");if(p){p.style.filter=filt();p.style.boxShadow="inset 0 0 "+S.fx.vig*2+"px "+S.fx.vig+"px rgba(0,0,0,"+S.fx.vig/110+")"}var gl=$("#glow");if(gl)gl.style.opacity=S.fx.glow/100}
+function sl(k,lab,min,max){return '<div class="sl"><div class="top"><span>'+t(lab)+'</span><span id="v_'+k+'">'+S.fx[k]+'</span></div><input type="range" min="'+min+'" max="'+max+'" value="'+S.fx[k]+'" data-fx="'+k+'" aria-label="'+t(lab)+'"></div>'}
+function studioView(){
+ var c=S.clips[S.cur];
+ if(!c)return '<div class="head"><h1>'+t("nStudio")+'</h1></div><div class="card muted">'+t("none")+'</div>';
+ var r=RATIOS.filter(function(x){return x[0]===S.ratio})[0][1];
+ var maxw=S.ratio==="9:16"?"min(100%,260px)":S.ratio==="4:5"?"min(100%,340px)":S.ratio==="1:1"?"min(100%,420px)":"100%";
+ var h='<div class="head"><h1>'+t("nStudio")+'</h1><span class="pill">'+esc(c.title)+'</span></div><div class="studio"><div class="card stack"><h2>'+t("preview")+'</h2><div class="stage"><div class="screen" id="screen" style="aspect-ratio:'+r+';width:'+maxw+'"><div class="pic" id="pic"></div><div id="glow" style="position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.55),transparent 60%);opacity:'+S.fx.glow/100+';pointer-events:none"></div><button class="play" id="play" aria-label="Play">▶</button>'+(S.opts.caps?'<div class="cap">This is <i>actually</i> the best play ما شاء الله</div>':'')+'</div></div><div><div class="small muted" style="margin-bottom:6px">'+t("ratio")+'</div><div class="seg">'+RATIOS.map(function(x){return '<button data-ratio="'+x[0]+'" aria-pressed="'+(S.ratio===x[0])+'">'+(x[0]==="1:1"?t("ratioSq")+' 1:1':x[0])+'</button>'}).join("")+'</div></div></div>';
+ h+='<div class="card stack"><div class="tabs" role="tablist">'+[["light","tLight"],["color","tColor"],["sound","tSound"],["fx","tFx"],["exp","tExport"]].map(function(x){return '<button role="tab" data-tab="'+x[0]+'" aria-selected="'+(S.tab===x[0])+'">'+t(x[1])+'</button>'}).join("")+'</div>';
+ if(S.tab==="light")h+=sl("bright","bright",50,150)+sl("contrast","contrast",50,150)+sl("glow","glow",0,100)+sl("vig","vig",0,100);
+ if(S.tab==="color")h+=sl("sat","sat",0,200)+sl("warm","warm",-50,50)+'<div class="small muted">'+t("presets")+'</div><div class="seg">'+[["none","pNone"],["cine","pCine"],["vivid","pVivid"],["warm","pWarm"],["cool","pCool"],["bw","pBW"]].map(function(x){return '<button data-preset="'+x[0]+'" aria-pressed="'+(S.preset===x[0])+'">'+t(x[1])+'</button>'}).join("")+'</div>';
+ if(S.tab==="sound"){h+='<div class="small muted">'+t("sfx")+'</div>';[["whoosh","Whoosh"],["hit","Impact hit"],["riser","Riser"],["pop","Pop"]].forEach(function(x){h+='<label class="chk"><input type="checkbox" data-sfx="'+x[0]+'"'+(S.sfx[x[0]]?' checked':'')+'>'+x[1]+'</label>'});
+  h+='<label class="f">'+t("music")+'<select id="mus"><option>Lo-fi chill</option><option>Epic build</option><option>Upbeat</option><option>None</option></select></label>'+optChk("duck")+optChk("loud");}
+ if(S.tab==="fx")h+=optChk("hook","fxHook")+optChk("shake","fxShake")+optChk("trans","fxTrans")+optChk("caps","fxCaps")+optChk("silence","fxSilence");
+ if(S.tab==="exp"){var n=Object.keys(S.sel).length||1;
+  h+='<div class="two"><label class="f">'+t("res")+'<select id="res">'+["720p","1080p","1440p","4K"].map(function(x){return '<option'+(S.res===x?' selected':'')+'>'+x+'</option>'}).join("")+'</select></label><label class="f">'+t("fps")+'<select id="fps">'+[60,120,144,200,240,300].map(function(x){return '<option'+(S.fps===x?' selected':'')+'>'+x+'</option>'}).join("")+'</select></label></div><div class="small muted">'+t("fpsNote")+'</div><div class="bar" id="xbar"><div></div></div><div class="small" id="xmsg">&nbsp;</div><button class="btn primary" id="xp">'+t("exp")+' ('+n+')</button>';}
+ return h+'</div></div>';
+}
+function optChk(k,l){return '<label class="chk"><input type="checkbox" data-opt="'+k+'"'+(S.opts[k]?' checked':'')+'>'+t(l||k)+'</label>'}
+function bindStudio(){
+ applyFx();
+ var pl=$("#play");if(pl)pl.onclick=function(){var s=$("#screen");s.classList.toggle("playing");pl.textContent=s.classList.contains("playing")?"❚❚":"▶"};
+ document.querySelectorAll("[data-ratio]").forEach(function(b){b.onclick=function(){S.ratio=b.dataset.ratio;render()}});
+ document.querySelectorAll("[data-tab]").forEach(function(b){b.onclick=function(){S.tab=b.dataset.tab;render()}});
+ document.querySelectorAll("[data-fx]").forEach(function(i){i.oninput=function(){S.fx[i.dataset.fx]=+i.value;$("#v_"+i.dataset.fx).textContent=i.value;applyFx()}});
+ document.querySelectorAll("[data-preset]").forEach(function(b){b.onclick=function(){S.preset=b.dataset.preset;render()}});
+ document.querySelectorAll("[data-sfx]").forEach(function(i){i.onchange=function(){S.sfx[i.dataset.sfx]=i.checked}});
+ document.querySelectorAll("[data-opt]").forEach(function(i){i.onchange=function(){S.opts[i.dataset.opt]=i.checked;if(i.dataset.opt==="caps")render()}});
+ var r=$("#res");if(r)r.onchange=function(){S.res=r.value;save()};
+ var f=$("#fps");if(f)f.onchange=function(){S.fps=+f.value;save()};
+ var xp=$("#xp");if(xp)xp.onclick=function(){var b=$("#xbar>div"),p=0;xp.disabled=true;$("#xmsg").textContent=t("exporting")+" · "+S.res+" · "+S.fps+" fps";var iv=setInterval(function(){p+=6+Math.random()*8;b.style.width=Math.min(p,100)+"%";if(p>=100){clearInterval(iv);$("#xmsg").textContent="✓ "+t("done");xp.disabled=false}},200)};
+}
+
+var PLATS=[["youtube","YouTube Shorts"],["tiktok","TikTok"],["instagram","Instagram Reels"],["facebook","Facebook Reels"]];
+function postView(){
+ var x=S.mcp.xenial,m=S.mcp.metricool,any=x.on||m.on,n=Object.keys(S.sel).length;
+ var h='<div class="head"><h1>'+t("nPost")+'</h1></div><div class="card"><h2>'+t("mcp")+'</h2>';
+ h+='<div class="conn"><div><b>Zernio</b> <span class="pill ok">'+t("free")+'</span><div class="small muted">'+t("freeX")+'</div></div><span class="pill '+(x.on?'ok':'off')+'">'+(x.on?t("connected"):"—")+'</span></div>';
+ h+='<div class="conn"><div><b>Metricool</b> <span class="pill ok">'+t("free")+'</span><div class="small muted">'+t("freeM")+' · '+S.postedM+'/'+(m.sub?"∞":20)+' '+t("usedM")+'</div></div><span class="pill '+(m.on?'ok':'off')+'">'+(m.on?t("connected"):"—")+'</span></div>';
+ h+='<div class="small muted" style="margin-top:6px">'+t("nSettings")+' → '+t("mcpList")+'</div></div>';
+ h+='<div class="card stack"><h2>'+t("pickClips")+'</h2>'+(n?'<div class="small">'+Object.keys(S.sel).map(function(i){return esc(S.clips[i].title)}).join(" · ")+'</div>':'<div class="muted">'+t("noSel")+'</div>')+'<h2>'+t("platforms")+'</h2><div class="seg">'+PLATS.map(function(p){return '<button data-plat="'+p[0]+'" aria-pressed="'+!!S.plat[p[0]]+'">'+p[1]+'</button>'}).join("")+'</div><label class="f">'+t("caption")+'<textarea id="cap" rows="3">'+esc(S.post.cap)+'</textarea></label><div class="seg"><button data-when="now" aria-pressed="'+(S.post.when==="now")+'">'+t("now")+'</button><button data-when="sched" aria-pressed="'+(S.post.when==="sched")+'">'+t("sched")+'</button></div>'+(S.post.when==="sched"?'<input id="dt" type="datetime-local" style="width:100%;max-width:280px;padding:9px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)">':'')+'<div class="err" id="perr">'+esc(S.msg)+'</div><button class="btn primary" id="pp">'+t("postBtn")+'</button></div>';
+ return h;
+}
+function bindPost(){
+ document.querySelectorAll("[data-plat]").forEach(function(b){b.onclick=function(){S.plat[b.dataset.plat]=!S.plat[b.dataset.plat];render()}});
+ document.querySelectorAll("[data-when]").forEach(function(b){b.onclick=function(){S.post.when=b.dataset.when;render()}});
+ var c=$("#cap");if(c)c.oninput=function(){S.post.cap=c.value};
+ $("#pp").onclick=function(){var any=S.mcp.xenial.on||S.mcp.metricool.on,ok=Object.keys(S.plat).some(function(k){return S.plat[k]});
+  if(!Object.keys(S.sel).length){S.msg=t("noSel")}else if(!any||!ok){S.msg=t("pickPlat")}else{S.msg="";S.postedM+=Object.keys(S.sel).length;var e=$("#perr");e.style.color="var(--ok)";e.textContent="✓ "+t("posted");return}
+  render()};
+}
+
+function setView(){
+ var h='<div class="head"><h1>'+t("nSettings")+'</h1></div><div class="card stack"><h2>'+t("setTheme")+'</h2><div class="themes">';
+ [["gaming","tGaming",["#F1EEFF","#7C3AED","#67D6EA"]],["blue","tFormal",["#F4F7FB","#1F5FBF","#FFFFFF"]],["green","tGreen",["#F4F7F4","#2B7A57","#FFFFFF"]],["dark","tDark",["#111214","#8AB4FF","#1A1B1E"]]].forEach(function(x){h+='<button class="tcard" data-theme="'+x[0]+'" aria-pressed="'+(S.theme===x[0])+'"><div class="sw">'+x[2].map(function(c){return '<i style="background:'+c+'"></i>'}).join("")+'</div><b class="small">'+t(x[1])+'</b></button>'});
+ h+='</div><label class="f" style="max-width:260px">'+t("lang")+'<select id="lang"><option value="en"'+(S.lang==="en"?' selected':'')+'>English</option><option value="ms"'+(S.lang==="ms"?' selected':'')+'>Bahasa Melayu</option></select></label></div>';
+ var x=S.mcp.xenial,m=S.mcp.metricool;
+ h+='<div class="card"><h2>'+t("mcpList")+'</h2><div class="small muted">'+t("mcpHint")+'</div>';
+ h+=mcpRow("xenial","Zernio",t("freeX"),x,false);
+ h+=mcpRow("metricool","Metricool",t("freeM"),m,true);
+ h+='</div><div class="card stack"><h2>'+t("engine")+'</h2><div class="small muted">'+t("engineHint")+'</div><label class="f">'+t("anth")+'<input id="k_anth" type="password" autocomplete="off" value="'+esc(S.keys.anth)+'" placeholder="sk-ant-..."></label><label class="f">'+t("hf")+'<input id="k_hf" type="url" value="'+esc(S.keys.hf)+'" placeholder="https://"></label><button class="btn" id="ksave" style="justify-self:start">'+t("save")+'</button></div>';
+ h+='<div class="card row" style="justify-content:space-between"><div><div class="small muted">'+t("acct")+'</div><b>'+esc(S.session)+'</b><div class="small muted">'+t("storageNote")+'</div></div><button class="btn" id="out">'+t("logout")+'</button></div>';
+ return h;
+}
+function mcpRow(id,name,note,o,metri){
+ var h='<div class="conn" style="align-items:start"><div class="stack" style="gap:8px"><div><b>'+name+'</b> <span class="pill '+(o.on?'ok':'off')+'">'+(o.on?t("connected"):t("free"))+'</span><div class="small muted">'+note+'</div></div>';
+ if(!o.on)h+='<label class="f">'+t("apiKey")+'<input type="password" autocomplete="off" data-key="'+id+'" value="'+esc(o.key)+'"></label>';
+ if(metri){h+='<label class="chk"><input type="checkbox" id="msub"'+(o.sub?' checked':'')+'>'+t("subM")+'</label>';if(o.sub)h+='<label class="f">'+t("subKey")+'<input type="password" autocomplete="off" id="msubkey" value="'+esc(o.subKey)+'"></label>'}
+ return h+'</div><button class="btn'+(o.on?'':' primary')+'" data-conn="'+id+'">'+(o.on?t("disconnect"):t("connect"))+'</button></div>';
+}
+function bindSet(){
+ document.querySelectorAll("[data-theme]").forEach(function(b){b.onclick=function(){S.theme=b.dataset.theme;save();render()}});
+ $("#lang").onchange=function(e){S.lang=e.target.value;save();render()};
+ document.querySelectorAll("[data-key]").forEach(function(i){i.oninput=function(){S.mcp[i.dataset.key].key=i.value}});
+ document.querySelectorAll("[data-conn]").forEach(function(b){b.onclick=function(){var o=S.mcp[b.dataset.conn];o.on=!o.on;save();render()}});
+ var ms=$("#msub");if(ms)ms.onchange=function(){S.mcp.metricool.sub=ms.checked;save();render()};
+ var mk2=$("#msubkey");if(mk2)mk2.oninput=function(){S.mcp.metricool.subKey=mk2.value};
+ $("#ksave").onclick=function(){S.keys.anth=$("#k_anth").value;S.keys.hf=$("#k_hf").value;save();this.textContent="✓ "+t("saved")};
+ $("#out").onclick=function(){S.session="";S.auth="login";save();if(FB_ON&&FB())FB().logout();render()};
+}
+
+function render(){
+ var th=S.theme==="blue"?"":S.theme;
+ if(th)document.documentElement.setAttribute("data-app-theme",th);else document.documentElement.removeAttribute("data-app-theme");
+ document.documentElement.lang=S.lang==="ms"?"ms":"en";
+ if(!S.session){app.innerHTML=authView();bindAuth();return}
+ var v=S.view,b=v==="clips"?clipsView():v==="studio"?studioView():v==="post"?postView():setView();
+ app.innerHTML=shell(b);
+ document.querySelectorAll("[data-nav]").forEach(function(x){x.onclick=function(){S.view=x.dataset.nav;S.msg="";render();window.scrollTo(0,0)}});
+ (v==="clips"?bindClips:v==="studio"?bindStudio:v==="post"?bindPost:bindSet)();
+}
+load();
+if(FB_ON){S.session="";S.users={}}else if(S.session&&!S.users[S.session])S.session="";
+/* called by firebase.js when auth state changes */
+window.SE_onUser=function(u,cfg){
+  if(window.SE_pending)return;
+  if(!u){S.session="";S.auth="login";render();return}
+  if(cfg){["theme","lang","mcp","keys","res","fps"].forEach(function(k){if(cfg[k]!==undefined)S[k]=cfg[k]})}
+  S.session=u.email;S.last=u.email;try{localStorage.setItem(KEY,JSON.stringify({lang:S.lang,theme:S.theme,last:S.last}))}catch(e){}
+  if(S.auth!=="newpw")enter();
+};
+render();
+})();
+</script>
+<script type="module" src="firebase.js"></script>
+</body>
+</html>
