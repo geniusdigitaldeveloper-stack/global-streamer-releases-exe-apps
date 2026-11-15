@@ -2,12 +2,17 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
-    // Admins are listed in /admins/{uid}. Only you add entries (console or scripts/make-admin.mjs); clients can never write there.
+    // Admins are listed in /admins/{uid}. OWNER_EMAIL below is replaced with the owner's email at deploy time (kept out of git).
     function isAdmin() { return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
 
     match /admins/{id} {
-      allow read: if signedIn() && request.auth.uid == id;
-      allow write: if false;
+      allow read: if signedIn() && (request.auth.uid == id || isAdmin());
+      // The owner (verified email) can register themself as admin on first admin login. Nobody else can.
+      allow create: if signedIn() && request.auth.uid == id
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.lower() == 'OWNER_EMAIL'
+        && request.resource.data.keys().hasOnly(['email', 'since']);
+      allow update, delete: if false;
     }
 
     match /users/{uid} {

@@ -5,46 +5,181 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Streamer Editor Admin</title>
 <meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap">
 <style>
-:root{--bg:#F4F7FB;--surface:#fff;--ink:#14213D;--muted:#5B6B82;--line:#DDE4EE;--accent:#1F5FBF;--ok:#1E8E5A;--bad:#C0392B;--r:10px}
+:root{
+  --bg:#F3F6FB;--surface:#FFFFFF;--ink:#0F1B33;--muted:#62708A;--line:#E3E9F2;
+  --accent:#2563EB;--accent-ink:#FFFFFF;--accent-soft:#E8F0FE;--accent-deep:#1D4ED8;
+  --ok:#16A36A;--ok-soft:#E3F6EC;--bad:#DC3B3B;--bad-soft:#FDEAEA;--warn:#B7791F;
+  --r:14px;--head:'Poppins',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;
+  --shadow:0 1px 2px rgba(15,27,51,.05),0 4px 16px rgba(15,27,51,.05);
+}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px;overflow-wrap:anywhere}
-.wrap{max-width:1000px;margin:0 auto;display:grid;gap:16px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;min-width:0}
-h1{font-size:20px;margin:0}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
-input,select,button{font:inherit;border:1px solid var(--line);border-radius:var(--r);padding:9px 12px;min-height:40px;background:var(--surface);color:var(--ink)}
-input{width:100%}
-button{cursor:pointer;font-weight:500}.p{background:var(--accent);border-color:var(--accent);color:#fff}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
-.stats b{display:block;font-size:22px}
-.muted{color:var(--muted)}.err{color:var(--bad);min-height:20px}
-.tw{overflow-x:auto}
-table{border-collapse:collapse;width:100%;min-width:560px}
-th,td{text-align:left;padding:9px 8px;border-top:1px solid var(--line);white-space:nowrap}
-th{font-size:12px;color:var(--muted);font-weight:600;border-top:0}
-.pill{padding:2px 9px;border-radius:99px;font-size:12px;background:#E3F3EA;color:var(--ok)}.pill.off{background:#FBE5E2;color:var(--bad)}
-.login{max-width:380px;margin:8vh auto 0;display:grid;gap:12px}
-[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--body);overflow-wrap:anywhere}
+h1,h2,h3{font-family:var(--head);margin:0;text-wrap:balance}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+[hidden]{display:none!important}
+.muted{color:var(--muted)}.small{font-size:12px}
+svg{display:block}
+/* buttons and inputs */
+.btn{border:1px solid var(--line);background:var(--surface);padding:9px 16px;border-radius:10px;font-weight:500;min-height:40px;transition:.15s}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:0 2px 8px rgba(37,99,235,.3)}
+.btn.primary:hover{background:var(--accent-deep);color:#fff}
+.btn.block{width:100%}
+.field{display:grid;gap:6px;font-weight:500;font-size:13px}
+.input{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:11px 13px;min-height:44px}
+.input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);outline:0}
+/* login */
+.login{min-height:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.hero{background:linear-gradient(150deg,#1E40AF,#2563EB 55%,#38BDF8);color:#fff;padding:48px;display:flex;flex-direction:column;justify-content:space-between;gap:32px}
+.hero h2{font-size:28px;line-height:1.25;font-weight:600;max-width:15em}
+.hero p{opacity:.85;max-width:30em;margin:12px 0 0}
+.hero ul{list-style:none;padding:0;margin:0;display:grid;gap:10px;opacity:.95}
+.hero li{display:flex;gap:10px;align-items:center}
+.hero li i{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.2);display:grid;place-items:center;font-style:normal;font-size:12px}
+.formside{display:grid;place-items:center;padding:32px max(16px,env(safe-area-inset-right,0px)) 32px max(16px,env(safe-area-inset-left,0px))}
+.fbox{width:100%;max-width:380px;display:grid;gap:14px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--head);font-weight:700;font-size:17px}
+.logo{width:34px;height:34px;border-radius:10px;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:700}
+.hero .logo{background:rgba(255,255,255,.2)}
+.sep{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}
+.sep:before,.sep:after{content:"";flex:1;border-top:1px solid var(--line)}
+.err{color:var(--bad);font-size:13px;min-height:20px}
+.gbtn{display:flex;align-items:center;justify-content:center;gap:10px}
+/* app shell */
+.app{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:100%}
+.side{background:var(--surface);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:24px;position:sticky;top:0;height:100vh}
+.nav{display:grid;gap:4px}
+.nav button{display:flex;gap:12px;align-items:center;border:0;background:none;padding:11px 12px;border-radius:10px;color:var(--muted);font-weight:500;text-align:left}
+.nav button:hover{background:var(--bg)}
+.nav button[aria-current=page]{background:var(--accent-soft);color:var(--accent)}
+.nav svg{width:19px;height:19px;flex:none}
+.me{margin-top:auto;display:grid;gap:10px;border-top:1px solid var(--line);padding-top:14px}
+.meline{display:flex;gap:10px;align-items:center;min-width:0}
+.meline div{min-width:0}
+.av{width:36px;height:36px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:600;flex:none;font-family:var(--head)}
+.main{padding:28px max(24px,env(safe-area-inset-right,0px)) 40px 28px;min-width:0;display:grid;gap:22px;align-content:start}
+.top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.top h1{font-size:24px;font-weight:600}
+/* cards */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:20px;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
+.kpi{display:flex;gap:14px;align-items:center}
+.ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none}
+.ico svg{width:22px;height:22px}
+.ico.b{background:var(--accent-soft);color:var(--accent)}.ico.g{background:var(--ok-soft);color:var(--ok)}.ico.r{background:var(--bad-soft);color:var(--bad)}.ico.v{background:#EEE9FD;color:#6D4AE0}.ico.s{background:#E0F4FD;color:#0B87B8}
+.kpi b{display:block;font:600 26px/1.1 var(--head);font-variant-numeric:tabular-nums}
+.two{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:14px}
+.card h3{font-size:15px;font-weight:600}
+.card .sub{color:var(--muted);font-size:12px;margin-top:2px}
+.chart{margin-top:14px;width:100%;height:auto}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
+.donutwrap{display:grid;place-items:center;margin-top:10px}
+.recent{display:grid;gap:2px;margin-top:10px}
+.rec{display:flex;gap:12px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.rec:first-child{border-top:0}
+.rec .t{min-width:0;flex:1}
+.rec .t b{display:block;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* users */
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.search{position:relative;flex:1 1 240px;min-width:0}
+.search svg{position:absolute;left:12px;top:12px;width:18px;height:18px;color:var(--muted)}
+.search .input{padding-left:38px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:7px 14px;font-weight:500;font-size:13px;color:var(--muted)}
+.chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+.list{padding:0;overflow:hidden}
+.ur{display:grid;grid-template-columns:minmax(0,2.2fr) 110px 150px 120px 140px;gap:12px;align-items:center;padding:13px 20px;border-top:1px solid var(--line)}
+.ur.h{border-top:0;background:var(--bg);color:var(--muted);font-size:12px;font-weight:600;padding-block:10px;text-transform:uppercase;letter-spacing:.04em}
+.who{display:flex;gap:12px;align-items:center;min-width:0}
+.who div{min-width:0}.who b{display:block;font-weight:500;overflow:hidden;text-overflow:ellipsis}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:500}
+.badge.ok{background:var(--ok-soft);color:var(--ok)}.badge.off{background:var(--bad-soft);color:var(--bad)}
+.badge.adm{background:#EEE9FD;color:#6D4AE0}
+.sel{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 8px;min-height:34px;font-size:13px}
+.sw{display:inline-flex;align-items:center;gap:10px}
+.tg{width:42px;height:24px;border-radius:99px;border:0;background:#CBD5E4;position:relative;transition:.15s;padding:0;flex:none}
+.tg:after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.15s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.tg[aria-checked=true]{background:var(--ok)}.tg[aria-checked=true]:after{left:21px}
+.tg:disabled{opacity:.5;cursor:not-allowed}
+.lab{display:none}
+.empty{padding:40px 20px;text-align:center;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:99px;font-weight:500;z-index:30;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.tabbar{display:none}
+@media (max-width:1000px){.two{grid-template-columns:minmax(0,1fr)}.ur{grid-template-columns:minmax(0,2fr) 100px 140px 110px}.ur>.c-last{display:none}}
+@media (max-width:760px){
+  .login{grid-template-columns:minmax(0,1fr)}.hero{display:none}
+  .app{grid-template-columns:minmax(0,1fr)}.side{display:none}
+  .main{padding:18px max(16px,env(safe-area-inset-right,0px)) 96px max(16px,env(safe-area-inset-left,0px))}
+  .top h1{font-size:21px}
+  .tabbar{display:grid;grid-template-columns:repeat(3,1fr);position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));z-index:20}
+  .tabbar button{border:0;background:none;display:grid;justify-items:center;gap:2px;font-size:11px;color:var(--muted);padding:6px 2px}
+  .tabbar button[aria-current=page]{color:var(--accent)}
+  .tabbar svg{width:22px;height:22px}
+  .ur.h{display:none}
+  .ur{grid-template-columns:minmax(0,1fr) auto;row-gap:10px;padding:14px 16px}
+  .ur>.c-user{grid-column:1/-1}
+  .ur>.c-last{display:none}
+  .lab{display:block;color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
-<div class="wrap">
- <div class="card login" id="login">
-  <h1>Admin Streamer Editor</h1>
-  <input id="em" type="email" placeholder="E-mel" autocomplete="email">
-  <input id="pw" type="password" placeholder="Kata laluan" autocomplete="current-password">
-  <div class="err" id="err"></div>
-  <button class="p" id="go">Log masuk</button>
-  <button id="g">Log masuk dengan Google</button>
- </div>
- <div id="panel" hidden>
-  <div class="card row"><div><h1>Admin Streamer Editor</h1><div class="muted" id="me"></div></div><button id="out">Log keluar</button></div>
-  <div class="stats" id="stats" style="margin-top:16px"></div>
-  <div class="card" style="margin-top:16px;display:grid;gap:12px"><input id="q" type="search" placeholder="Cari e-mel"><div class="tw"><table><thead><tr><th>E-mel</th><th>Pelan</th><th>Status</th><th>Daftar</th><th></th></tr></thead><tbody id="rows"></tbody></table></div><div class="err" id="err2"></div></div>
- </div>
+<!-- LOGIN -->
+<div class="login" id="login" hidden>
+  <div class="hero">
+    <div class="brand"><span class="logo">SE</span>Streamer Editor</div>
+    <div><h2>Urus pengguna aplikasi anda di satu tempat.</h2><p>Lihat pendaftaran baharu, tukar pelan dan lumpuhkan akaun dengan satu sentuhan.</p></div>
+    <ul><li><i>✓</i>Hanya akaun admin boleh masuk</li><li><i>✓</i>Data pengguna dalam Firestore</li><li><i>✓</i>Kata laluan dikendalikan Firebase Auth</li></ul>
+  </div>
+  <div class="formside"><div class="fbox">
+    <div class="brand"><span class="logo">SE</span>Admin</div>
+    <div><h1 style="font-size:22px">Log masuk admin</h1><div class="muted" style="margin-top:4px">Gunakan akaun admin anda.</div></div>
+    <label class="field">E-mel<input class="input" id="em" type="email" autocomplete="email"></label>
+    <label class="field">Kata laluan<input class="input" id="pw" type="password" autocomplete="current-password"></label>
+    <div class="err" id="err" role="alert"></div>
+    <button class="btn primary block" id="go">Log masuk</button>
+    <div class="sep">atau</div>
+    <button class="btn block gbtn" id="g"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.2 5.5-4.7 7.2l7.3 5.7c4.3-4 6.7-9.9 6.7-17.4z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 010-9.4l-7.9-6.1a24 24 0 000 21.6l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.3-5.7c-2 1.4-4.9 2.3-8.6 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>Log masuk dengan Google</button>
+  </div></div>
 </div>
+
+<!-- APP -->
+<div class="app" id="app" hidden>
+  <aside class="side">
+    <div class="brand"><span class="logo">SE</span>Admin</div>
+    <nav class="nav" id="nav"></nav>
+    <div class="me"><div class="meline"><span class="av" id="av"></span><div><b id="meName" style="font-weight:500">Admin</b><div class="small muted" id="meMail"></div></div></div><button class="btn block" data-out>Log keluar</button></div>
+  </aside>
+  <main class="main">
+    <div class="top"><div><div class="muted small" id="date"></div><h1 id="title">Ringkasan</h1></div><button class="btn" data-out id="outTop" style="display:none">Log keluar</button></div>
+
+    <section id="v-overview" style="display:grid;gap:14px">
+      <div class="kpis" id="kpis"></div>
+      <div class="two">
+        <div class="card"><h3>Pendaftaran 14 hari lepas</h3><div class="sub">Bilangan akaun baharu setiap hari</div><div id="barchart"></div></div>
+        <div class="card"><h3>Pecahan pelan</h3><div class="sub">Semua pengguna</div><div class="donutwrap" id="donut"></div><div class="legend" id="legend"></div></div>
+      </div>
+      <div class="card"><h3>Pengguna terbaru</h3><div class="recent" id="recent"></div></div>
+    </section>
+
+    <section id="v-users" hidden style="display:grid;gap:14px">
+      <div class="bar"><div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input class="input" id="q" type="search" placeholder="Cari e-mel" aria-label="Cari e-mel"></div>
+      <div class="chips" id="chips"></div></div>
+      <div class="card list" id="ulist"></div>
+    </section>
+  </main>
+</div>
+<nav class="tabbar" id="tabbar" hidden></nav>
+<div class="toast" id="toast" hidden></div>
+
 <script src="../firebase-config.js"></script>
 <script type="module">
 const cfg = window.FIREBASE_CONFIG, B = "https://www.gstatic.com/firebasejs/10.12.2/";
@@ -54,38 +189,118 @@ const F = await import(B + "firebase-firestore.js");
 const app = initializeApp(cfg), auth = A.getAuth(app), db = F.getFirestore(app);
 const $ = (i) => document.getElementById(i);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-let users = [];
-const bad = (m) => { $("err").textContent = m; };
+const I = {
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>',
+  users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.4 3.4-5.5 6.5-5.5s5.9 2.1 6.5 5.5"/><path d="M16 4.7a3.5 3.5 0 010 6.6M18 14.8c1.9.7 3.2 2.5 3.6 5.2"/></svg>',
+  out: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H5a2 2 0 00-2 2v12a2 2 0 002 2h4M16 8l4 4-4 4M20 12H9"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/></svg>',
+  ban: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>',
+  star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="3.5"/><path d="M3 20c.6-3.6 3.4-5.5 6.5-5.5M18 14v6M15 17h6"/></svg>',
+};
+let users = [], admins = new Set(), me = null, view = "overview", filter = "all", unsub = null, tt;
 
+const toast = (m) => { const t = $("toast"); t.textContent = m; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => (t.hidden = true), 2200); };
+const bad = (m) => { $("err").textContent = m; };
+const ini = (e) => (e || "?")[0].toUpperCase();
+const secs = (x) => x?.createdAt?.seconds || 0;
+const fmtD = (t) => (t?.seconds ? new Date(t.seconds * 1000).toLocaleDateString("ms-MY", { day: "numeric", month: "short", year: "numeric" }) : "-");
+
+/* auth */
 $("go").onclick = () => A.signInWithEmailAndPassword(auth, $("em").value.trim(), $("pw").value).catch(() => bad("E-mel atau kata laluan salah."));
+$("pw").onkeydown = (e) => { if (e.key === "Enter") $("go").click(); };
 $("g").onclick = () => { const p = new A.GoogleAuthProvider(); p.setCustomParameters({ prompt: "select_account" }); A.signInWithPopup(auth, p).catch(() => bad("Log masuk Google gagal.")); };
-$("out").onclick = () => A.signOut(auth);
-$("q").oninput = draw;
+document.querySelectorAll("[data-out]").forEach((b) => (b.onclick = () => A.signOut(auth)));
 
 A.onAuthStateChanged(auth, async (u) => {
-  $("login").hidden = !!u; $("panel").hidden = true;
-  if (!u) return;
-  let isAdmin = false;
-  try { isAdmin = (await F.getDoc(F.doc(db, "admins", u.uid))).exists(); } catch (_) {}
-  if (!isAdmin) { await A.signOut(auth); $("login").hidden = false; bad("Akaun ini bukan admin."); return; }
-  $("me").textContent = u.email; $("panel").hidden = false; bad("");
-  F.onSnapshot(F.collection(db, "users"), (snap) => { users = snap.docs.map((d) => ({ id: d.id, ...d.data() })); draw(); }, () => { $("err2").textContent = "Tidak dapat baca senarai pengguna."; });
+  if (unsub) { unsub(); unsub = null; }
+  me = u;
+  if (!u) { $("app").hidden = true; $("tabbar").hidden = true; $("login").hidden = false; return; }
+  let ok = false;
+  const aref = F.doc(db, "admins", u.uid);
+  try { ok = (await F.getDoc(aref)).exists(); } catch (_) {}
+  if (!ok) { try { await F.setDoc(aref, { email: u.email, since: F.serverTimestamp() }); ok = true; } catch (_) {} } // succeeds only for the owner account (see firestore.rules)
+  if (!ok) { await A.signOut(auth); bad("Akaun ini bukan admin."); return; }
+  bad("");
+  $("login").hidden = true; $("app").hidden = false; $("tabbar").hidden = false;
+  $("av").textContent = ini(u.email); $("meMail").textContent = u.email;
+  $("date").textContent = new Date().toLocaleDateString("ms-MY", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  unsub = F.onSnapshot(F.collection(db, "users"), (snap) => { users = snap.docs.map((d) => ({ id: d.id, ...d.data() })); draw(); }, () => toast("Tidak dapat baca senarai pengguna."));
+  F.getDocs(F.collection(db, "admins")).then((s) => { admins = new Set(s.docs.map((d) => d.id)); draw(); }).catch(() => {});
+  setView(location.hash === "#users" ? "users" : "overview");
 });
 
-function draw() {
-  const q = $("q").value.trim().toLowerCase();
-  const n = (f) => users.filter(f).length;
-  $("stats").innerHTML = [["Jumlah pengguna", users.length], ["Aktif", n((x) => x.status !== "disabled")], ["Dilumpuhkan", n((x) => x.status === "disabled")], ["Pelan Pro", n((x) => x.plan === "pro")]]
-    .map((s) => `<div class="card"><span class="muted">${s[0]}</span><b>${s[1]}</b></div>`).join("");
-  const rows = users.filter((x) => !q || (x.email || "").toLowerCase().includes(q)).sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-  $("rows").innerHTML = rows.map((x) => {
-    const off = x.status === "disabled";
-    return `<tr><td>${esc(x.email)}</td><td><select data-plan="${x.id}"><option value="free"${x.plan !== "pro" ? " selected" : ""}>Free</option><option value="pro"${x.plan === "pro" ? " selected" : ""}>Pro</option></select></td><td><span class="pill${off ? " off" : ""}">${off ? "Dilumpuhkan" : "Aktif"}</span></td><td>${x.createdAt ? new Date(x.createdAt.seconds * 1000).toLocaleDateString() : ""}</td><td><button data-tog="${x.id}" data-to="${off ? "active" : "disabled"}">${off ? "Aktifkan" : "Lumpuhkan"}</button></td></tr>`;
-  }).join("") || `<tr><td colspan="5" class="muted">Belum ada pengguna.</td></tr>`;
-  document.querySelectorAll("[data-plan]").forEach((s) => { s.onchange = () => upd(s.dataset.plan, { plan: s.value }); });
-  document.querySelectorAll("[data-tog]").forEach((b) => { b.onclick = () => upd(b.dataset.tog, { status: b.dataset.to }); });
+/* navigation */
+const NAV = [["overview", "Ringkasan", I.home], ["users", "Pengguna", I.users]];
+function nav() {
+  const mk = (x) => `<button data-v="${x[0]}"${view === x[0] ? ' aria-current="page"' : ""}>${x[2]}<span>${x[1]}</span></button>`;
+  $("nav").innerHTML = NAV.map(mk).join("");
+  $("tabbar").innerHTML = NAV.map(mk).join("") + `<button data-out2>${I.out}<span>Keluar</span></button>`;
+  document.querySelectorAll("[data-v]").forEach((b) => (b.onclick = () => setView(b.dataset.v)));
+  document.querySelectorAll("[data-out2]").forEach((b) => (b.onclick = () => A.signOut(auth)));
 }
-function upd(id, d) { $("err2").textContent = ""; F.updateDoc(F.doc(db, "users", id), d).catch(() => { $("err2").textContent = "Gagal kemas kini."; }); }
+function setView(v) {
+  view = v; history.replaceState(null, "", v === "users" ? "#users" : "#overview");
+  $("v-overview").hidden = v !== "overview"; $("v-users").hidden = v !== "users";
+  $("v-overview").style.display = v === "overview" ? "grid" : "none"; $("v-users").style.display = v === "users" ? "grid" : "none";
+  $("title").textContent = v === "users" ? "Pengguna" : "Ringkasan";
+  nav(); window.scrollTo(0, 0);
+}
+
+/* drawing */
+function draw() { nav(); kpis(); bars(); donut(); recent(); list(); }
+function kpis() {
+  const week = Date.now() / 1000 - 7 * 864e2 * 1;
+  const n = (f) => users.filter(f).length;
+  const k = [["Jumlah pengguna", users.length, "b", I.users], ["Aktif", n((x) => x.status !== "disabled"), "g", I.check], ["Dilumpuhkan", n((x) => x.status === "disabled"), "r", I.ban], ["Pelan Pro", n((x) => x.plan === "pro"), "v", I.star], ["Baru 7 hari", n((x) => secs(x) >= week), "s", I.plus]];
+  $("kpis").innerHTML = k.map((x) => `<div class="card kpi"><span class="ico ${x[2]}">${x[3]}</span><div><span class="muted small">${x[0]}</span><b>${x[1]}</b></div></div>`).join("");
+}
+function bars() {
+  const days = [], now = new Date(); now.setHours(0, 0, 0, 0);
+  for (let i = 13; i >= 0; i--) { const d = new Date(now); d.setDate(d.getDate() - i); days.push({ d, c: 0 }); }
+  users.forEach((x) => { const t = secs(x) * 1000; days.forEach((o) => { if (t >= o.d.getTime() && t < o.d.getTime() + 864e5) o.c++; }); });
+  const max = Math.max(4, ...days.map((o) => o.c)), top = Math.ceil(max / 4) * 4;
+  const W = 560, H = 200, L = 30, Bt = 26, ch = H - Bt - 8, bw = (W - L) / 14;
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Pendaftaran 14 hari lepas">`;
+  for (let i = 0; i <= 4; i++) { const v = (top / 4) * i, y = 8 + ch - (v / top) * ch; s += `<line x1="${L}" x2="${W}" y1="${y}" y2="${y}" stroke="#E3E9F2"/><text x="${L - 8}" y="${y + 4}" text-anchor="end" font-size="11" fill="#62708A">${v}</text>`; }
+  days.forEach((o, i) => {
+    const h = (o.c / top) * ch, x = L + i * bw + bw * 0.2, y = 8 + ch - h;
+    s += `<rect x="${x}" y="${y}" width="${bw * 0.6}" height="${Math.max(h, o.c ? 2 : 0)}" rx="4" fill="#2563EB"><title>${o.d.toLocaleDateString("ms-MY")}: ${o.c}</title></rect>`;
+    if (i % 2 === 1 || i === 13) s += `<text x="${x + bw * 0.3}" y="${H - 6}" text-anchor="middle" font-size="11" fill="#62708A">${o.d.getDate()}/${o.d.getMonth() + 1}</text>`;
+  });
+  $("barchart").innerHTML = s + "</svg>";
+}
+function donut() {
+  const pro = users.filter((x) => x.plan === "pro").length, free = users.length - pro, tot = users.length;
+  const R = 54, C = 2 * Math.PI * R, pf = tot ? pro / tot : 0;
+  $("donut").innerHTML = `<svg width="160" height="160" viewBox="0 0 160 160" role="img" aria-label="Free ${free}, Pro ${pro}"><circle cx="80" cy="80" r="${R}" fill="none" stroke="#C7D7F8" stroke-width="18"/>${pro ? `<circle cx="80" cy="80" r="${R}" fill="none" stroke="#6D4AE0" stroke-width="18" stroke-dasharray="${C * pf} ${C}" transform="rotate(-90 80 80)"/>` : ""}<text x="80" y="82" text-anchor="middle" font-family="Poppins,sans-serif" font-weight="600" font-size="28" fill="#0F1B33">${tot}</text><text x="80" y="100" text-anchor="middle" font-size="11" fill="#62708A">pengguna</text></svg>`;
+  $("legend").innerHTML = `<span><i style="background:#C7D7F8"></i>Free ${free}</span><span><i style="background:#6D4AE0"></i>Pro ${pro}</span>`;
+}
+function recent() {
+  const r = [...users].sort((a, b) => secs(b) - secs(a)).slice(0, 5);
+  $("recent").innerHTML = r.length ? r.map((x) => `<div class="rec"><span class="av">${ini(x.email)}</span><div class="t"><b>${esc(x.email)}</b><span class="muted small">Daftar ${fmtD(x.createdAt)}</span></div><span class="badge ${x.plan === "pro" ? "adm" : "ok"}">${x.plan === "pro" ? "Pro" : "Free"}</span></div>`).join("") : `<div class="empty">Belum ada pengguna.</div>`;
+}
+function list() {
+  const q = $("q").value.trim().toLowerCase();
+  const F2 = { all: () => true, active: (x) => x.status !== "disabled", off: (x) => x.status === "disabled", pro: (x) => x.plan === "pro", free: (x) => x.plan !== "pro" };
+  const chips = [["all", "Semua"], ["active", "Aktif"], ["off", "Dilumpuhkan"], ["pro", "Pro"], ["free", "Free"]];
+  $("chips").innerHTML = chips.map((c) => `<button class="chip" data-f="${c[0]}" aria-pressed="${filter === c[0]}">${c[1]}</button>`).join("");
+  document.querySelectorAll("[data-f]").forEach((b) => (b.onclick = () => { filter = b.dataset.f; list(); }));
+  const rows = users.filter((x) => F2[filter](x) && (!q || (x.email || "").toLowerCase().includes(q))).sort((a, b) => secs(b) - secs(a));
+  let h = `<div class="ur h"><span>Pengguna</span><span>Pelan</span><span>Status</span><span>Daftar</span><span class="c-last">Log masuk terakhir</span></div>`;
+  h += rows.map((x) => {
+    const off = x.status === "disabled", self = me && x.id === me.uid, isA = admins.has(x.id);
+    return `<div class="ur"><div class="who c-user"><span class="av">${ini(x.email)}</span><div><b>${esc(x.email)}</b>${isA ? '<span class="badge adm">Admin</span>' : ""}</div></div>
+      <div><span class="lab">Pelan</span><select class="sel" data-plan="${x.id}" aria-label="Pelan"><option value="free"${x.plan !== "pro" ? " selected" : ""}>Free</option><option value="pro"${x.plan === "pro" ? " selected" : ""}>Pro</option></select></div>
+      <div><span class="lab">Status</span><span class="sw"><button class="tg" role="switch" aria-checked="${!off}" data-tog="${x.id}" aria-label="Aktif"${self ? ' disabled title="Anda tidak boleh lumpuhkan akaun sendiri"' : ""}></button><span class="badge ${off ? "off" : "ok"}">${off ? "Dilumpuhkan" : "Aktif"}</span></span></div>
+      <div><span class="lab">Daftar</span>${fmtD(x.createdAt)}</div><div class="c-last"><span class="lab">Log masuk terakhir</span>${fmtD(x.lastLogin)}</div></div>`;
+  }).join("") || `<div class="empty">Tiada pengguna sepadan.</div>`;
+  $("ulist").innerHTML = h;
+  document.querySelectorAll("[data-plan]").forEach((s) => (s.onchange = () => upd(s.dataset.plan, { plan: s.value }, "Pelan dikemas kini")));
+  document.querySelectorAll("[data-tog]").forEach((b) => (b.onclick = () => upd(b.dataset.tog, { status: b.getAttribute("aria-checked") === "true" ? "disabled" : "active" }, "Status dikemas kini")));
+}
+$("q").oninput = list;
+function upd(id, d, msg) { F.updateDoc(F.doc(db, "users", id), d).then(() => toast(msg)).catch(() => toast("Gagal kemas kini.")); }
 </script>
 </body>
 </html>

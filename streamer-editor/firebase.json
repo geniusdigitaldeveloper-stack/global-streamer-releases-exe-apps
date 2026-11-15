@@ -1,5 +1,5 @@
 {
-  "hosting": { "public": ".", "ignore": ["firebase.json", "firestore.rules", "README.md", "functions/**", "pipeline/**", "scripts/**", "**/.*"] },
+  "hosting": { "site": "streamer-editor", "public": ".", "ignore": ["firebase.json", "firestore.rules", "README.md", "functions/**", "pipeline/**", "scripts/**", "**/.*"] },
   "firestore": { "rules": "firestore.rules" },
   "functions": [{ "source": "functions", "codebase": "default" }]
 }
