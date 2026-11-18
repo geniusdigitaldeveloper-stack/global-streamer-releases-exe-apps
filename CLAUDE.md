@@ -21,3 +21,25 @@ Every NEW repo must get these skills: run `.claude/scripts/sync-skills.sh <new-r
 
 ## Gaya subtitle tetap (semua video)
 Setiap video yang ada suara user bercakap (Hyperframes, Remotion, infografik, ffmpeg, apa-apa): subtitle ucapan = **Poppins SemiBold (600)**, warna **biru air cerah `#38BDF8`**, **perkataan Inggeris (contoh *actually*) dalam italic**, dan **teks Bahasa Arab dalam font Traditional Arabic (regular, tanpa bold/italic, warna sama `#38BDF8`)**. Ini hanya untuk subtitle ucapan, bukan font infografik. Butiran: skill `video-subtitle-style`, komponen `templates/video/remotion/Subtitle.tsx`.
+
+## Integrasi Metricool (MCP)
+
+### Sambungan
+1. Guna OAuth standard dengan dynamic client registration (DCR) dan PKCE.
+2. Scope yang ada hanya `mcp:read` dan `mcp:write`. Tiada scope yang lebih sempit.
+3. Setiap pengguna sambung akaun Metricool mereka sendiri. App bertindak bagi pihak pengguna dan hanya boleh akses jenama dan kebenaran yang pengguna itu dah ada dalam Metricool.
+4. Had penggunaan ikut pelan Metricool setiap pengguna. Tiada kuota MCP berasingan untuk app ini.
+5. Status app: Unverified. Pengguna akan nampak amaran "Unverified application" semasa beri kebenaran. Ini dijangka, jadi jangan cuba elak atau sembunyikan amaran itu.
+
+### Had tindakan dalam kod
+6. Walaupun `mcp:write` memberi akses tulis yang luas, app ini hanya dibenarkan buat dua tindakan: jadualkan post dan baca post yang dijadualkan.
+7. Jangan panggil tool Metricool yang lain, dan jangan tambah tindakan baru tanpa saya minta.
+
+### Keselamatan
+8. Simpan token pengguna dengan selamat di sisi server. Jangan simpan dalam kod, jangan hantar ke browser, dan jangan tulis token dalam log.
+9. Kendalikan token tamat tempoh atau kebenaran yang ditarik balik dengan mesej yang jelas kepada pengguna, dan minta mereka sambung semula.
+10. Jangan guna nama atau logo Metricool dalam app sehingga Metricool beri kebenaran bertulis.
+
+### Alamat app dan OAuth
+11. Alamat app: https://streamer-editor.web.app
+12. OAuth redirect URI: https://streamer-editor.web.app/oauth-callback.html. Guna alamat ini sahaja semasa pendaftaran klien (DCR) dan permintaan kebenaran. Ia mesti sama betul-betul dengan yang saya dah beritahu Metricool.
