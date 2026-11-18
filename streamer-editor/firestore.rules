@@ -48,10 +48,17 @@ service cloud.firestore {
         allow create, update, delete: if signedIn() && request.auth.uid == uid;
       }
 
-      // Jobs are created and filled only by the server. The owner and admins can read.
+      // Edit jobs. The owner creates a queued job in the app; the owner's own local worker (signed in as the same user) updates its status.
+      // Admins can read. Nobody else can touch them.
       match /jobs/{jobId} {
         allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
-        allow write: if false;
+        allow create: if signedIn() && request.auth.uid == uid
+          && request.resource.data.status == 'queued'
+          && request.resource.data.keys().hasOnly(['status', 'msg', 'file', 'mode', 'aspect', 'res', 'fps', 'format', 'engine', 'createdAt', 'kind'])
+          && request.resource.data.file is string && request.resource.data.file.size() < 200;
+        allow update: if signedIn() && request.auth.uid == uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'msg', 'plan', 'outputs', 'updatedAt']);
+        allow delete: if signedIn() && request.auth.uid == uid;
       }
     }
   }

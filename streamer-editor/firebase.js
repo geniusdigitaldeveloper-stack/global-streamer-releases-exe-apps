@@ -39,6 +39,13 @@ if (cfg && !/^PASTE/.test(cfg.apiKey || "PASTE")) {
       const r = await FN.httpsCallable(fns, "createJob")({ url, mode });
       unsub = F.onSnapshot(F.doc(db, "users", auth.currentUser.uid, "jobs", r.data.jobId), (d) => cb(d.data()));
     },
+    // Queues an edit job for the user's own local worker and streams its status. cb gets the job document each time it changes.
+    submitJob: async (spec, cb) => {
+      if (unsub) unsub();
+      const col = F.collection(db, "users", auth.currentUser.uid, "jobs");
+      const d = await F.addDoc(col, { ...spec, kind: "edit", status: "queued", msg: "queued", createdAt: F.serverTimestamp() });
+      unsub = F.onSnapshot(d, (s) => cb(s.data()));
+    },
     // OAuth tokens live in a private doc that only the owner can read (admins cannot).
     saveToken: (id, t) => F.setDoc(F.doc(db, "users", auth.currentUser.uid, "private", "oauth"), { [id]: t }, { merge: true }),
     dropToken: (id) => F.setDoc(F.doc(db, "users", auth.currentUser.uid, "private", "oauth"), { [id]: F.deleteField() }, { merge: true }),

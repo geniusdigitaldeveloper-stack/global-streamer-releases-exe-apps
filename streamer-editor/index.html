@@ -623,7 +623,7 @@ function shell(body,pg){
  '<div class="shell"><aside class="rail card"><div class="rlab">'+t("menu")+'</div><nav class="nav">'+nav(true,pg)+'</nav><div class="racct"><span class="av">'+esc((S.session||"?")[0].toUpperCase())+'</span><span class="small muted" style="min-width:0;overflow:hidden;text-overflow:ellipsis">'+esc(S.session)+'</span></div><button class="btn logout block" data-logout>'+t("logout")+'</button></aside><main class="main">'+body+'</main></div></div><nav class="tab-bar">'+nav(false,pg)+'</nav>'}
 
 function clipsView(){
- var h='<div class="head"><h1>'+t("nClips")+'</h1></div>'+(FB_ON&&S.session&&!(S.ai&&S.ai.saved)?'<div class="alert-red" role="alert">'+t("needKey")+' <a href="#" class="upg" data-gokey>'+t("openSettings")+' →</a></div>':'')+'<div class="card stack herocard"><div><h2 class="ht">'+t("heroT")+'</h2><div class="hs">'+t("heroS")+'</div></div><label class="f">'+t("src")+'<div class="row"><div class="holo grow" style="flex:1 1 220px"><input id="url" type="url" placeholder="https://www.youtube.com/live/..." value="https://www.youtube.com/live/demo-stream"></div><button class="btn primary" id="an">'+t("analyze")+'</button></div></label><div class="small muted">'+t("srcHint")+'</div><div class="bar" id="pbar" hidden><div></div></div><div class="small" id="jstat">'+esc(S.jobMsg||"")+'</div><div class="small muted">'+t("demo")+'</div></div><div class="card stack"><div class="seg"><button data-mode="short" aria-pressed="'+(S.mode==="short")+'">'+t("modeShort")+'</button><button data-mode="long" aria-pressed="'+(S.mode==="long")+'">'+t("modeLong")+'</button></div><div class="small muted">'+t(S.mode==="long"?"hintLong":"hintShort")+'</div></div>';
+ var h='<div class="head"><h1>'+t("nClips")+'</h1></div>'+(FB_ON&&S.session&&!(S.ai&&S.ai.saved)?'<div class="alert-red" role="alert">'+t("needKey")+' <a href="#" class="upg" data-gokey>'+t("openSettings")+' →</a></div>':'')+'<div class="card stack herocard"><div><h2 class="ht">'+t("heroT")+'</h2><div class="hs">'+t("heroS")+'</div></div><label class="f">'+t("src")+'<div class="row"><div class="holo grow" style="flex:1 1 220px"><input id="url" type="text" autocomplete="off" placeholder="my-live-replay.mp4" value="'+esc(S.file||"")+'"></div><button class="btn primary" id="an">'+t("analyze")+'</button></div></label><label class="f">'+t("engine")+'<select id="eng"><option value="claude"'+(S.engine!=="api"?' selected':'')+'>'+t("engClaude")+'</option><option value="api"'+(S.engine==="api"?' selected':'')+'>'+t("engApi")+'</option></select></label><div class="small muted">'+t("srcHint")+'</div><div class="bar" id="pbar" hidden><div></div></div><div class="small" id="jstat">'+esc(S.jobMsg||"")+'</div><div class="small muted">'+t("demo")+'</div></div><div class="card stack"><div class="seg"><button data-mode="short" aria-pressed="'+(S.mode==="short")+'">'+t("modeShort")+'</button><button data-mode="long" aria-pressed="'+(S.mode==="long")+'">'+t("modeLong")+'</button></div><div class="small muted">'+t(S.mode==="long"?"hintLong":"hintShort")+'</div></div>';
  if(!S.clips.length)return h+'<div class="card muted">'+t("none")+'</div>';
  var n=Object.keys(S.sel).length;
  h+='<div class="head"><h2>'+(S.mode==="long"?t("modeLong"):t("tplHead"))+' <span class="pill">'+t("sel")+': '+n+'</span></h2><button class="btn primary" id="toStudio"'+(S.cur===null?' disabled':'')+'>'+t("edit")+'</button></div><div class="grid5">';
@@ -638,13 +638,15 @@ function bindClips(){
  document.querySelectorAll("[data-mode]").forEach(function(b){b.onclick=function(){S.mode=b.dataset.mode;render()}});
  var gk=$("[data-gokey]");if(gk)gk.onclick=function(e){e.preventDefault();S.view="settings";render()};
  var an=$("#an");if(an&&FB_ON&&FB())an.onclick=function(){
-  if(!(S.ai&&S.ai.saved)){S.jobMsg=t("jobNoKey");$("#jstat").textContent=S.jobMsg;return}
+  S.file=$("#url").value.trim();S.engine=$("#eng").value;
+  if(!S.file){S.jobMsg=t("jobNoFile");$("#jstat").textContent=S.jobMsg;return}
+  if(S.engine==="api"&&!(S.ai&&S.ai.saved)){S.jobMsg=t("jobNoKey");$("#jstat").textContent=S.jobMsg;return}
   an.disabled=true;an.textContent=t("analyzing")+"…";S.clips=[];S.sel={};S.cur=null;
-  FB().startJob($("#url").value.trim(),S.mode,function(j){
+  FB().submitJob({file:S.file,mode:S.mode,aspect:S.ratio,res:S.res,fps:S.fps,format:S.fmt,engine:S.engine},function(j){
    if(!j)return;
-   var m={queued:"jobQueued",fetching_captions:"jobCaps",finding_hooks:"jobHooks",done:"jobDone",no_captions:"jobNoCaps"}[j.msg];
-   S.jobMsg=j.status==="error"?(j.msg==="no_captions"?t("jobNoCaps"):j.msg==="no_key"?t("jobNoKey"):t("jobErr")):(m?t(m):"");
-   if(j.status==="done"){S.clips=j.clips||[];S.shown=25;S.cur=S.clips.length?0:null;if(!S.clips.length)S.jobMsg=t("jobNone")}
+   var m={queued:"jobQueued",reading:"jobReading",asking:"jobAsking",rendering:"jobRender",done:"jobDone"}[j.msg];
+   S.jobMsg=j.status==="error"?(t("jobErr")+" ("+esc(String(j.msg||"").slice(0,80))+")"):(m?t(m):esc(String(j.msg||"")));
+   if(j.status==="done"){var o=j.outputs||[];S.clips=o.map(function(c,k){return{id:k,title:c.title||c.file,score:null,dur:c.seconds,start:0,end:c.seconds||0,at:0,file:c.file}});S.shown=25;S.cur=S.clips.length?0:null;S.jobMsg=S.clips.length?t("jobDoneFiles")+" "+(o[0]&&o[0].file?esc(o[0].file.replace(/[^\\/]*$/,"")):""):t("jobNone")}
    if(S.view==="clips")render();
   }).catch(function(){S.jobMsg=t("jobErr");render()});
  };
