@@ -423,6 +423,16 @@ label.f>*{min-width:0}
 @media (prefers-reduced-motion:reduce){.auth-hero.lab *{animation:none!important}.lab-chip{opacity:1}}
 .auth-hero .lab-pts{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}
 .auth-hero .lab-pts li{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:99px;font-weight:500;font-size:12.5px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22)}
+/* ---- link box: black text + bright holographic animated border ---- */
+.holo{position:relative;padding:3px;border-radius:15px;background:linear-gradient(100deg,#00F5FF,#5B8CFF,#B14DFF,#FF4FD8,#FFE95A,#00FF9C,#00F5FF);background-size:400% 100%;box-shadow:0 0 12px rgba(0,245,255,.85),0 0 26px rgba(177,77,255,.6),0 0 44px rgba(255,79,216,.35);animation:holoMove 3.2s linear infinite,holoGlow 1.8s ease-in-out infinite alternate}
+.holo:focus-within{box-shadow:0 0 22px rgba(0,240,255,.95),0 0 44px rgba(255,79,216,.6)}
+.holo input,.herocard .holo input{display:block;width:100%;border:0;border-radius:12px;background:#fff;color:#0B0F19;-webkit-text-fill-color:#0B0F19;caret-color:#0B0F19;font-weight:500}
+.holo input::placeholder{color:#6B7690;-webkit-text-fill-color:#6B7690}
+.holo input::selection{background:#2563EB;color:#fff;-webkit-text-fill-color:#fff}
+html[data-app-theme="dark"] .holo input{background:var(--surface);color:var(--ink);-webkit-text-fill-color:var(--ink);caret-color:var(--ink)}
+@keyframes holoMove{to{background-position:400% 0}}
+@keyframes holoGlow{to{box-shadow:0 0 18px rgba(0,245,255,1),0 0 36px rgba(177,77,255,.85),0 0 60px rgba(255,79,216,.55)}}
+@media (prefers-reduced-motion:reduce){.holo{animation:none}}
 </style>
 </head>
 <body>
@@ -613,7 +623,7 @@ function shell(body,pg){
  '<div class="shell"><aside class="rail card"><div class="rlab">'+t("menu")+'</div><nav class="nav">'+nav(true,pg)+'</nav><div class="racct"><span class="av">'+esc((S.session||"?")[0].toUpperCase())+'</span><span class="small muted" style="min-width:0;overflow:hidden;text-overflow:ellipsis">'+esc(S.session)+'</span></div><button class="btn logout block" data-logout>'+t("logout")+'</button></aside><main class="main">'+body+'</main></div></div><nav class="tab-bar">'+nav(false,pg)+'</nav>'}
 
 function clipsView(){
- var h='<div class="head"><h1>'+t("nClips")+'</h1></div><div class="card stack herocard"><div><h2 class="ht">'+t("heroT")+'</h2><div class="hs">'+t("heroS")+'</div></div><label class="f">'+t("src")+'<div class="row"><input class="grow" id="url" type="url" placeholder="https://www.youtube.com/live/..." value="https://www.youtube.com/live/demo-stream" style="flex:1 1 220px"><button class="btn primary" id="an">'+t("analyze")+'</button></div></label><div class="small muted">'+t("srcHint")+'</div><div class="bar" id="pbar" hidden><div></div></div><div class="small" id="jstat">'+esc(S.jobMsg||"")+'</div><div class="small muted">'+t("demo")+'</div></div><div class="card stack"><div class="seg"><button data-mode="short" aria-pressed="'+(S.mode==="short")+'">'+t("modeShort")+'</button><button data-mode="long" aria-pressed="'+(S.mode==="long")+'">'+t("modeLong")+'</button></div><div class="small muted">'+t(S.mode==="long"?"hintLong":"hintShort")+'</div></div>';
+ var h='<div class="head"><h1>'+t("nClips")+'</h1></div><div class="card stack herocard"><div><h2 class="ht">'+t("heroT")+'</h2><div class="hs">'+t("heroS")+'</div></div><label class="f">'+t("src")+'<div class="row"><div class="holo grow" style="flex:1 1 220px"><input id="url" type="url" placeholder="https://www.youtube.com/live/..." value="https://www.youtube.com/live/demo-stream"></div><button class="btn primary" id="an">'+t("analyze")+'</button></div></label><div class="small muted">'+t("srcHint")+'</div><div class="bar" id="pbar" hidden><div></div></div><div class="small" id="jstat">'+esc(S.jobMsg||"")+'</div><div class="small muted">'+t("demo")+'</div></div><div class="card stack"><div class="seg"><button data-mode="short" aria-pressed="'+(S.mode==="short")+'">'+t("modeShort")+'</button><button data-mode="long" aria-pressed="'+(S.mode==="long")+'">'+t("modeLong")+'</button></div><div class="small muted">'+t(S.mode==="long"?"hintLong":"hintShort")+'</div></div>';
  if(!S.clips.length)return h+'<div class="card muted">'+t("none")+'</div>';
  var n=Object.keys(S.sel).length;
  h+='<div class="head"><h2>'+(S.mode==="long"?t("modeLong"):t("tplHead"))+' <span class="pill">'+t("sel")+': '+n+'</span></h2><button class="btn primary" id="toStudio"'+(S.cur===null?' disabled':'')+'>'+t("edit")+'</button></div><div class="grid5">';
