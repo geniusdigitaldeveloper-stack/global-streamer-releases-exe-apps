@@ -22,5 +22,4 @@ jobs:
           JOB_ID: ${{ github.event.client_payload.jobId }}
           URL: ${{ github.event.client_payload.url }}
           MODE: ${{ github.event.client_payload.mode }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
