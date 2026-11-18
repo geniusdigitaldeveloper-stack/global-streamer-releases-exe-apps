@@ -312,6 +312,14 @@ html[data-app-theme="dark"] .btn.dark{background:#000;border-color:#3A3F4D}
 /* ---- calendar form on phones: time and MCP stack, no overlap ---- */
 .tp{max-width:100%}.tp select{min-width:0;flex:1 1 0}
 @media (max-width:760px){.cform .two{grid-template-columns:minmax(0,1fr)}.tp{width:100%}}
+
+/* ---- never let a widened box push other items outside the card ---- */
+textarea{resize:vertical;max-width:100%}
+.stack,.main{grid-template-columns:minmax(0,1fr)}
+.stack>*,.main>*{min-width:0;max-width:100%}
+input,select,textarea,.btn{max-width:100%}
+label.f{grid-template-columns:minmax(0,1fr)}
+label.f>*{min-width:0}
 </style>
 </head>
 <body>
