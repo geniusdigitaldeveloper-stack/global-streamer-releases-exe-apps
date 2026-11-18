@@ -185,6 +185,11 @@ textarea.input{resize:vertical;min-height:80px}
 @media (max-width:760px){.g2{grid-template-columns:minmax(0,1fr)}.trow{grid-template-columns:minmax(0,1fr)}.savebar{top:4px}}
 .logo-img{width:34px;height:34px;display:block;object-fit:contain;flex:none}
 .hero .logo-img{width:44px;height:44px}
+/* long text must never push content out of its card */
+.recent,.kpis,#v-overview,#v-users,#v-site,.main{grid-template-columns:minmax(0,1fr)}
+.recent .rec{min-width:0}
+.rec .t,.who div{min-width:0}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr))}
 </style>
 </head>
 <body>

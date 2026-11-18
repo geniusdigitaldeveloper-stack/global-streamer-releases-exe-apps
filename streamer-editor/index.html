@@ -318,6 +318,10 @@ textarea{resize:vertical;max-width:100%}
 .stack,.main{grid-template-columns:minmax(0,1fr)}
 .stack>*,.main>*{min-width:0;max-width:100%}
 input,select,textarea,.btn{max-width:100%}
+/* tabs wrap instead of being cut at the card border */
+.tabs{flex-wrap:wrap;overflow:visible;gap:2px 4px}
+.tabs button{padding:8px 12px;white-space:normal}
+@media (max-width:760px){.tabs button{padding:8px 10px;font-size:13px}}
 label.f{grid-template-columns:minmax(0,1fr)}
 label.f>*{min-width:0}
 </style>
