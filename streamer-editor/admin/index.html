@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Streamer Editor Admin</title>
 <meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="/assets/icons/favicon-48.png">
+<link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
+<meta name="theme-color" content="#0A3A9E">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap">
 <style>
@@ -178,18 +183,20 @@ textarea.input{resize:vertical;min-height:80px}
 .trow code{font-size:12px;color:var(--muted)}
 .trows{max-height:560px;overflow:auto}
 @media (max-width:760px){.g2{grid-template-columns:minmax(0,1fr)}.trow{grid-template-columns:minmax(0,1fr)}.savebar{top:4px}}
+.logo-img{width:34px;height:34px;display:block;object-fit:contain;flex:none}
+.hero .logo-img{width:44px;height:44px}
 </style>
 </head>
 <body>
 <!-- LOGIN -->
 <div class="login" id="login" hidden>
   <div class="hero">
-    <div class="brand"><span class="logo">SE</span>Streamer Editor</div>
+    <div class="brand"><img class="logo-img" src="/assets/logo.webp" alt="">Streamer Editor</div>
     <div><h2>Urus pengguna aplikasi anda di satu tempat.</h2><p>Lihat pendaftaran baharu, tukar pelan dan lumpuhkan akaun dengan satu sentuhan.</p><div class="mockst" aria-hidden="true"><div><b>Pengguna</b><span>jumlah</span></div><div><b>Pro</b><span>pelan</span></div><div><b>Aktif</b><span>status</span></div></div></div>
     <ul><li><i>✓</i>Hanya akaun admin boleh masuk</li><li><i>✓</i>Data pengguna dalam Firestore</li><li><i>✓</i>Kata laluan dikendalikan Firebase Auth</li></ul>
   </div>
   <div class="formside"><div class="fbox">
-    <div class="brand"><span class="logo">SE</span>Admin</div>
+    <div class="brand"><img class="logo-img" src="/assets/logo.webp" alt="">Admin</div>
     <div><h1 style="font-size:22px">Log masuk admin</h1><div class="muted" style="margin-top:4px">Gunakan akaun admin anda.</div></div>
     <label class="field">E-mel<input class="input" id="em" type="email" autocomplete="email"></label>
     <label class="field">Kata laluan<input class="input" id="pw" type="password" autocomplete="current-password"></label>
@@ -203,7 +210,7 @@ textarea.input{resize:vertical;min-height:80px}
 <!-- APP -->
 <div class="app" id="app" hidden>
   <aside class="side">
-    <div class="brand"><span class="logo">SE</span>Admin</div>
+    <div class="brand"><img class="logo-img" src="/assets/logo.webp" alt="">Admin</div>
     <nav class="nav" id="nav"></nav>
     <div class="me"><div class="meline"><span class="av" id="av"></span><div><b id="meName" style="font-weight:500">Admin</b><div class="small muted" id="meMail"></div></div></div><button class="btn block" data-out>Log keluar</button></div>
   </aside>
@@ -374,7 +381,7 @@ const BNAME = { clips: "Klip / Clips", studio: "Studio", post: "Siar / Post", ca
 const BTYPES = [["heading", "Tajuk"], ["text", "Teks"], ["image", "Gambar"], ["button", "Butang"], ["stat", "Kad statistik"], ["callout", "Notis"]];
 let cfg = null, tab = "banner", openPage = -1, dirty = false, resetArm = 0;
 const clone = (o) => JSON.parse(JSON.stringify(o));
-function defCfg() { return { brand: { name: "Streamer Editor", logo: "SE" }, banner: { tagline: { en: "", ms: "" }, c1: "", c2: "", image: "" }, texts: { en: {}, ms: {} }, pages: BUILT.map((id) => ({ id, title: { en: "", ms: "" }, icon: "", color: "", hidden: false, blocks: [] })), mcps: clone(SH.MCPS) }; }
+function defCfg() { return { brand: { name: "Streamer Editor", logo: "" }, banner: { tagline: { en: "", ms: "" }, c1: "", c2: "", image: "" }, texts: { en: {}, ms: {} }, pages: BUILT.map((id) => ({ id, title: { en: "", ms: "" }, icon: "", color: "", hidden: false, blocks: [] })), mcps: clone(SH.MCPS) }; }
 function normalize(c) {
   const d = defCfg(); c = c ? clone(c) : d;
   c.brand = Object.assign({}, d.brand, c.brand);
@@ -406,7 +413,7 @@ function renderSite() {
   if (tab === "banner") updPrev(); if (tab === "texts") textRows();
 }
 function bannerTab() {
-  return `<div class="card ecard"><h3>Jenama</h3><div class="g2">${inp("Nama aplikasi", "brand.name")}${inp("Teks logo (1 hingga 3 huruf)", "brand.logo")}</div></div>
+  return `<div class="card ecard"><h3>Jenama</h3><div class="g2">${inp("Nama aplikasi", "brand.name")}${inp("Teks logo (kosong = guna logo asal)", "brand.logo")}</div></div>
   <div class="card ecard"><h3>Banner</h3><div class="g2">${inp("Tagline (English)", "banner.tagline.en")}${inp("Tagline (Bahasa Melayu)", "banner.tagline.ms")}</div>
   <div class="g2">${colr("Warna 1", "banner.c1")}${colr("Warna 2", "banner.c2")}</div>${inp("URL imej latar (https, pilihan)", "banner.image", "https://...")}
   <div class="row" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn sm" data-act="clearBanner">Guna warna tema</button><span class="muted small">Jika kosong, banner ikut warna tema yang pengguna pilih. Banner dan skrin log masuk guna tetapan ini.</span></div>
@@ -417,7 +424,7 @@ function updPrev() {
   if (hex.test(b.c1) && hex.test(b.c2)) g = `linear-gradient(120deg,${b.c1},${b.c2})`;
   if (/^https:\/\/[^\s"'()<>]+$/.test(b.image || "")) g = `linear-gradient(120deg,rgba(0,0,0,.45),rgba(0,0,0,.2)),url("${b.image}") center/cover`;
   const p = $("bprev"); if (!p) return;
-  p.style.background = g || ""; p.innerHTML = `<div class="nm"><span class="lg">${esc(cfg.brand.logo || "SE")}</span>${esc(cfg.brand.name || "Streamer Editor")}</div><div style="opacity:.9;font-size:13px">${esc(b.tagline.en || b.tagline.ms || "Tagline")}</div>`;
+  p.style.background = g || ""; p.innerHTML = `<div class="nm">${cfg.brand.logo && cfg.brand.logo !== "SE" ? `<span class="lg">${esc(cfg.brand.logo)}</span>` : `<img src="/assets/logo.webp" alt="" style="width:34px;height:34px;object-fit:contain">`}${esc(cfg.brand.name || "Streamer Editor")}</div><div style="opacity:.9;font-size:13px">${esc(b.tagline.en || b.tagline.ms || "Tagline")}</div>`;
 }
 function pagesTab() {
   const icons = [["", "(lalai)"], ...Object.keys(SH.ICONS).map((k) => [k, k])];

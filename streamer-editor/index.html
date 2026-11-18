@@ -4,6 +4,28 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Streamer Editor</title>
+<meta name="description" content="Streamer Editor: AI editing for gaming streams. Auto-cut the best hook moments, add gaming effects, and plan your posts in one place.">
+<meta name="theme-color" content="#0A3A9E">
+<link rel="canonical" href="https://streamer-editor.web.app/">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="/assets/icons/favicon-48.png">
+<link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Streamer Editor">
+<meta property="og:title" content="Streamer Editor">
+<meta property="og:description" content="AI editing for gaming streams.">
+<meta property="og:url" content="https://streamer-editor.web.app/">
+<meta property="og:image" content="https://streamer-editor.web.app/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Streamer Editor">
+<meta name="twitter:description" content="AI editing for gaming streams.">
+<meta name="twitter:image" content="https://streamer-editor.web.app/assets/og-image.jpg">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Streamer Editor", "url": "https://streamer-editor.web.app/", "description": "Streamer Editor: AI editing for gaming streams. Auto-cut the best hook moments, add gaming effects, and plan your posts in one place.", "applicationCategory": "MultimediaApplication", "operatingSystem": "Any", "image": "https://streamer-editor.web.app/assets/og-image.jpg", "logo": "https://streamer-editor.web.app/assets/icons/icon-512.png"}</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap">
@@ -277,6 +299,19 @@ html[data-app-theme="dark"] .btn.dark{background:#000;border-color:#3A3F4D}
 .ctm{font:600 14px var(--head);color:var(--c);min-width:76px;white-space:nowrap}
 .tp{display:flex;gap:6px;align-items:center}.tp select{width:auto;min-width:62px;padding:8px 10px}.tp b{color:var(--muted)}
 @media (max-width:760px){.cd{min-height:54px;padding:4px;align-items:center}.ce{display:none}.cdots{display:flex;justify-content:center}.cen{grid-template-columns:auto minmax(0,1fr) auto}.cen .pill{display:none}}
+
+/* ---- logo + image banner ---- */
+.logo-img{width:34px;height:34px;display:block;object-fit:contain;flex:none}
+.auth-hero .logo-img{width:54px;height:54px}
+.banner .logo-img{width:56px;height:56px}
+.mlogo.app-img{background:none;border:0;padding:0;object-fit:contain;width:60px;height:60px;border-radius:0;overflow:visible}
+.banner.imgbanner{padding:0;background:#02307A!important;display:block;overflow:hidden;border-radius:20px;box-shadow:0 14px 34px rgba(2,48,122,.35)}
+.banner.imgbanner:before,.banner.imgbanner:after{display:none}
+.banner.imgbanner picture,.banner.imgbanner img{display:block;width:100%;height:auto}
+@media (max-width:760px){.banner.imgbanner{border-radius:16px}}
+/* ---- calendar form on phones: time and MCP stack, no overlap ---- */
+.tp{max-width:100%}.tp select{min-width:0;flex:1 1 0}
+@media (max-width:760px){.cform .two{grid-template-columns:minmax(0,1fr)}.tp{width:100%}}
 </style>
 </head>
 <body>
@@ -300,6 +335,9 @@ function save(){cloudSave();try{localStorage.setItem(KEY,JSON.stringify(FB_ON?{l
 var CFG=null;try{CFG=JSON.parse(localStorage.getItem("se_cfg")||"null")}catch(e){}
 function L10(o){return o?(o[S.lang]||o.en||""):""}
 function t(k){var o=CFG&&CFG.texts&&CFG.texts[S.lang]&&CFG.texts[S.lang][k];return o||(L[S.lang]&&L[S.lang][k])||L.en[k]||k}
+function logoCustom(){var l=CFG&&CFG.brand&&CFG.brand.logo;return l&&l!=="SE"?l:""}
+function logoEl(){var c=logoCustom();return c?'<span class="logo">'+esc(c)+'</span>':'<img class="logo-img" src="assets/logo.webp" alt="" width="64" height="64">'}
+function useBannerImg(){var b=(CFG&&CFG.banner)||{},n=CFG&&CFG.brand&&CFG.brand.name;return !((HEX.test(b.c1||"")&&HEX.test(b.c2||""))||safeUrl(b.image)||(n&&n!=="Streamer Editor"))}
 function BN(){return (CFG&&CFG.brand&&CFG.brand.name)||t("app")}
 function LG(){return esc((CFG&&CFG.brand&&CFG.brand.logo)||"SE")}
 function TAG(){return L10(CFG&&CFG.banner&&CFG.banner.tagline)||t("bannerTag")}
@@ -338,7 +376,7 @@ var ICON=window.SE_SHARED.ICONS;
 var G='<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.2 5.5-4.7 7.2l7.3 5.7c4.3-4 6.7-9.9 6.7-17.4z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 010-9.4l-7.9-6.1a24 24 0 000 21.6l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.3-5.7c-2 1.4-4.9 2.3-8.6 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
 
 /* ---------- auth ---------- */
-function heroHtml(){return '<div class="auth-hero"><div class="brand"><span class="logo">'+LG()+'</span>'+esc(BN())+'</div><div><h2>'+t("authHead")+'</h2><p>'+t("authSub")+'</p><div class="mock" aria-hidden="true"><div class="mc m1"><em>HOOK</em><b></b><b class="s"></b></div><div class="mc m2"><em>HOOK</em><b></b><b class="s"></b></div><div class="mc m3"><em>HOOK</em><b></b><b class="s"></b></div></div></div><ul><li><i>✓</i>'+t("v1")+'</li><li><i>✓</i>'+t("v2")+'</li><li><i>✓</i>'+t("v3")+'</li></ul></div>'}
+function heroHtml(){return '<div class="auth-hero"><div class="brand">'+logoEl()+esc(BN())+'</div><div><h2>'+t("authHead")+'</h2><p>'+t("authSub")+'</p><div class="mock" aria-hidden="true"><div class="mc m1"><em>HOOK</em><b></b><b class="s"></b></div><div class="mc m2"><em>HOOK</em><b></b><b class="s"></b></div><div class="mc m3"><em>HOOK</em><b></b><b class="s"></b></div></div></div><ul><li><i>✓</i>'+t("v1")+'</li><li><i>✓</i>'+t("v2")+'</li><li><i>✓</i>'+t("v3")+'</li></ul></div>'}
 function authView(){
  var a=S.auth,h='<div class="auth">'+heroHtml()+'<div class="auth-form"><div class="auth-box">';
  if(a==="login"){
@@ -402,7 +440,7 @@ function mk(n){var o=[];for(var i=0;i<n;i++)o.push({id:i,title:t("clipN")+" "+(i
 function fmt(s){var m=Math.floor(s/60),x=s%60;return m+":"+(x<10?"0":"")+x}
 function nav(rail,pg){return pages().map(function(p){return '<button data-nav="'+esc(p.id)+'" style="--c:'+p.color+'"'+(pg.id===p.id?' aria-current="page"':'')+'>'+(rail?'<span class="ni">'+p.icon+'</span>':p.icon)+'<span>'+esc(p.title)+'</span></button>'}).join("")}
 function shell(body,pg){
- return '<div class="page" style="--c:'+pg.color+'"><header class="banner"><div class="brand"><span class="logo">'+LG()+'</span><span class="bname">'+esc(BN())+'</span></div><div class="btag">'+esc(TAG())+'</div></header>'+
+ return '<div class="page" style="--c:'+pg.color+'">'+(useBannerImg()?'<header class="banner imgbanner"><picture><source media="(max-width:700px)" srcset="assets/banner-1000.webp"><img src="assets/banner.webp" alt="Streamer Editor - AI editing for gaming streams" width="2000" height="667"></picture></header>':'<header class="banner"><div class="brand">'+logoEl()+'<span class="bname">'+esc(BN())+'</span></div><div class="btag">'+esc(TAG())+'</div></header>')+''+
  '<div class="pagehead"><span>'+pg.icon+esc(pg.title)+'</span></div>'+
  '<div class="shell"><aside class="rail card"><div class="rlab">'+t("menu")+'</div><nav class="nav">'+nav(true,pg)+'</nav><div class="racct"><span class="av">'+esc((S.session||"?")[0].toUpperCase())+'</span><span class="small muted" style="min-width:0;overflow:hidden;text-overflow:ellipsis">'+esc(S.session)+'</span></div></aside><main class="main">'+body+'</main></div></div><nav class="tab-bar">'+nav(false,pg)+'</nav>'}
 
@@ -607,7 +645,7 @@ function consumeOAuth(){var r=null;try{r=JSON.parse(sessionStorage.getItem("se_o
  return true}
 function flashHtml(){var f=S.flash;if(!f)return"";return f.ok?'<div class="alert-ok" role="status">✓ '+fmt2(t("oauthOk"),{n:esc(f.name)})+'</div>':'<div class="alert-red" role="alert">'+esc(f.msg)+'</div>'}
 function modalHtml(){var m=mcpById(S.authFor);if(!m)return"";var a=m.auth||"apikey",o=S.mcp[m.id]||{},oauth=a==="oauth"||a==="both",key=a==="apikey"||(a==="both"&&S.mKey);
- var h='<div class="modal" id="mback"><div class="mbox" role="dialog" aria-modal="true"><div class="mlogos"><span class="mlogo app">'+LG()+'</span><span class="mlink">⇄</span>'+logoHtml(m)+'</div><div style="text-align:center"><h2>'+t("authorize")+' '+esc(m.name)+'</h2><p class="muted" style="margin:6px 0 0">'+fmt2(t("wantsConnect"),{app:esc(BN()),n:esc(m.name)})+'</p>'+(L10(m.note)?'<p class="small" style="margin:8px 0 0;color:var(--ink)">'+esc(L10(m.note))+'</p>':'')+(safeUrl(m.mcpUrl)?'<div class="small muted" style="margin-top:8px;word-break:break-all">MCP: '+esc(m.mcpUrl)+'</div>':'')+'</div>';
+ var h='<div class="modal" id="mback"><div class="mbox" role="dialog" aria-modal="true"><div class="mlogos">'+(logoCustom()?'<span class="mlogo app">'+esc(logoCustom())+'</span>':'<img class="mlogo app-img" src="assets/logo.webp" alt="">')+'<span class="mlink">⇄</span>'+logoHtml(m)+'</div><div style="text-align:center"><h2>'+t("authorize")+' '+esc(m.name)+'</h2><p class="muted" style="margin:6px 0 0">'+fmt2(t("wantsConnect"),{app:esc(BN()),n:esc(m.name)})+'</p>'+(L10(m.note)?'<p class="small" style="margin:8px 0 0;color:var(--ink)">'+esc(L10(m.note))+'</p>':'')+(safeUrl(m.mcpUrl)?'<div class="small muted" style="margin-top:8px;word-break:break-all">MCP: '+esc(m.mcpUrl)+'</div>':'')+'</div>';
  var hasAuth=!!(safeUrl(m.mcpUrl)||safeUrl(m.authUrl));
  if(oauth){h+='<button class="btn dark block" id="m_auth">'+fmt2(t("authBy"),{n:esc(m.name)})+'</button>';
   h+=hasAuth?'<div class="small muted" style="text-align:center">'+fmt2(t("redirectNote"),{n:esc(m.name)})+(limitText(m)?'<br>'+t("freeBadge")+': '+esc(limitText(m)):'')+'</div>':'<div class="small" style="text-align:center;color:var(--bad)">'+t("noAuthUrl")+'</div>';
