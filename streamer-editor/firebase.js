@@ -42,6 +42,19 @@ if (cfg && !/^PASTE/.test(cfg.apiKey || "PASTE")) {
     // OAuth tokens live in a private doc that only the owner can read (admins cannot).
     saveToken: (id, t) => F.setDoc(F.doc(db, "users", auth.currentUser.uid, "private", "oauth"), { [id]: t }, { merge: true }),
     dropToken: (id) => F.setDoc(F.doc(db, "users", auth.currentUser.uid, "private", "oauth"), { [id]: F.deleteField() }, { merge: true }),
+    // Each user brings their own Anthropic key. The key doc is write-only from the app (rules deny reads); only the worker reads it.
+    saveAnthropic: async (k) => {
+      const p = (n) => F.doc(db, "users", auth.currentUser.uid, "private", n);
+      await F.setDoc(p("anthropic"), { key: k, savedAt: F.serverTimestamp() });
+      await F.setDoc(p("anthropicMeta"), { last4: k.slice(-4), verifiedAt: F.serverTimestamp() });
+    },
+    // Older versions stored a typed key inside the settings doc. Remove that copy once it has been moved.
+    dropOldKeys: () => F.updateDoc(F.doc(db, "users", auth.currentUser.uid), { "settings.keys": F.deleteField() }),
+    removeAnthropic: async () => {
+      const p = (n) => F.doc(db, "users", auth.currentUser.uid, "private", n);
+      await F.deleteDoc(p("anthropicMeta"));
+      await F.deleteDoc(p("anthropic"));
+    },
     logout: () => { if (unsub) unsub(); return A.signOut(auth); },
   };
   // Site settings (banner, pages, texts, MCP list) edited by the admin. Public read.
@@ -71,6 +84,8 @@ if (cfg && !/^PASTE/.test(cfg.apiKey || "PASTE")) {
     }
     let adm = false;
     if (u) { try { adm = (await F.getDoc(F.doc(db, "admins", u.uid))).exists(); } catch (_) {} }
-    window.SE_onUser && window.SE_onUser(u, s, adm);
+    let ai = { saved: false };
+    if (u) { try { const m = await F.getDoc(F.doc(db, "users", u.uid, "private", "anthropicMeta")); if (m.exists()) ai = { saved: true, last4: m.data().last4 || "" }; } catch (_) {} }
+    window.SE_onUser && window.SE_onUser(u, s, adm, ai);
   });
 }

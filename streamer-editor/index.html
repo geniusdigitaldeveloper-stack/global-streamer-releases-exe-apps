@@ -445,14 +445,14 @@ var L=window.SE_SHARED.L;
 var S={lang:"en",theme:"blue",users:{},last:"",session:"",view:"clips",mode:"short",gpre:"esports",gint:5,gfx:{shake:true,punch:true,glitch:false,flash:true,scan:false,grain:false,box:false,call:true},auth:"login",tmp:null,
  clips:[],shown:25,sel:{},cur:null,ratio:"16:9",fx:{bright:100,contrast:100,sat:100,warm:0,glow:0,vig:0},preset:"none",
  sfx:{whoosh:true,hit:true,riser:false,pop:false,bass:false,ping:true},opts:{duck:true,loud:true,hook:true,shake:false,trans:true,caps:true,silence:true},
- tab:"light",res:"1080p",fps:60,mcp:{},cal:[],usage:{},plat:{},post:{cap:"",when:"now"},postedM:3,keys:{anth:""},msg:""};
+ mot:{titleCard:true,lowerThird:true,hookBadge:true,killCallout:true,captions:true,progressBar:true,outro:true},tab:"light",res:"1080p",fps:60,mcp:{},cal:[],usage:{},plat:{},post:{cap:"",when:"now"},postedM:3,ai:{saved:false},aiEdit:false,msg:""};
 var KEY="se_v1";
 var FB_ON=!!(window.FIREBASE_CONFIG&&!/^PASTE/.test(window.FIREBASE_CONFIG.apiKey||"PASTE"));
 var FB=function(){return window.SE_FB};
 function load(){try{var d=JSON.parse(localStorage.getItem(KEY)||"{}");for(var k in d)S[k]=d[k];}catch(e){}}
 var saveT;
-function cloudSave(){if(!FB_ON||!S.session||!FB())return;clearTimeout(saveT);saveT=setTimeout(function(){FB().saveSettings({theme:S.theme,lang:S.lang,mcp:S.mcp,usage:S.usage,cal:S.cal,keys:S.keys,res:S.res,fps:S.fps}).catch(function(){})},600)}
-function save(){cloudSave();try{localStorage.setItem(KEY,JSON.stringify(FB_ON?{lang:S.lang,theme:S.theme,last:S.last}:{lang:S.lang,theme:S.theme,users:S.users,last:S.last,session:S.session,mcp:S.mcp,usage:S.usage,cal:S.cal,keys:S.keys,res:S.res,fps:S.fps}));}catch(e){}}
+function cloudSave(){if(!FB_ON||!S.session||!FB())return;clearTimeout(saveT);saveT=setTimeout(function(){FB().saveSettings({theme:S.theme,lang:S.lang,mcp:S.mcp,usage:S.usage,cal:S.cal,res:S.res,fps:S.fps}).catch(function(){})},600)}
+function save(){cloudSave();try{localStorage.setItem(KEY,JSON.stringify(FB_ON?{lang:S.lang,theme:S.theme,last:S.last}:{lang:S.lang,theme:S.theme,users:S.users,last:S.last,session:S.session,mcp:S.mcp,usage:S.usage,cal:S.cal,res:S.res,fps:S.fps}));}catch(e){}}
 var CFG=null;try{CFG=JSON.parse(localStorage.getItem("se_cfg")||"null")}catch(e){}
 function L10(o){return o?(o[S.lang]||o.en||""):""}
 function t(k){var o=CFG&&CFG.texts&&CFG.texts[S.lang]&&CFG.texts[S.lang][k];return o||(L[S.lang]&&L[S.lang][k])||L.en[k]||k}
@@ -623,7 +623,7 @@ function shell(body,pg){
  '<div class="shell"><aside class="rail card"><div class="rlab">'+t("menu")+'</div><nav class="nav">'+nav(true,pg)+'</nav><div class="racct"><span class="av">'+esc((S.session||"?")[0].toUpperCase())+'</span><span class="small muted" style="min-width:0;overflow:hidden;text-overflow:ellipsis">'+esc(S.session)+'</span></div><button class="btn logout block" data-logout>'+t("logout")+'</button></aside><main class="main">'+body+'</main></div></div><nav class="tab-bar">'+nav(false,pg)+'</nav>'}
 
 function clipsView(){
- var h='<div class="head"><h1>'+t("nClips")+'</h1></div><div class="card stack herocard"><div><h2 class="ht">'+t("heroT")+'</h2><div class="hs">'+t("heroS")+'</div></div><label class="f">'+t("src")+'<div class="row"><div class="holo grow" style="flex:1 1 220px"><input id="url" type="url" placeholder="https://www.youtube.com/live/..." value="https://www.youtube.com/live/demo-stream"></div><button class="btn primary" id="an">'+t("analyze")+'</button></div></label><div class="small muted">'+t("srcHint")+'</div><div class="bar" id="pbar" hidden><div></div></div><div class="small" id="jstat">'+esc(S.jobMsg||"")+'</div><div class="small muted">'+t("demo")+'</div></div><div class="card stack"><div class="seg"><button data-mode="short" aria-pressed="'+(S.mode==="short")+'">'+t("modeShort")+'</button><button data-mode="long" aria-pressed="'+(S.mode==="long")+'">'+t("modeLong")+'</button></div><div class="small muted">'+t(S.mode==="long"?"hintLong":"hintShort")+'</div></div>';
+ var h='<div class="head"><h1>'+t("nClips")+'</h1></div>'+(FB_ON&&S.session&&!(S.ai&&S.ai.saved)?'<div class="alert-red" role="alert">'+t("needKey")+' <a href="#" class="upg" data-gokey>'+t("openSettings")+' →</a></div>':'')+'<div class="card stack herocard"><div><h2 class="ht">'+t("heroT")+'</h2><div class="hs">'+t("heroS")+'</div></div><label class="f">'+t("src")+'<div class="row"><div class="holo grow" style="flex:1 1 220px"><input id="url" type="url" placeholder="https://www.youtube.com/live/..." value="https://www.youtube.com/live/demo-stream"></div><button class="btn primary" id="an">'+t("analyze")+'</button></div></label><div class="small muted">'+t("srcHint")+'</div><div class="bar" id="pbar" hidden><div></div></div><div class="small" id="jstat">'+esc(S.jobMsg||"")+'</div><div class="small muted">'+t("demo")+'</div></div><div class="card stack"><div class="seg"><button data-mode="short" aria-pressed="'+(S.mode==="short")+'">'+t("modeShort")+'</button><button data-mode="long" aria-pressed="'+(S.mode==="long")+'">'+t("modeLong")+'</button></div><div class="small muted">'+t(S.mode==="long"?"hintLong":"hintShort")+'</div></div>';
  if(!S.clips.length)return h+'<div class="card muted">'+t("none")+'</div>';
  var n=Object.keys(S.sel).length;
  h+='<div class="head"><h2>'+(S.mode==="long"?t("modeLong"):t("tplHead"))+' <span class="pill">'+t("sel")+': '+n+'</span></h2><button class="btn primary" id="toStudio"'+(S.cur===null?' disabled':'')+'>'+t("edit")+'</button></div><div class="grid5">';
@@ -636,12 +636,14 @@ function clipsView(){
 }
 function bindClips(){
  document.querySelectorAll("[data-mode]").forEach(function(b){b.onclick=function(){S.mode=b.dataset.mode;render()}});
+ var gk=$("[data-gokey]");if(gk)gk.onclick=function(e){e.preventDefault();S.view="settings";render()};
  var an=$("#an");if(an&&FB_ON&&FB())an.onclick=function(){
+  if(!(S.ai&&S.ai.saved)){S.jobMsg=t("jobNoKey");$("#jstat").textContent=S.jobMsg;return}
   an.disabled=true;an.textContent=t("analyzing")+"…";S.clips=[];S.sel={};S.cur=null;
   FB().startJob($("#url").value.trim(),S.mode,function(j){
    if(!j)return;
    var m={queued:"jobQueued",fetching_captions:"jobCaps",finding_hooks:"jobHooks",done:"jobDone",no_captions:"jobNoCaps"}[j.msg];
-   S.jobMsg=j.status==="error"?(j.msg==="no_captions"?t("jobNoCaps"):t("jobErr")):(m?t(m):"");
+   S.jobMsg=j.status==="error"?(j.msg==="no_captions"?t("jobNoCaps"):j.msg==="no_key"?t("jobNoKey"):t("jobErr")):(m?t(m):"");
    if(j.status==="done"){S.clips=j.clips||[];S.shown=25;S.cur=S.clips.length?0:null;if(!S.clips.length)S.jobMsg=t("jobNone")}
    if(S.view==="clips")render();
   }).catch(function(){S.jobMsg=t("jobErr");render()});
@@ -667,7 +669,7 @@ function studioView(){
  var r=RATIOS.filter(function(x){return x[0]===S.ratio})[0][1];
  var maxw=S.ratio==="9:16"?"min(100%,260px)":S.ratio==="4:5"?"min(100%,340px)":S.ratio==="1:1"?"min(100%,420px)":"100%";
  var h='<div class="head"><h1>'+t("nStudio")+'</h1><span class="pill">'+esc(c.title)+'</span></div><div class="studio"><div class="card stack"><h2>'+t("preview")+'</h2><div class="stage"><div class="screen'+gcls()+'" id="screen" style="aspect-ratio:'+r+';width:'+maxw+';--sh:'+S.gint*1.2+';--pz:'+S.gint*.02+'"><div class="fxw"><div class="pic" id="pic"></div><div id="glow" style="position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.55),transparent 60%);opacity:'+S.fx.glow/100+';pointer-events:none"></div></div><div class="ov flash"></div><div class="ov glitch"></div>'+(S.gfx.scan?'<div class="ov scan"></div>':'')+(S.gfx.grain?'<div class="ov grain"></div>':'')+(S.gfx.box?'<div class="ov box"></div>':'')+(S.gfx.call?'<div class="callout">CLUTCH</div>':'')+'<button class="play" id="play" aria-label="Play">▶</button>'+(S.opts.caps?'<div class="cap">This is <i>actually</i> the best play ما شاء الله</div>':'')+'</div></div><div><div class="small muted" style="margin-bottom:6px">'+t("ratio")+'</div><div class="seg">'+RATIOS.map(function(x){return '<button data-ratio="'+x[0]+'" aria-pressed="'+(S.ratio===x[0])+'">'+(x[0]==="1:1"?t("ratioSq")+' 1:1':x[0])+'</button>'}).join("")+'</div></div></div>';
- h+='<div class="card stack"><div class="tabs" role="tablist">'+[["light","tLight"],["color","tColor"],["sound","tSound"],["fx","tFx"],["exp","tExport"]].map(function(x){return '<button role="tab" data-tab="'+x[0]+'" aria-selected="'+(S.tab===x[0])+'">'+t(x[1])+'</button>'}).join("")+'</div>';
+ h+='<div class="card stack"><div class="tabs" role="tablist">'+[["light","tLight"],["color","tColor"],["sound","tSound"],["fx","tFx"],["motion","tMotion"],["exp","tExport"]].map(function(x){return '<button role="tab" data-tab="'+x[0]+'" aria-selected="'+(S.tab===x[0])+'">'+t(x[1])+'</button>'}).join("")+'</div>';
  if(S.tab==="light")h+=sl("bright","bright",50,150)+sl("contrast","contrast",50,150)+sl("glow","glow",0,100)+sl("vig","vig",0,100);
  if(S.tab==="color")h+=sl("sat","sat",0,200)+sl("warm","warm",-50,50)+'<div class="small muted">'+t("presets")+'</div><div class="seg">'+[["none","pNone"],["cine","pCine"],["vivid","pVivid"],["warm","pWarm"],["cool","pCool"],["bw","pBW"]].map(function(x){return '<button data-preset="'+x[0]+'" aria-pressed="'+(S.preset===x[0])+'">'+t(x[1])+'</button>'}).join("")+'</div>';
  if(S.tab==="sound"){h+='<div class="small muted">'+t("sfx")+'</div>';[["whoosh","Whoosh"],["hit","Impact hit"],["riser","Riser"],["pop","Pop"],["bass","Bass drop"],["ping","Hit marker ping"]].forEach(function(x){h+='<label class="chk"><input type="checkbox" data-sfx="'+x[0]+'"'+(S.sfx[x[0]]?' checked':'')+'>'+x[1]+'</label>'});
@@ -675,6 +677,9 @@ function studioView(){
  if(S.tab==="fx"){h+='<div class="small muted">'+t("fxPresets")+'</div><div class="seg">'+PRE.map(function(p){return '<button data-gpre="'+p[0]+'" aria-pressed="'+(S.gpre===p[0])+'">'+t(p[1])+'</button>'}).join("")+'</div>';
   GF.forEach(function(x){h+='<label class="chk"><input type="checkbox" data-gfx="'+x[0]+'"'+(S.gfx[x[0]]?' checked':'')+'>'+t(x[1])+'</label>'});
   h+='<div class="sl"><div class="top"><span>'+t("gInt")+'</span><span id="v_gint">'+S.gint+'</span></div><input type="range" min="1" max="10" value="'+S.gint+'" id="gint" aria-label="'+t("gInt")+'"></div><div class="small muted">'+t("fxHint")+'</div>'+optChk("trans","fxTrans")+optChk("caps","fxCaps")+optChk("silence","fxSilence");}
+ if(S.tab==="motion"){h+='<div class="small muted">'+t("mgHint")+'</div>';
+  ["titleCard","lowerThird","hookBadge","killCallout","captions","progressBar","outro"].forEach(function(k){h+='<label class="chk"><input type="checkbox" data-mot="'+k+'"'+(S.mot[k]?' checked':'')+'><span><b>'+t("mg_"+k)+'</b><br><span class="small muted">'+t("mgn_"+k)+'</span></span></label>'});
+  h+='<div class="small muted">'+t("mgSfx")+'</div>'}
  if(S.tab==="exp"){var n=Object.keys(S.sel).length||1;
   h+='<div class="two"><label class="f">'+t("res")+'<select id="res">'+["720p","1080p","1440p","4K"].map(function(x){return '<option'+(S.res===x?' selected':'')+'>'+x+'</option>'}).join("")+'</select></label><label class="f">'+t("fps")+'<select id="fps">'+[60,120,144,200,240,300].map(function(x){return '<option'+(S.fps===x?' selected':'')+'>'+x+'</option>'}).join("")+'</select></label></div><div class="small muted">'+t("fpsNote")+'</div><div class="bar" id="xbar"><div></div></div><div class="small" id="xmsg">&nbsp;</div><button class="btn primary" id="xp">'+t("exp")+' ('+n+')</button>';}
  return h+'</div></div>';
@@ -690,6 +695,7 @@ function bindStudio(){
  document.querySelectorAll("[data-tab]").forEach(function(b){b.onclick=function(){S.tab=b.dataset.tab;render()}});
  document.querySelectorAll("[data-fx]").forEach(function(i){i.oninput=function(){S.fx[i.dataset.fx]=+i.value;$("#v_"+i.dataset.fx).textContent=i.value;applyFx()}});
  document.querySelectorAll("[data-preset]").forEach(function(b){b.onclick=function(){S.preset=b.dataset.preset;render()}});
+ document.querySelectorAll("[data-mot]").forEach(function(i){i.onchange=function(){S.mot[i.dataset.mot]=i.checked}});
  document.querySelectorAll("[data-sfx]").forEach(function(i){i.onchange=function(){S.sfx[i.dataset.sfx]=i.checked}});
  document.querySelectorAll("[data-opt]").forEach(function(i){i.onchange=function(){S.opts[i.dataset.opt]=i.checked;if(i.dataset.opt==="caps")render()}});
  document.querySelectorAll("[data-gpre]").forEach(function(b){b.onclick=function(){var p=PRE.filter(function(x){return x[0]===b.dataset.gpre})[0];S.gpre=p[0];S.gint=p[3];S.gfx={};GF.forEach(function(x){S.gfx[x[0]]=!!p[2][x[0]]});render()}});
@@ -697,7 +703,7 @@ function bindStudio(){
  var gi=$("#gint");if(gi)gi.oninput=function(){S.gint=+gi.value;$("#v_gint").textContent=gi.value;var sc=$("#screen");sc.style.setProperty("--sh",S.gint*1.2);sc.style.setProperty("--pz",S.gint*.02)};
  var r=$("#res");if(r)r.onchange=function(){S.res=r.value;save()};
  var f=$("#fps");if(f)f.onchange=function(){S.fps=+f.value;save()};
- var xp=$("#xp");if(xp)xp.onclick=function(){var b=$("#xbar>div"),p=0;xp.disabled=true;$("#xmsg").textContent=t("exporting")+" · "+S.res+" · "+S.fps+" fps";var iv=setInterval(function(){p+=6+Math.random()*8;b.style.width=Math.min(p,100)+"%";if(p>=100){clearInterval(iv);$("#xmsg").textContent="✓ "+t("done");xp.disabled=false}},200)};
+ var xp=$("#xp");if(xp)xp.onclick=function(){$("#xmsg").textContent="✓ "+t("planSaved")};
 }
 
 var PLATS=[["youtube","YouTube Shorts"],["tiktok","TikTok"],["instagram","Instagram Reels"],["facebook","Facebook Reels"]];
@@ -770,7 +776,7 @@ function setView(){
  if(S.mcpPick)h+='<div class="pick">'+(left.length?left.map(function(m){return '<div class="conn"><div><b>'+esc(m.name)+'</b><div class="small muted">'+esc(L10(m.desc))+'</div></div><button class="btn" data-add="'+esc(m.id)+'">'+t("addBtn")+'</button></div>'}).join(""):'<div class="muted" style="margin-top:10px">'+t("noMcpLeft")+'</div>')+customForm()+'</div>';
  h+=added.length?added.map(mcpRow).join(""):(S.mcpPick?'':'<div class="muted" style="margin-top:10px">'+t("noMcpAdded")+'</div>');
  h+='</div>';
- if(S.isAdmin)h+='<div class="card stack"><h2>'+t("engine")+'</h2><div class="small muted">'+t("engineHint")+'</div><label class="f">'+t("anth")+'<input id="k_anth" type="password" autocomplete="off" value="'+esc(S.keys.anth)+'" placeholder="sk-ant-..."></label><button class="btn" id="ksave" style="justify-self:start">'+t("save")+'</button></div>';
+ h+=aiCard();
  h+='<div class="card row" style="justify-content:space-between"><div><div class="small muted">'+t("acct")+'</div><b>'+esc(S.session)+'</b><div class="small muted">'+t("storageNote")+'</div></div><button class="btn logout" id="out">'+t("logout")+'</button></div>';
  return h;
 }
@@ -848,6 +854,10 @@ function bindModal(){var m=mcpById(S.authFor);if(!m)return;
   S.mcp[m.id]=Object.assign({},S.mcp[m.id],{on:true,pending:false,mode:"key",key:k});save();
   cn.className="btn green block";cn.textContent="✓ "+t("connected");cn.disabled=true;
   setTimeout(function(){S.authFor=null;S.mKey=false;render()},900)}}
+function aiCard(){var a=S.ai||{saved:false},h='<div class="card stack"><h2>'+t("aiTitle")+'</h2><div class="small muted">'+t("aiIntro")+'</div>';
+ if(a.saved)h+='<div class="conn" style="align-items:center"><div><span class="pill ok solid">'+t("aiSaved")+'</span> <b>••••'+esc(a.last4||"")+'</b></div><div class="row" style="justify-content:flex-end"><button class="btn" id="ai_replace">'+t("aiReplace")+'</button><button class="btn logout" id="ai_remove">'+t("aiRemove")+'</button></div></div>';
+ if(!a.saved||S.aiEdit)h+='<label class="f">'+t("anth")+'<input id="ai_key" type="password" autocomplete="off" placeholder="sk-ant-..."></label><div class="err" id="ai_err" role="alert"></div><div class="row"><button class="btn dark" id="ai_save">'+t("aiSaveTest")+'</button><a class="small" href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">'+t("aiGet")+' ↗</a></div><div class="small muted">'+t("aiCost")+'</div>';
+ return h+'</div>'}
 function mcpRow(m){var o=S.mcp[m.id],id=esc(m.id);
  var pill=o.on?'<span class="pill ok solid">'+t("connected")+'</span>':(o.pending?'<span class="pill off">'+t("waiting")+'</span>':'<span class="pill off">—</span>');
  var sub=o.on&&o.mode==="oauth"?'<div class="small muted">'+t("freeBadge")+(limitText(m)?' · '+esc(limitText(m)):'')+'</div>':(o.on&&o.mode==="key"&&!o.custom?'<div class="small muted">'+t("paidBadge")+'</div>':'');
@@ -869,7 +879,15 @@ function bindSet(){
  document.querySelectorAll("[data-rm]").forEach(function(b){b.onclick=function(){delete S.mcp[b.dataset.rm];save();render()}});
  document.querySelectorAll("[data-conn]").forEach(function(b){b.onclick=function(){var o=S.mcp[b.dataset.conn];
   if(o.on){if(o.mode==="oauth"&&FB_ON&&FB()&&FB().dropToken)FB().dropToken(b.dataset.conn).catch(function(){});o.on=false;o.pending=false;save();render()}else{S.authFor=b.dataset.conn;S.mKey=false;render()}}});
- var ks=$("#ksave");if(ks)ks.onclick=function(){S.keys.anth=$("#k_anth").value;save();this.textContent="✓ "+t("saved")};
+ var rp=$("#ai_replace");if(rp)rp.onclick=function(){S.aiEdit=true;render()};
+ var rm=$("#ai_remove");if(rm)rm.onclick=function(){rm.disabled=true;FB().removeAnthropic().then(function(){S.ai={saved:false};S.aiEdit=false;render()}).catch(function(){rm.disabled=false})};
+ var sv=$("#ai_save");if(sv)sv.onclick=async function(){var k=($("#ai_key").value||"").trim(),er=$("#ai_err");er.textContent="";
+  if(!/^sk-ant-[\w-]{20,}$/.test(k)){er.textContent=t("aiBad");return}
+  sv.disabled=true;sv.textContent=t("aiTesting");
+  try{var r=await fetch("https://api.anthropic.com/v1/models",{headers:{"x-api-key":k,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"}});
+   if(r.status===401||r.status===403)throw new Error("bad");if(!r.ok)throw new Error("net");
+   await FB().saveAnthropic(k);S.ai={saved:true,last4:k.slice(-4)};S.aiEdit=false;render()}
+  catch(e){sv.disabled=false;sv.textContent=t("aiSaveTest");er.textContent=e&&e.message==="bad"?t("aiBad"):t("aiNet")}};
  var so=$("#out");if(so)so.onclick=doLogout;
 }
 
@@ -902,12 +920,25 @@ load();applyCfg();
 window.SE_onConfig=function(c){CFG=c||null;try{localStorage.setItem("se_cfg",JSON.stringify(CFG))}catch(e){}applyCfg();render()};
 if(FB_ON){S.session="";S.users={}}else if(S.session&&!S.users[S.session])S.session="";
 /* called by firebase.js when auth state changes */
-window.SE_onUser=function(u,cfg,adm){
-  S.isAdmin=!!adm;
+async function migrateOldKey(k){
+ k=String(k||"").trim();
+ try{
+  if(/^sk-ant-[\w-]{20,}$/.test(k)&&!(S.ai&&S.ai.saved)){
+   var r=await fetch("https://api.anthropic.com/v1/models",{headers:{"x-api-key":k,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"}});
+   if(r.ok){await FB().saveAnthropic(k);S.ai={saved:true,last4:k.slice(-4)}}
+   else if(r.status!==401&&r.status!==403)return; // network or server trouble: keep the old copy and try again next time
+  }
+  await FB().dropOldKeys();
+ }catch(e){return}
+ render();
+}
+window.SE_onUser=function(u,cfg,adm,ai){
+  S.isAdmin=!!adm;S.ai=ai||{saved:false};
+  if(cfg&&cfg.keys&&cfg.keys.anth)setTimeout(function(){migrateOldKey(cfg.keys.anth)},300);
   if(window.SE_pending)return;
   if(!u){S.session="";S.auth="login";render();return}
   window.SE_note="";
-  if(cfg){["theme","lang","mcp","usage","cal","keys","res","fps"].forEach(function(k){if(cfg[k]!==undefined)S[k]=cfg[k]})}
+  if(cfg){["theme","lang","mcp","usage","cal","res","fps"].forEach(function(k){if(cfg[k]!==undefined)S[k]=cfg[k]})}
   S.session=u.email;S.last=u.email;try{localStorage.setItem(KEY,JSON.stringify({lang:S.lang,theme:S.theme,last:S.last}))}catch(e){}
   if(S.auth!=="newpw"){if(consumeOAuth()){S.view="settings";render()}else enter()}
 };

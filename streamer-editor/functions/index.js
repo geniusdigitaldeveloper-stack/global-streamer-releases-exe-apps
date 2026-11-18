@@ -25,6 +25,9 @@ exports.createJob = onCall({ secrets: [GH_TOKEN] }, async (req) => {
   const recent = await jobs.where("createdAt", ">", since).count().get();
   if (recent.data().count >= (LIMITS[p.plan] || LIMITS.free)) throw new HttpsError("resource-exhausted", "Daily limit reached.");
 
+  // The user must have saved their own Anthropic key (the app only stores a small "meta" doc the browser can read).
+  const meta = await admin.firestore().doc(`users/${uid}/private/anthropicMeta`).get();
+  if (!meta.exists) throw new HttpsError("failed-precondition", "no_key");
   const ref = jobs.doc();
   await ref.set({ status: "queued", msg: "queued", url: u.href, mode, clips: [], createdAt: admin.firestore.FieldValue.serverTimestamp() });
 

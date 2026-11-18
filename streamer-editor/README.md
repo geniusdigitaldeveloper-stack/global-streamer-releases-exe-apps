@@ -23,7 +23,7 @@ Until the config is filled in, the app runs in local demo mode.
 Flow: app -> Cloud Function `createJob` -> GitHub Actions (`.github/workflows/streamer-editor-analyze.yml`) -> yt-dlp captions -> Claude -> Firestore `users/{uid}/jobs/{id}` -> app.
 Needs (all secrets, never in code):
 - Function secret `GH_DISPATCH_TOKEN` (`firebase functions:secrets:set GH_DISPATCH_TOKEN`): fine-grained GitHub token with Contents read/write on this repo.
-- Repo Actions secrets `ANTHROPIC_API_KEY` and `FIREBASE_SERVICE_ACCOUNT` (service account JSON of the Firebase project).
+- Repo Actions secret `FIREBASE_SERVICE_ACCOUNT` (service account JSON of the Firebase project). There is **no shared Anthropic key**: each user saves their own in Settings (stored at `users/{uid}/private/anthropic`, write-only from the app, read only by the worker).
 - Deploy: `firebase deploy --only functions,firestore:rules`. Limit is 10 jobs per user per day (`MAX_JOBS_PER_DAY`).
 Test the pure logic: `cd pipeline && node test.mjs`.
 Known limits: it reads YouTube captions, so a video with no captions gives no result. YouTube may block downloads from GitHub runners; if so, move the worker to a small server.
