@@ -445,7 +445,7 @@ var L=window.SE_SHARED.L;
 var S={lang:"en",theme:"blue",users:{},last:"",session:"",view:"clips",mode:"short",gpre:"esports",gint:5,gfx:{shake:true,punch:true,glitch:false,flash:true,scan:false,grain:false,box:false,call:true},auth:"login",tmp:null,
  clips:[],shown:25,sel:{},cur:null,ratio:"16:9",fx:{bright:100,contrast:100,sat:100,warm:0,glow:0,vig:0},preset:"none",
  sfx:{whoosh:true,hit:true,riser:false,pop:false,bass:false,ping:true},opts:{duck:true,loud:true,hook:true,shake:false,trans:true,caps:true,silence:true},
- tab:"light",res:"1080p",fps:60,mcp:{},cal:[],usage:{},plat:{},post:{cap:"",when:"now"},postedM:3,keys:{anth:"",hf:""},msg:""};
+ tab:"light",res:"1080p",fps:60,mcp:{},cal:[],usage:{},plat:{},post:{cap:"",when:"now"},postedM:3,keys:{anth:""},msg:""};
 var KEY="se_v1";
 var FB_ON=!!(window.FIREBASE_CONFIG&&!/^PASTE/.test(window.FIREBASE_CONFIG.apiKey||"PASTE"));
 var FB=function(){return window.SE_FB};
@@ -770,7 +770,7 @@ function setView(){
  if(S.mcpPick)h+='<div class="pick">'+(left.length?left.map(function(m){return '<div class="conn"><div><b>'+esc(m.name)+'</b><div class="small muted">'+esc(L10(m.desc))+'</div></div><button class="btn" data-add="'+esc(m.id)+'">'+t("addBtn")+'</button></div>'}).join(""):'<div class="muted" style="margin-top:10px">'+t("noMcpLeft")+'</div>')+customForm()+'</div>';
  h+=added.length?added.map(mcpRow).join(""):(S.mcpPick?'':'<div class="muted" style="margin-top:10px">'+t("noMcpAdded")+'</div>');
  h+='</div>';
- if(S.isAdmin)h+='<div class="card stack"><h2>'+t("engine")+'</h2><div class="small muted">'+t("engineHint")+'</div><label class="f">'+t("anth")+'<input id="k_anth" type="password" autocomplete="off" value="'+esc(S.keys.anth)+'" placeholder="sk-ant-..."></label><label class="f">'+t("hf")+'<input id="k_hf" type="url" value="'+esc(S.keys.hf)+'" placeholder="https://"></label><button class="btn" id="ksave" style="justify-self:start">'+t("save")+'</button></div>';
+ if(S.isAdmin)h+='<div class="card stack"><h2>'+t("engine")+'</h2><div class="small muted">'+t("engineHint")+'</div><label class="f">'+t("anth")+'<input id="k_anth" type="password" autocomplete="off" value="'+esc(S.keys.anth)+'" placeholder="sk-ant-..."></label><button class="btn" id="ksave" style="justify-self:start">'+t("save")+'</button></div>';
  h+='<div class="card row" style="justify-content:space-between"><div><div class="small muted">'+t("acct")+'</div><b>'+esc(S.session)+'</b><div class="small muted">'+t("storageNote")+'</div></div><button class="btn logout" id="out">'+t("logout")+'</button></div>';
  return h;
 }
@@ -869,7 +869,7 @@ function bindSet(){
  document.querySelectorAll("[data-rm]").forEach(function(b){b.onclick=function(){delete S.mcp[b.dataset.rm];save();render()}});
  document.querySelectorAll("[data-conn]").forEach(function(b){b.onclick=function(){var o=S.mcp[b.dataset.conn];
   if(o.on){if(o.mode==="oauth"&&FB_ON&&FB()&&FB().dropToken)FB().dropToken(b.dataset.conn).catch(function(){});o.on=false;o.pending=false;save();render()}else{S.authFor=b.dataset.conn;S.mKey=false;render()}}});
- var ks=$("#ksave");if(ks)ks.onclick=function(){S.keys.anth=$("#k_anth").value;S.keys.hf=$("#k_hf").value;save();this.textContent="✓ "+t("saved")};
+ var ks=$("#ksave");if(ks)ks.onclick=function(){S.keys.anth=$("#k_anth").value;save();this.textContent="✓ "+t("saved")};
  var so=$("#out");if(so)so.onclick=doLogout;
 }
 
