@@ -445,14 +445,14 @@ var L=window.SE_SHARED.L;
 var S={lang:"en",theme:"blue",users:{},last:"",session:"",view:"clips",mode:"short",gpre:"esports",gint:5,gfx:{shake:true,punch:true,glitch:false,flash:true,scan:false,grain:false,box:false,call:true},auth:"login",tmp:null,
  clips:[],shown:25,sel:{},cur:null,ratio:"16:9",fx:{bright:100,contrast:100,sat:100,warm:0,glow:0,vig:0},preset:"none",
  sfx:{whoosh:true,hit:true,riser:false,pop:false,bass:false,ping:true},opts:{duck:true,loud:true,hook:true,shake:false,trans:true,caps:true,silence:true},
- mot:{titleCard:true,lowerThird:true,hookBadge:true,killCallout:true,captions:true,progressBar:true,outro:true},tab:"light",res:"1080p",fps:60,mcp:{},cal:[],usage:{},plat:{},post:{cap:"",when:"now"},postedM:3,ai:{saved:false},aiEdit:false,msg:""};
+ mot:{titleCard:true,lowerThird:true,hookBadge:true,killCallout:true,captions:true,progressBar:true,outro:true},tab:"light",res:"1080p",fps:60,fmt:"mp4",mcp:{},cal:[],usage:{},plat:{},post:{cap:"",when:"now"},postedM:3,ai:{saved:false},aiEdit:false,msg:""};
 var KEY="se_v1";
 var FB_ON=!!(window.FIREBASE_CONFIG&&!/^PASTE/.test(window.FIREBASE_CONFIG.apiKey||"PASTE"));
 var FB=function(){return window.SE_FB};
 function load(){try{var d=JSON.parse(localStorage.getItem(KEY)||"{}");for(var k in d)S[k]=d[k];}catch(e){}}
 var saveT;
-function cloudSave(){if(!FB_ON||!S.session||!FB())return;clearTimeout(saveT);saveT=setTimeout(function(){FB().saveSettings({theme:S.theme,lang:S.lang,mcp:S.mcp,usage:S.usage,cal:S.cal,res:S.res,fps:S.fps}).catch(function(){})},600)}
-function save(){cloudSave();try{localStorage.setItem(KEY,JSON.stringify(FB_ON?{lang:S.lang,theme:S.theme,last:S.last}:{lang:S.lang,theme:S.theme,users:S.users,last:S.last,session:S.session,mcp:S.mcp,usage:S.usage,cal:S.cal,res:S.res,fps:S.fps}));}catch(e){}}
+function cloudSave(){if(!FB_ON||!S.session||!FB())return;clearTimeout(saveT);saveT=setTimeout(function(){FB().saveSettings({theme:S.theme,lang:S.lang,mcp:S.mcp,usage:S.usage,cal:S.cal,res:S.res,fps:S.fps,fmt:S.fmt}).catch(function(){})},600)}
+function save(){cloudSave();try{localStorage.setItem(KEY,JSON.stringify(FB_ON?{lang:S.lang,theme:S.theme,last:S.last}:{lang:S.lang,theme:S.theme,users:S.users,last:S.last,session:S.session,mcp:S.mcp,usage:S.usage,cal:S.cal,res:S.res,fps:S.fps,fmt:S.fmt}));}catch(e){}}
 var CFG=null;try{CFG=JSON.parse(localStorage.getItem("se_cfg")||"null")}catch(e){}
 function L10(o){return o?(o[S.lang]||o.en||""):""}
 function t(k){var o=CFG&&CFG.texts&&CFG.texts[S.lang]&&CFG.texts[S.lang][k];return o||(L[S.lang]&&L[S.lang][k])||L.en[k]||k}
@@ -681,7 +681,8 @@ function studioView(){
   ["titleCard","lowerThird","hookBadge","killCallout","captions","progressBar","outro"].forEach(function(k){h+='<label class="chk"><input type="checkbox" data-mot="'+k+'"'+(S.mot[k]?' checked':'')+'><span><b>'+t("mg_"+k)+'</b><br><span class="small muted">'+t("mgn_"+k)+'</span></span></label>'});
   h+='<div class="small muted">'+t("mgSfx")+'</div>'}
  if(S.tab==="exp"){var n=Object.keys(S.sel).length||1;
-  h+='<div class="two"><label class="f">'+t("res")+'<select id="res">'+["720p","1080p","1440p","4K"].map(function(x){return '<option'+(S.res===x?' selected':'')+'>'+x+'</option>'}).join("")+'</select></label><label class="f">'+t("fps")+'<select id="fps">'+[60,120,144,200,240,300].map(function(x){return '<option'+(S.fps===x?' selected':'')+'>'+x+'</option>'}).join("")+'</select></label></div><div class="small muted">'+t("fpsNote")+'</div><div class="bar" id="xbar"><div></div></div><div class="small" id="xmsg">&nbsp;</div><button class="btn primary" id="xp">'+t("exp")+' ('+n+')</button>';}
+  var RES=[["1080p","1080p (Full HD)"],["1440p","2K (1440p)"],["4k","4K (2160p)"]],FPS=[30,60,90,120,144,165,200];
+  h+='<div class="two"><label class="f">'+t("fmt")+'<select id="fmt"><option value="mp4"'+(S.fmt==="mp4"?' selected':'')+'>MP4</option><option value="mov"'+(S.fmt==="mov"?' selected':'')+'>MOV</option></select></label><label class="f">'+t("res")+'<select id="res">'+RES.map(function(x){return '<option value="'+x[0]+'"'+(S.res===x[0]?' selected':'')+'>'+x[1]+'</option>'}).join("")+'</select></label></div><div class="two"><label class="f">'+t("fps")+' (30 – 200)<select id="fps">'+FPS.map(function(x){return '<option'+(S.fps===x?' selected':'')+'>'+x+'</option>'}).join("")+'</select></label><span></span></div><div class="small muted">'+t("fpsNote")+'</div><div class="bar" id="xbar"><div></div></div><div class="small" id="xmsg">&nbsp;</div><button class="btn primary" id="xp">'+t("exp")+' ('+n+')</button>';}
  return h+'</div></div>';
 }
 var GF=[["shake","gShake"],["punch","gPunch"],["flash","gFlash"],["glitch","gGlitch"],["scan","gScan"],["grain","gGrain"],["box","gBox"],["call","gCall"]];
@@ -702,7 +703,7 @@ function bindStudio(){
  document.querySelectorAll("[data-gfx]").forEach(function(i){i.onchange=function(){S.gfx[i.dataset.gfx]=i.checked;S.gpre="";render()}});
  var gi=$("#gint");if(gi)gi.oninput=function(){S.gint=+gi.value;$("#v_gint").textContent=gi.value;var sc=$("#screen");sc.style.setProperty("--sh",S.gint*1.2);sc.style.setProperty("--pz",S.gint*.02)};
  var r=$("#res");if(r)r.onchange=function(){S.res=r.value;save()};
- var f=$("#fps");if(f)f.onchange=function(){S.fps=+f.value;save()};
+ var f=$("#fps");if(f)f.onchange=function(){S.fps=+f.value;save()};var fm=$("#fmt");if(fm)fm.onchange=function(){S.fmt=fm.value;save()};
  var xp=$("#xp");if(xp)xp.onclick=function(){$("#xmsg").textContent="✓ "+t("planSaved")};
 }
 
@@ -938,7 +939,7 @@ window.SE_onUser=function(u,cfg,adm,ai){
   if(window.SE_pending)return;
   if(!u){S.session="";S.auth="login";render();return}
   window.SE_note="";
-  if(cfg){["theme","lang","mcp","usage","cal","res","fps"].forEach(function(k){if(cfg[k]!==undefined)S[k]=cfg[k]})}
+  if(cfg){["theme","lang","mcp","usage","cal","res","fps","fmt"].forEach(function(k){if(cfg[k]!==undefined)S[k]=cfg[k]});S.res=({"720p":"1080p","1080p":"1080p","1440p":"1440p","2k":"1440p","4K":"4k","4k":"4k"})[S.res]||"1080p";S.fps=Math.min(200,Math.max(30,Math.round(+S.fps||60)));S.fmt=S.fmt==="mov"?"mov":"mp4"}
   S.session=u.email;S.last=u.email;try{localStorage.setItem(KEY,JSON.stringify({lang:S.lang,theme:S.theme,last:S.last}))}catch(e){}
   if(S.auth!=="newpw"){if(consumeOAuth()){S.view="settings";render()}else enter()}
 };

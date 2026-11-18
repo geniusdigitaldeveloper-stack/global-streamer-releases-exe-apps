@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { planExport, clampFps, normRes } from "./plan.mjs";
 import { buildComposition, dims, groupWords, isArabic, TEMPLATES } from "./compose.mjs";
 
 // sizes for every aspect/resolution the app offers
@@ -31,4 +32,17 @@ assert.ok(c.html.includes("assets/sfx/hit.wav") && c.html.includes("assets/sfx/p
 assert.equal(buildComposition(edl).html, c.html, "deterministic");
 assert.ok(!/Math\.random|Date\.now/.test(c.html), "no non-deterministic code");
 assert.ok(TEMPLATES.motion.length >= 7 && TEMPLATES.effects.length >= 5);
+
+// export rules
+assert.equal(clampFps(10), 30); assert.equal(clampFps(999), 200); assert.equal(clampFps("60"), 60);
+assert.equal(normRes("720p"), "1080p", "never below 1080p"); assert.equal(normRes("2K"), "1440p"); assert.equal(normRes("UHD"), "4k");
+let p = planExport({ res: "4k", fps: 60, duration: 30 });
+assert.equal(p.used, "4k"); assert.equal(p.fellBack, false); // 1800 frames ~ 11 min
+p = planExport({ res: "4k", fps: 200, duration: 60 });
+assert.equal(p.used, "1080p"); assert.ok(p.fellBack && p.note.includes("instead")); // too heavy even for 2K
+p = planExport({ res: "4k", fps: 200, duration: 30 }); // 4K ~36 min, 2K ~20 min
+assert.equal(p.used, "1440p", "falls back 4K -> 2K first");
+p = planExport({ res: "1080p", fps: 200, duration: 600 });
+assert.equal(p.used, "1080p"); assert.ok(p.overBudget, "1080p is the floor: flagged, not lowered");
+assert.equal(planExport({ format: "MOV" }).format, "mov"); assert.equal(planExport({ format: "avi" }).format, "mp4");
 console.log("render compose tests ok");
