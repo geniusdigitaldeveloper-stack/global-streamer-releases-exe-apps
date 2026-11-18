@@ -18,3 +18,11 @@ node worker/edit.mjs --video rec.mp4 --transcript rec.srt --out out --mode short
 - Only the file name travels. The video stays on your computer, and the worker only reads files inside the inbox.
 - Google-only accounts: use "Set password" in the app first.
 - Not yet tested against the live Firestore with a real account.
+
+## Easy install for users
+1. Download this folder (GitHub: Code > Download ZIP) and unzip it.
+2. Run once: Windows `worker/setup.ps1` (right-click, Run with PowerShell), Mac/Linux `./worker/setup.sh`. It installs Node 22, FFmpeg and whisper.cpp with its speech model.
+3. Run `worker/start.ps1` or `./worker/start.sh`. Enter the app email and password. Recordings go in `~/StreamerEditor/inbox`, clips come out in `~/StreamerEditor/out`.
+4. Choose the AI engine: Claude Code signed in to your Claude account, or set `ANTHROPIC_API_KEY` before starting.
+- Untested: the Windows scripts and the Mac path (written for winget/Homebrew, run here only as a Linux syntax check).
+- With whisper.cpp and its model, edit.mjs transcribes the recording itself, so no .srt file is needed.
