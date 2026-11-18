@@ -190,6 +190,7 @@ textarea.input{resize:vertical;min-height:80px}
 .recent .rec{min-width:0}
 .rec .t,.who div{min-width:0}
 .kpis{grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr))}
+.me .btn{background:#DC2626;border-color:#DC2626;color:#fff;font-weight:600}.me .btn:hover{background:#B91C1C;border-color:#B91C1C;color:#fff}
 </style>
 </head>
 <body>
@@ -321,7 +322,7 @@ function setView(v) {
   view = v; history.replaceState(null, "", "#" + v);
   for (const k in VIEWS) { const el = $("v-" + k); el.hidden = k !== v; el.style.display = k === v ? "grid" : "none"; }
   $("title").textContent = VIEWS[v];
-  nav(); window.scrollTo(0, 0);
+  nav();
 }
 
 /* drawing */
